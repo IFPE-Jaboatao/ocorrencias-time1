@@ -81,7 +81,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL:  ${VITE_API_URL:-https://api-ocorrencias1.lab7.cloud} 
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api-ocorrencias1.lab7.cloud}
     container_name: app-frontend
     restart: unless-stopped
     networks:
@@ -93,7 +93,7 @@ services:
       - "traefik.http.routers.frontend.rule=Host(`ocorrencias1.lab7.cloud`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
 volumes:
   mysql_data:
