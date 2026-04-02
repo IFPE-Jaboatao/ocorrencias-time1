@@ -21,7 +21,7 @@ services:
       PMA_HOST: mysql
     networks:
       - app-network
-      - proxy
+      - dokploy-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.phpmyadmin.rule=Host(`db-ocorrencias1.lab7.cloud`)"
@@ -43,7 +43,7 @@ services:
       DB_PASSWORD: ${MYSQL_PASSWORD:-ocorrencias}
     networks:
       - app-network
-      - proxy
+      - dokploy-network
     depends_on:
       - mysql
     labels:
@@ -62,7 +62,7 @@ services:
     container_name: app-frontend
     restart: unless-stopped
     networks:
-      - proxy
+      - dokploy-network
     depends_on:
       - backend
     labels:
@@ -77,4 +77,6 @@ volumes:
 
 networks:
   app-network:
-  proxy:
+    driver: bridge
+  dokploy-network:
+    external: true
