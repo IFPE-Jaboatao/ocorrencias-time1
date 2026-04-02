@@ -1,3 +1,9 @@
 # Editor / Clojure LSP caches (created even in non-Clojure workspaces if the extension runs)
 .clj-kondo/
 .lsp/
+
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
