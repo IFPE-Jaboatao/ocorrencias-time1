@@ -55,6 +55,7 @@ services:
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile
     container_name: app-backend
     restart: unless-stopped
     environment:
@@ -78,6 +79,7 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
       args:
         VITE_API_URL:  ${VITE_API_URL:-https://api-ocorrencias1.lab7.cloud} 
     container_name: app-frontend
