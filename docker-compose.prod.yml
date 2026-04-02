@@ -11,7 +11,9 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - app-network
+      - dokploy-network
+    expose:
+      - "3306"
 
   phpmyadmin:
     image: phpmyadmin:5-apache
@@ -19,8 +21,9 @@ services:
     restart: unless-stopped
     environment:
       PMA_HOST: mysql
+    depends_on:
+      - mysql
     networks:
-      - app-network
       - dokploy-network
     expose:
       - "80"
@@ -38,7 +41,6 @@ services:
       DB_USER: ${MYSQL_USER:-ocorrencias}
       DB_PASSWORD: ${MYSQL_PASSWORD:-ocorrencias}
     networks:
-      - app-network
       - dokploy-network
     depends_on:
       - mysql
@@ -63,7 +65,5 @@ volumes:
   mysql_data:
 
 networks:
-  app-network:
-    driver: bridge
   dokploy-network:
     external: true
