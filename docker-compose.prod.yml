@@ -22,6 +22,9 @@ services:
     networks:
       - app-network
       - dokploy-network
+    expose:
+      - "80"
+
   backend:
     build:
       context: ./backend
@@ -39,6 +42,8 @@ services:
       - dokploy-network
     depends_on:
       - mysql
+    expose:
+      - "3000"
 
   frontend:
     build:
@@ -52,6 +57,8 @@ services:
       - dokploy-network
     depends_on:
       - backend
+    expose:
+      - "3000"
 volumes:
   mysql_data:
 
