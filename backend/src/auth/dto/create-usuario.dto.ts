@@ -1,8 +1,15 @@
-import { Tipo } from '../enums/funcao-usuario.enum';
+import { Funcao } from '../enums/funcao-usuario.enum';
 
-export class CreateUsuarioDto {
+export class RegisterDto {
   login: string;
   senha: string;
   email: string;
-  tipo: Tipo;
+  funcao: Funcao;
+
+  // Campos opcionais dependendo do tipo
+  nome?: string; // Para Aluno e Responsável
+  turma?: string; // Para Aluno
+  cpf?: string; // Para Responsável
+  telefone?: string; // Para Responsável
+  alunoIds?: number[]; // Para vincular alunos ao Responsável
 }
