@@ -1,4 +1,4 @@
-import { Tipo } from '../enums/tipo-usuario.enum';
+import { Tipo } from '../enums/funcao-usuario.enum';
 
 export class CreateUsuarioDto {
   login: string;
