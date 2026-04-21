@@ -1,7 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 
 import { Responsavel } from 'src/responsavel/responsavel.entity';
-import { Usuario } from 'src/usuario/usuario.entity';
+import { Usuario } from 'src/auth/usuario.entity';
 
 @Entity()
 export class Aluno {
@@ -20,9 +27,10 @@ export class Aluno {
   @Column({ nullable: false })
   turma: string;
 
-  @ManyToOne(() => Usuario)
+  @OneToOne(() => Usuario)
+  @JoinColumn()
   usuario: Usuario;
 
-  @ManyToOne(() => Responsavel, (res) => res.alunos)
+  @ManyToOne(() => Responsavel, (res) => res.alunos, { nullable: true })
   responsavel: Responsavel;
 }
