@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 
 import { Ocorrencia } from 'src/ocorrencia/ocorrencia.entity';
-import { Usuario } from 'src/usuario/usuario.entity';
+import { Usuario } from 'src/auth/usuario.entity';
 
 @Entity()
 export class Comentario {

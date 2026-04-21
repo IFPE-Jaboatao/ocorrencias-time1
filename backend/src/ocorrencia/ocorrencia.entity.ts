@@ -9,7 +9,7 @@ import {
 import { Aluno } from 'src/aluno/aluno.entity';
 import { Comentario } from 'src/comentario/comentario.entity';
 import { Evidencia } from 'src/evidencia/evidencia.entity';
-import { Usuario } from 'src/usuario/usuario.entity';
+import { Usuario } from 'src/auth/usuario.entity';
 
 @Entity()
 export class Ocorrencia {
