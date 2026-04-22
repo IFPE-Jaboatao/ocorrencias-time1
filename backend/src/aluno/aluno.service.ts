@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Aluno } from './aluno.entity';
@@ -19,8 +23,16 @@ export class AlunoService {
   }
 
   async create(aluno: Partial<Aluno>): Promise<Aluno> {
-    const newAluno = this.alunoRepository.create(aluno);
-    return this.alunoRepository.save(newAluno);
+    try {
+      const newAluno = this.alunoRepository.create(aluno);
+      return await this.alunoRepository.save(newAluno);
+    } catch (error) {
+      if ((error as any).code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('Aluno já existe');
+      }
+
+      throw new BadRequestException('Erro ao criar aluno');
+    }
   }
 
   async update(aluno: Partial<Aluno>): Promise<Aluno | null> {

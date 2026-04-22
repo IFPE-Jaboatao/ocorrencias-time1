@@ -1,27 +1,26 @@
-import { Tipo } from 'src/usuario/enums/tipo-usuario.enum';
-
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Funcao } from './enums/funcao-usuario.enum';
 
 @Entity()
 export class Usuario {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   login: string;
 
   @Column({ nullable: false })
   senha: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   email: string;
 
   @Column({
     type: 'enum',
-    enum: Tipo,
+    enum: Funcao,
     nullable: false,
   })
-  tipo: Tipo;
+  funcao: Funcao;
 
   @Column({ default: false })
   status: boolean; // Ativo/Inativo

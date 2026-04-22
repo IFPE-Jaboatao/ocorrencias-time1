@@ -6,5 +6,6 @@ import { Aluno } from './aluno.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Aluno])],
   providers: [AlunoService],
+  exports: [AlunoService],
 })
 export class AlunoModule {}

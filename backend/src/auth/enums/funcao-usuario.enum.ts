@@ -1,4 +1,4 @@
-export enum Tipo {
+export enum Funcao {
   ADMIN = 'admin',
   PROFESSOR = 'professor',
   ALUNO = 'aluno',

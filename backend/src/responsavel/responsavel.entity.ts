@@ -2,13 +2,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
-  ManyToOne,
+  OneToOne,
+  ManyToMany,
+  JoinColumn,
 } from 'typeorm';
 
 import { Aluno } from 'src/aluno/aluno.entity';
-import { Usuario } from 'src/usuario/usuario.entity';
-
+import { Usuario } from 'src/auth/usuario.entity';
 @Entity()
 export class Responsavel {
   @PrimaryGeneratedColumn()
@@ -26,9 +26,10 @@ export class Responsavel {
   @Column({ nullable: false })
   cpf: string;
 
-  @ManyToOne(() => Usuario)
+  @OneToOne(() => Usuario)
+  @JoinColumn()
   usuario: Usuario;
 
-  @OneToMany(() => Aluno, (aluno) => aluno.responsavel)
+  @ManyToMany(() => Aluno, (aluno) => aluno.responsaveis)
   alunos: Aluno[];
 }
