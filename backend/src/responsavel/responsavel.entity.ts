@@ -2,8 +2,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   OneToOne,
+  ManyToMany,
+  JoinColumn,
 } from 'typeorm';
 
 import { Aluno } from 'src/aluno/aluno.entity';
@@ -26,8 +27,9 @@ export class Responsavel {
   cpf: string;
 
   @OneToOne(() => Usuario)
+  @JoinColumn()
   usuario: Usuario;
 
-  @OneToMany(() => Aluno, (aluno) => aluno.responsavel)
+  @ManyToMany(() => Aluno, (aluno) => aluno.responsaveis)
   alunos: Aluno[];
 }
