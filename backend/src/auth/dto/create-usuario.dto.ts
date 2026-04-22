@@ -11,5 +11,4 @@ export class RegisterDto {
   turma?: string; // Para Aluno
   cpf?: string; // Para Responsável
   telefone?: string; // Para Responsável
-  alunoIds?: number[]; // Para vincular alunos ao Responsável
 }

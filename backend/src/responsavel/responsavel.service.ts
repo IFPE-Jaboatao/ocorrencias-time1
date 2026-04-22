@@ -62,26 +62,14 @@ export class ResponsavelService {
     }
   }
 
-  async create(
-    data: Partial<Responsavel>,
-    alunoIds: number[],
-  ): Promise<Responsavel> {
+  async create(data: Partial<Responsavel>): Promise<Responsavel> {
     try {
-      let alunos = [];
-
-      if (alunoIds && alunoIds.length > 0) {
-        alunos = await this.alunoRepository.findBy({
-          id: In(alunoIds),
-        });
-      }
-
       const newResponsavel = this.responsavelRepository.create({
         nome: data.nome,
         email: data.email,
         telefone: data.telefone,
         cpf: data.cpf,
         usuario: data.usuario,
-        alunos: alunos,
       });
 
       const save = await this.responsavelRepository.save(newResponsavel);

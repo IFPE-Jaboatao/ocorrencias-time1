@@ -50,16 +50,13 @@ export class AuthController {
         usuario: novoUsuario,
       });
     } else if (body.funcao === Funcao.RESPONSAVEL) {
-      await this.responsavelService.create(
-        {
-          nome: body.nome || body.login,
-          email: body.email,
-          telefone: body.telefone,
-          cpf: body.cpf,
-          usuario: novoUsuario,
-        },
-        body.alunoIds || [],
-      );
+      await this.responsavelService.create({
+        nome: body.nome || body.login,
+        email: body.email,
+        telefone: body.telefone,
+        cpf: body.cpf,
+        usuario: novoUsuario,
+      });
     }
 
     return {
