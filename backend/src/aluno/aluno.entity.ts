@@ -2,9 +2,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   OneToOne,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 import { Responsavel } from 'src/responsavel/responsavel.entity';
@@ -31,6 +32,17 @@ export class Aluno {
   @JoinColumn()
   usuario: Usuario;
 
-  @ManyToOne(() => Responsavel, (res) => res.alunos, { nullable: true })
-  responsavel: Responsavel;
+  @ManyToMany(() => Responsavel, (res) => res.alunos)
+  @JoinTable({
+    name: 'aluno_responsavel', // nome da tabela intermediária
+    joinColumn: {
+      name: 'aluno_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'responsavel_id',
+      referencedColumnName: 'id',
+    },
+  }) // cria a tabela intermediária automaticamente
+  responsaveis: Responsavel[];
 }
