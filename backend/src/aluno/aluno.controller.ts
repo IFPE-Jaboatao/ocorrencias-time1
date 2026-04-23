@@ -1,19 +1,19 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { OcorrenciaService } from '../ocorrencia/ocorrencia.service';
 
-// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-// import { RolesGuard } from '../auth/guards/roles.guard';
-// import { Roles } from '../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { FuncoesGuard } from '../auth/funcoes.guard';
+import { Funcoes } from '../auth/funcoes.decorator';
 
 @Controller('aluno')
 export class AlunoController {
   constructor(private readonly ocorrenciaService: OcorrenciaService) {}
 
   @Get('ocorrencias')
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles('ALUNO')
+  @UseGuards(JwtAuthGuard, FuncoesGuard)
+  @Funcoes('ALUNO')
   async listarMinhasOcorrencias(@Req() req: any) {
-    const alunoId = 1;
+    const alunoId = req.user.id;
     return this.ocorrenciaService.findAllByAluno(alunoId);
   }
 }
