@@ -11,17 +11,23 @@ export class OcorrenciaService {
   ) {}
 
   async findAll(): Promise<Ocorrencia[]> {
-    return this.occurrenceRepository.find();
+    return this.occurrenceRepository.find({
+      relations: ['aluno', 'autor', 'evidencias', 'comentarios'],
+    });
   }
 
   async findAllByAluno(alunoId: number): Promise<Ocorrencia[]> {
     return this.occurrenceRepository.find({
       where: { aluno: { id: alunoId } },
+      relations: ['aluno', 'autor', 'evidencias', 'comentarios'],
     });
   }
 
   async findOne(id: number): Promise<Ocorrencia | null> {
-    return this.occurrenceRepository.findOneBy({ id });
+    return this.occurrenceRepository.findOne({
+      where: { id },
+      relations: ['aluno', 'autor', 'evidencias', 'comentarios'],
+    });
   }
 
   async create(ocorrencia: Partial<Ocorrencia>): Promise<Ocorrencia> {
