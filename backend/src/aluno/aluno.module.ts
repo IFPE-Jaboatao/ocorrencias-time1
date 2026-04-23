@@ -6,10 +6,9 @@ import { Aluno } from './aluno.entity';
 import { AlunoController } from './aluno.controller';
 import { OcorrenciaModule } from '../ocorrencia/ocorrencia.module';
 @Module({
-  imports: [TypeOrmModule.forFeature([Aluno])],
+  imports: [TypeOrmModule.forFeature([Aluno]), OcorrenciaModule],
   controllers: [AlunoController],
   providers: [AlunoService],
   exports: [AlunoService],
-  modules: [OcorrenciaModule],
 })
 export class AlunoModule {}
