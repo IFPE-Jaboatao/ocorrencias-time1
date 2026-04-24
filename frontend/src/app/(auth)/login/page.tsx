@@ -38,12 +38,13 @@ export default function LoginPage() {
 </div>
       <Card className="max-w-md w-full shadow-2xl border-none backdrop-blur-md bg-white rounded-md z-10">      
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Login</h1>
+          <h1 className="text-3xl font-bold text-gray-500">Login</h1>
           <p className="text-gray-500 text-sm">Acesse sua conta</p>
         </div>
         <form className="flex flex-col gap-4 " >         
          <div>
-            <Label htmlFor="email" value="Email" className="text-gray-600" />
+            <label htmlFor="email" className="text-gray-600">Email</label>
+            
             <TextInput 
               id="email" 
               type="email" 
@@ -54,7 +55,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <Label htmlFor="password" value="Senha" className="text-gray-600" />
+            <label htmlFor="password" className="text-gray-600">Senha</label>
             <TextInput 
               id="password" 
               type="password" 
