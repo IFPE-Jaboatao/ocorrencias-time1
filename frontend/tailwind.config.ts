@@ -3,13 +3,13 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "node_modules/flowbite-react/lib/esm/**/*.js", // 👈 ESSENCIAL
+    "node_modules/flowbite-react/lib/esm/**/*.js", 
   ],
   theme: {
     extend: {},
   },
   plugins: [
-    require("flowbite/plugin"), // 👈 ESSENCIAL
+    require("flowbite/plugin"), 
   ],
 };
 
