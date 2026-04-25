@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { ProfessorModule } from './professor/professor.module';
 
 @Module({
   imports: [
@@ -16,11 +17,12 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.DB_NAME,
       charset: 'utf8mb4',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // Atenção: não use synchronize: true em produção, pois pode causar perda de dados
+      synchronize: true,
       migrations: [],
       subscribers: [],
     }),
     AuthModule,
+    ProfessorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
