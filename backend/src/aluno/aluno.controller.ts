@@ -1,7 +1,5 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { OcorrenciaService } from '../ocorrencia/ocorrencia.service';
-
-
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FuncoesGuard } from 'src/auth/funcoes.guard';
 import { Funcoes } from 'src/auth/funcoes.decorator';
