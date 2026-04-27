@@ -54,6 +54,6 @@ export class Aluno {
   @OneToMany(() => Ocorrencia, (ocorrencia) => ocorrencia.aluno)
   ocorrencias: Ocorrencia[];
   //relação de N:N de alunos x professores
-//  @ManyToMany(() => Professor, (professor) => professor.alunos)
-//  professores: Professor[];
+  //  @ManyToMany(() => Professor, (professor) => professor.alunos)
+  //  professores: Professor[];
 }
