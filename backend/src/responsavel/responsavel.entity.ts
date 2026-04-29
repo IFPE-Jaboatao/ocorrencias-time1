@@ -5,11 +5,12 @@ import {
   OneToOne,
   ManyToMany,
   JoinColumn,
+  JoinTable,
 } from 'typeorm';
 
 import { Aluno } from 'src/aluno/aluno.entity';
 import { Usuario } from 'src/auth/usuario.entity';
-@Entity()
+@Entity('responsavel')
 export class Responsavel {
   @PrimaryGeneratedColumn()
   id: number;
@@ -32,4 +33,6 @@ export class Responsavel {
 
   @ManyToMany(() => Aluno, (aluno) => aluno.responsaveis)
   alunos: Aluno[];
+  @JoinTable()
+  aluno: Aluno[]; //adicionado o join table para que ele possa criar a tabela intermediaria
 }

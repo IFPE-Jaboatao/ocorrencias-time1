@@ -12,7 +12,7 @@ import {
 import { Responsavel } from 'src/responsavel/responsavel.entity';
 import { Usuario } from 'src/auth/usuario.entity';
 import { Ocorrencia } from 'src/ocorrencia/ocorrencia.entity'; //aqui 'chamamos' a ocorrÊncia para o typeorm saber quem é
-//import { Professor } from 'src/professor/professor.entity';
+import { Professor } from 'src/professor/professor.entity';
 //adicionado o import do professor para criar a relação de aluno x professor quando formos usar
 @Entity()
 export class Aluno {
@@ -54,6 +54,7 @@ export class Aluno {
   @OneToMany(() => Ocorrencia, (ocorrencia) => ocorrencia.aluno)
   ocorrencias: Ocorrencia[];
   //relação de N:N de alunos x professores
-  //  @ManyToMany(() => Professor, (professor) => professor.alunos)
-  //  professores: Professor[];
+  @ManyToMany(() => Professor, (professor) => professor.alunos)
+  professores: Professor[];
+  //adição do relacionamento manytomany com professor
 }
