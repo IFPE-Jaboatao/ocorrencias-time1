@@ -2,8 +2,6 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  NotFoundException,
-  Res,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -30,65 +28,36 @@ export class ResponsavelService {
   async findByCpf(cpf: string) {
     return this.responsavelRepository.findOne({
       where: { cpf },
-      relations: {
-        alunos: true,
-      },
+      relations: ['alunos'],
     });
-  }
-
-  async findByUsuarioId(usuarioId: number): Promise<Responsavel | null> {
-    const responsavel = await this.responsavelRepository.findOne({
-      where: { usuario: { id: usuarioId } },
-      //traz os filhos e o histórico de ocorrências
-      relations: {
-        alunos: {
-          ocorrencias: true,
-        },
-      },
-    });
-    if (!responsavel) {
-      throw new NotFoundException(
-        'Perfil de responsável não localizado com esse usuário!',
-      );
-    }
-    return responsavel;
   }
 
   async update(
     id: number,
     data: Partial<Responsavel>,
-    alunoIds?: number[],
+    alunoIds: number[],
   ): Promise<Responsavel | null> {
     try {
-      //busca o responsável existente com as relações
-      const responsavel = await this.responsavelRepository.findOne({
-        where: { id },
-        relations: ['alunos'],
-      });
-      if (!responsavel) {
-        throw new NotFoundException('Responsável não localizado');
-      }
-      //atualização dos dados básicos
-      Object.assign(responsavel, {
-        nome: data.nome ?? responsavel.nome,
-        email: data.email ?? responsavel.email,
-        telefone: data.telefone ?? responsavel.telefone,
-        cpf: data.cpf ?? responsavel.cpf,
-        usuario: data.usuario ?? responsavel.usuario,
-      });
+      let alunos = [];
 
-      //aqui atualiza os alunos apenas se um array for enviado
       if (alunoIds && alunoIds.length > 0) {
-        const alunos = await this.alunoRepository.findBy({
+        alunos = await this.alunoRepository.findBy({
           id: In(alunoIds),
         });
-        responsavel.alunos = alunos;
       }
-      //.save garante que a tabela many-to-many seja atualizada
-      return await this.responsavelRepository.save(responsavel);
+
+      await this.responsavelRepository.update(id, {
+        nome: data.nome,
+        email: data.email,
+        telefone: data.telefone,
+        cpf: data.cpf,
+        usuario: data.usuario,
+        alunos: alunos,
+      });
+
+      return this.responsavelRepository.findOneBy({ id });
     } catch (error) {
       console.error(error);
-      if (error instanceof NotFoundException) throw error;
       throw new BadRequestException('Erro ao atualizar responsável');
     }
   }
@@ -103,14 +72,14 @@ export class ResponsavelService {
         usuario: data.usuario,
       });
 
-      return await this.responsavelRepository.save(newResponsavel);
-    } catch (error: any) {
-      if (error.code === 'ER_DUP_ENTRY') {
-        throw new ConflictException(
-          'Responsável já existe no sistema com as informações fornecidas!',
-        );
+      const save = await this.responsavelRepository.save(newResponsavel);
+      return save;
+    } catch (error) {
+      if ((error as any).code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('Responsável já existe');
       }
-      throw new BadRequestException('Erro ao criar o responsável.');
+
+      throw new BadRequestException('Erro ao criar responsável');
     }
   }
 }
