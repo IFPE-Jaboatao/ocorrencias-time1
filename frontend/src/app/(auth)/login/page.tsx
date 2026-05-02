@@ -1,8 +1,30 @@
 'use client';
-
-import { Button, Card, Label, TextInput } from "flowbite-react";
+import { useState } from "react"; 
+import { Button, Card,  Label,TextInput } from "flowbite-react";
+import { api } from "@/services/api"; 
+import { useRouter } from "next/navigation"; 
 
 export default function LoginPage() {
+  const [login, setLogin] = useState(""); 
+  const [senha, setSenha] = useState("");
+  const router = useRouter();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await api.post('/auth/login', { login, senha });
+
+      if (response.access_token) {
+        localStorage.setItem('token', response.access_token);
+        router.push('/dashboard');
+      } else {
+        alert("Usuário ou senha incorretos");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao conectar com o servidor");
+    }
+  };
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f8faf9] to-[#e6f2ea] flex items-center justify-center p-4 relative overflow-hidden">
       
@@ -41,16 +63,19 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-gray-500">Login</h1>
           <p className="text-gray-500 text-sm">Acesse sua conta</p>
         </div>
-        <form className="flex flex-col gap-4 " >         
-         <div>
-            <label htmlFor="email" className="text-gray-600">Email</label>
-            
+
+        {/* 6. Adicionar o onSubmit no formulário */}
+        <form className="flex flex-col gap-4" onSubmit={handleLogin}>         
+          <div>
+            <label htmlFor="login" className="text-gray-600">Usuário</label>
             <TextInput 
-              id="email" 
-              type="email" 
+              id="login" 
+              type="text" // Alterado para text pois seu back usa o campo 'login'
               required 
               shadow 
-              placeholder="Digite seu email"
+              placeholder="Digite seu usuário"
+              value={login}
+              onChange={(e) => setLogin(e.target.value)} // 7. Atualizar o estado
             />
           </div>
 
@@ -62,6 +87,8 @@ export default function LoginPage() {
               required 
               shadow 
               placeholder="Digite sua senha"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)} // 8. Atualizar o estado
             />
           </div>
 
@@ -71,7 +98,6 @@ export default function LoginPage() {
           >
             Entrar
           </Button>
-
         </form>
       </Card>
     </main>
