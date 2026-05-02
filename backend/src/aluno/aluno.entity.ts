@@ -14,7 +14,8 @@ import { Usuario } from 'src/auth/usuario.entity';
 import { Ocorrencia } from 'src/ocorrencia/ocorrencia.entity'; //aqui 'chamamos' a ocorrÊncia para o typeorm saber quem é
 import { Professor } from 'src/professor/professor.entity';
 //adicionado o import do professor para criar a relação de aluno x professor quando formos usar
-@Entity()
+@Entity('aluno')
+//adicionado nome da tabela para padronização do banco de dados
 export class Aluno {
   @PrimaryGeneratedColumn()
   id: number;
@@ -31,9 +32,14 @@ export class Aluno {
   @Column({ nullable: false })
   turma: string;
 
+  @Column({ nullable: true })
+  curso: string; //adicionado o campo de curso para conformidade com o item 6 do modelo do banco de dados
+
+  @Column({ nullable: true })
+  campus: string; //adicionado o campo de campus para conformidade com o item 6 do modelo do banco de dados
   //relação de 1:1 de aluno x usuário
   @OneToOne(() => Usuario)
-  @JoinColumn()
+  @JoinColumn({ name: 'usuario_id' }) // alterado para manter o padrão da nomenclatura
   usuario: Usuario;
 
   //relação N:N de alunos x responsÁveis
