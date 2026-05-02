@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Ocorrencia } from './ocorrencia.entity';
+import { Ocorrencia, StatusOcorrencia } from './ocorrencia.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
 import { Usuario } from 'src/auth/usuario.entity';
 import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
@@ -22,6 +22,43 @@ export class OcorrenciaService {
     });
   }
 
+  async findRecentes(): Promise<Ocorrencia[]> {
+    return this.ocorrenciaRepository.find({
+      order: {
+        data_criacao: 'DESC',
+      },
+      take: 5,
+      relations: {
+        aluno: true,
+        autor: true,
+      },
+    });
+  }
+  async getDashboardMetrics() {
+    //conta o total de ocorrências
+    const total = await this.ocorrenciaRepository.count();
+
+    //contagem das ocorrencias pendentes
+    const pendentes = await this.ocorrenciaRepository.count({
+      where: { status: StatusOcorrencia.ABERTA },
+    });
+
+    //contagem das ocorrências que foram resolvidas
+    const resolvidas = await this.ocorrenciaRepository.count({
+      where: { status: StatusOcorrencia.RESOLVIDA },
+    });
+
+    //cálculo da taxa de resolução
+    const taxaResolucao =
+      total > 0 ? ((resolvidas / total) * 100).toFixed(2) + '%' : '0.00%';
+
+    return {
+      total,
+      pendentes,
+      resolvidas,
+      taxaResolucao,
+    };
+  }
   async findAllByAluno(alunoId: number): Promise<Ocorrencia[]> {
     return this.ocorrenciaRepository.find({
       where: { aluno: { id: alunoId } },
