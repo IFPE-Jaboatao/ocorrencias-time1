@@ -1,4 +1,4 @@
-const API_URL = ""; // Endpoint do seu back
+const API_URL = "http://localhost:3000"; // Endpoint do seu back
 
 export const api = {
   get: async (endpoint: string) => {
