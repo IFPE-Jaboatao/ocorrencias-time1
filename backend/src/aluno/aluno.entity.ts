@@ -14,7 +14,7 @@ import { Usuario } from 'src/auth/usuario.entity';
 import { Ocorrencia } from 'src/ocorrencia/ocorrencia.entity'; //aqui 'chamamos' a ocorrÊncia para o typeorm saber quem é
 import { Professor } from 'src/professor/professor.entity';
 //adicionado o import do professor para criar a relação de aluno x professor quando formos usar
-@Entity()
+@Entity('aluno')
 export class Aluno {
   @PrimaryGeneratedColumn()
   id: number;
@@ -33,7 +33,7 @@ export class Aluno {
 
   //relação de 1:1 de aluno x usuário
   @OneToOne(() => Usuario)
-  @JoinColumn()
+  @JoinColumn({ name: 'usuario_id' }) // alterado para manter o padrão da nomenclatura
   usuario: Usuario;
 
   //relação N:N de alunos x responsÁveis
