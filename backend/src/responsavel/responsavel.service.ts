@@ -35,6 +35,15 @@ export class ResponsavelService {
     });
   }
 
+  async findByTelefone(telefone: string) {
+    return this.responsavelRepository.findOne({
+      where: { telefone },
+      relations: {
+        alunos: true,
+      },
+    });
+  }
+
   async findByUsuarioId(usuarioId: number): Promise<Responsavel | null> {
     const responsavel = await this.responsavelRepository.findOne({
       where: { usuario: { id: usuarioId } },
