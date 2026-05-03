@@ -49,6 +49,17 @@ export class AuthController {
         usuario: novoUsuario,
       });
     } else if (body.funcao === Funcao.RESPONSAVEL) {
+      const existCpf = await this.responsavelService.findByCpf(body.cpf);
+      if (existCpf) {
+        throw new Error('CPF já cadastrado para outro responsável.');
+      }
+      const existTelefone = await this.responsavelService.findByTelefone(
+        body.telefone,
+      );
+      if (existTelefone) {
+        throw new Error('Telefone já cadastrado para outro responsável.');
+      }
+
       await this.responsavelService.create({
         nome: body.nome,
         telefone: body.telefone,

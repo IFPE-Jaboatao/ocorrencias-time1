@@ -22,7 +22,7 @@ export class Aluno {
   @Column({ nullable: false })
   nome: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   matricula: string;
 
   @Column({ nullable: false })
