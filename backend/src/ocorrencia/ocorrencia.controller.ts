@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Body, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Req,
+  UseGuards,
+  Param,
+} from '@nestjs/common';
 import { OcorrenciaService } from './ocorrencia.service';
 import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -31,5 +39,12 @@ export class OcorrenciaController {
   @Funcoes(Funcao.ADMIN)
   async getDashboard() {
     return await this.ocorrenciaService.getDashboardMetrics();
+  }
+  //adicionado o post do ciência do aluno/responsável
+  @Post(':id/ciencia')
+  @Funcoes(Funcao.ALUNO, Funcao.RESPONSAVEL) //apenas aluno e responsável tem acesso
+  async registrarCiencia(@Param('id') id: string) {
+    return await this.ocorrenciaService.registrarCiencia(+id);
+    //o + antes do id converte a string para número
   }
 }
