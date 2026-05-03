@@ -6,6 +6,8 @@ import { Aluno } from 'src/aluno/aluno.entity';
 import { Usuario } from 'src/auth/usuario.entity';
 import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
 import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
+import { BadRequestException } from '@nestjs/common';
+import { AtualizarStatusDto } from './dto/atualizar-status.dto';
 @Injectable()
 export class OcorrenciaService {
   constructor(
@@ -173,5 +175,41 @@ export class OcorrenciaService {
     ocorrencia.ciencia = true; //atualiza a flag para verdadeira
 
     return await this.ocorrenciaRepository.save(ocorrencia); //salva a atualização no banco de dados
+  }
+
+  async atualizarStatus(
+    id: number,
+    dto: AtualizarStatusDto,
+  ): Promise<Ocorrencia> {
+    // Busca a ocorrência para verificar o status anterior
+    const ocorrencia = await this.ocorrenciaRepository.findOne({
+      where: { id },
+    });
+
+    if (!ocorrencia) {
+      throw new NotFoundException(
+        `Ocorrência com ID ${id} não encontrada no sistema.`,
+      );
+    }
+
+    // Regra de Negócio: Exigir Justificativa se já estava RESOLVIDA e vai mudar de estado
+    if (
+      ocorrencia.status === StatusOcorrencia.RESOLVIDA &&
+      dto.status !== StatusOcorrencia.RESOLVIDA
+    ) {
+      if (!dto.justificativa || dto.justificativa.trim() === '') {
+        throw new BadRequestException(
+          'É obrigatório fornecer uma justificativa para alterar o status de uma ocorrência já resolvida.',
+        );
+      }
+      // Regista a justificativa enviada
+      ocorrencia.justificativa = dto.justificativa;
+    }
+
+    // Atualiza o status
+    ocorrencia.status = dto.status;
+
+    // Salva e devolve a ocorrência atualizada
+    return await this.ocorrenciaRepository.save(ocorrencia);
   }
 }

@@ -48,6 +48,9 @@ export class Ocorrencia {
   })
   status: StatusOcorrencia;
 
+  @Column({ type: 'text', nullable: true })
+  justificativa: string; //adicionado campo para justificar a alteração do status de uma ocorrência
+
   @Column('text')
   descricao: string;
   //alternado para usar o decorator nativo de timestamp do typeorm para datas automáticas
