@@ -64,4 +64,8 @@ export class OcorrenciaController {
   ) {
     return await this.ocorrenciaService.atualizarStatus(+id, dto);
   }
+  @Get('/:id')
+  async getOcorrencia(@Param('id') id: string) {
+    return await this.ocorrenciaService.findOne(Number(id));
+  }
 }
