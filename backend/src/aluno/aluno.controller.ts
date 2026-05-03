@@ -42,6 +42,10 @@ export class AlunoController {
     description:
       'Proibido. O usuário não tem perfil de aluno para acessar este recurso.',
   })
+  @ApiResponse({
+    status: 500,
+    description: 'Erro interno do servidor ao processar a solicitação.',
+  })
   @UseGuards(JwtAuthGuard, FuncoesGuard)
   @Funcoes(Funcao.ALUNO)
   async listarMinhasOcorrencias(@Req() req: any) {
