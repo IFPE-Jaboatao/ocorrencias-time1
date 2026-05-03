@@ -64,22 +64,7 @@ npm install
 
 ## Variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto com as seguintes chaves:
-
-```env
-PORT=3000
-
-DB_HOST=localhost
-MYSQL_DATABASE=ocorrencias
-MYSQL_USER=root
-MYSQL_PASSWORD=root
-JWT_SECRET=secret_key
-JWT_EXPIRES_IN=60m
-NEXT_PUBLIC_API_URL=http://localhost:3000
-
-# Segurança
-JWT_SECRET=seu_segredo_jwt
-```
+Pegue o arquivo `.env.example` e edite-o para tornar ele um `.env` fazendo as alterações que forem necessárias.
 
 ---
 
