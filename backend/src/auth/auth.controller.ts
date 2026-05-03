@@ -7,6 +7,7 @@ import { AlunoService } from 'src/aluno/aluno.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Funcoes } from './funcoes.decorator';
 import { FuncoesGuard } from './funcoes.guard';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,8 +18,8 @@ export class AuthController {
   ) {}
 
   @Post('login')
-  async login(@Body() body: { login: string; senha: string }) {
-    const user = await this.authService.validateUser(body.login, body.senha);
+  async login(@Body() body: LoginDto) {
+    const user = await this.authService.validateUser(body.email, body.senha);
     if (!user) {
       return { message: 'Invalid credentials' };
     }
@@ -34,7 +35,6 @@ export class AuthController {
   ) {
     // Usuário base do login, senha, email e tipo
     const novoUsuario = await this.authService.register(
-      body.login,
       body.senha,
       body.email,
       body.funcao,
@@ -43,16 +43,14 @@ export class AuthController {
     // Criação condicional baseada no tipo do usuário
     if (body.funcao === Funcao.ALUNO) {
       await this.alunoService.create({
-        nome: body.nome || body.login,
-        matricula: body.login,
-        email: body.email,
+        nome: body.nome,
+        matricula: body.matricula,
         turma: body.turma,
         usuario: novoUsuario,
       });
     } else if (body.funcao === Funcao.RESPONSAVEL) {
       await this.responsavelService.create({
-        nome: body.nome || body.login,
-        email: body.email,
+        nome: body.nome,
         telefone: body.telefone,
         cpf: body.cpf,
         usuario: novoUsuario,

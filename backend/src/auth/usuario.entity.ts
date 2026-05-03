@@ -6,9 +6,6 @@ export class Usuario {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false, unique: true })
-  login: string;
-
   @Column({ nullable: false })
   senha: string;
 

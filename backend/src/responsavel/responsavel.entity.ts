@@ -19,9 +19,6 @@ export class Responsavel {
   nome: string;
 
   @Column({ nullable: false })
-  email: string;
-
-  @Column({ nullable: false })
   telefone: string;
 
   @Column({ nullable: false })

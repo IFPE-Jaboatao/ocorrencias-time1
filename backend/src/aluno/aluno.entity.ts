@@ -26,9 +26,6 @@ export class Aluno {
   matricula: string;
 
   @Column({ nullable: false })
-  email: string;
-
-  @Column({ nullable: false })
   turma: string;
 
   //relação de 1:1 de aluno x usuário

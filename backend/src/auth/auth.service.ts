@@ -14,10 +14,10 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(login: string, senha: string): Promise<any> {
-    const usuario = await this.userRepository.findOneBy({ login });
+  async validateUser(email: string, senha: string): Promise<any> {
+    const usuario = await this.userRepository.findOneBy({ email });
 
-    console.log('Validating user:', login, 'Found user:', usuario);
+    console.log('Validating user:', email, 'Found user:', usuario);
 
     if (usuario && (await bcrypt.compare(senha, usuario.senha))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,25 +28,24 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { login: user.login, sub: user.id, funcao: user.funcao };
+    const payload = { sub: user.id, funcao: user.funcao };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
 
-  async register(login: string, senha: string, email: string, funcao: Funcao) {
+  async register(senha: string, email: string, funcao: Funcao) {
     const userExists = await this.userRepository.findOne({
-      where: [{ login }, { email }],
+      where: [{ email }],
     });
 
     if (userExists) {
-      throw new ConflictException('Usuário já existe');
+      throw new ConflictException('Já existe um usuário com este email.');
     }
 
     const hashedPassword = await bcrypt.hash(senha, 10);
     const user = this.userRepository.create({
       email,
-      login,
       senha: hashedPassword,
       funcao,
       status: false,
