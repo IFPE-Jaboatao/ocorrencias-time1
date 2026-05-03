@@ -4,12 +4,44 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FuncoesGuard } from '../auth/funcoes.guard';
 import { Funcoes } from '../auth/funcoes.decorator';
 import { Funcao } from '../auth/enums/funcao-usuario.enum';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
+@ApiTags('Professor')
 @Controller('professor')
 export class ProfessorController {
   constructor(private readonly professorService: ProfessorService) {}
 
   @Get('meus-alunos')
+  @ApiOperation({ summary: 'Listar alunos vinculados ao professor logado' })
+  @ApiBearerAuth()
+  @ApiQuery({
+    name: 'Authorization',
+    required: true,
+    description: 'Token JWT de autenticação e autorização do usuário',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de alunos retornada com sucesso.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado. Token JWT ausente ou inválido.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Proibido. O usuário não tem perfil de professor para acessar este recurso.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Erro interno do servidor.',
+  })
   @UseGuards(JwtAuthGuard, FuncoesGuard)
   @Funcoes(Funcao.PROFESSOR) // Apenas professores logados entram
   async listarMeusAlunos(@Req() req: any) {
