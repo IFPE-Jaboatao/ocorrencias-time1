@@ -5,7 +5,7 @@ import { Ocorrencia, StatusOcorrencia } from './ocorrencia.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
 import { Usuario } from 'src/auth/usuario.entity';
 import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
-
+import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
 @Injectable()
 export class OcorrenciaService {
   constructor(
@@ -16,10 +16,67 @@ export class OcorrenciaService {
     private readonly alunoRepository: Repository<Aluno>,
   ) {}
 
-  async findAll(): Promise<Ocorrencia[]> {
-    return this.ocorrenciaRepository.find({
-      relations: ['aluno', 'autor', 'evidencias', 'comentarios'],
-    });
+  async findAll(filtros: ListarOcorrenciaDto) {
+    const {
+      status,
+      aluno,
+      data,
+      turma,
+      severidade,
+      matricula,
+      page = 1,
+      limit = 10,
+    } = filtros;
+
+    const qb = this.ocorrenciaRepository
+      .createQueryBuilder('o')
+      .leftJoinAndSelect('o.aluno', 'aluno')
+      .leftJoinAndSelect('o.autor', 'autor')
+      .leftJoinAndSelect('o.evidencias', 'evidencias')
+      .leftJoinAndSelect('o.comentarios', 'comentarios');
+
+    // Filtros Originais
+    if (status) {
+      qb.andWhere('o.status = :status', { status });
+    }
+
+    if (aluno) {
+      qb.andWhere('aluno.nome LIKE :aluno', { aluno: `%${aluno}%` });
+    }
+
+    if (turma) {
+      qb.andWhere('aluno.turma = :turma', { turma });
+    }
+
+    if (data) {
+      qb.andWhere('DATE(o.data_criacao) = :data', { data });
+    }
+
+    // filtro de sveridade
+    if (severidade) {
+      qb.andWhere('o.severidade = :severidade', { severidade });
+    }
+
+    if (matricula) {
+      qb.andWhere('aluno.matricula = :matricula', { matricula });
+    }
+
+    // Paginação
+    qb.skip((page - 1) * limit);
+    qb.take(limit);
+
+    // Ordenação das ocorrências
+    qb.orderBy('o.data_criacao', 'DESC');
+
+    // Total de registos
+    const [dados, total] = await qb.getManyAndCount();
+
+    return {
+      total,
+      page,
+      limit,
+      data: dados,
+    };
   }
 
   async findRecentes(): Promise<Ocorrencia[]> {

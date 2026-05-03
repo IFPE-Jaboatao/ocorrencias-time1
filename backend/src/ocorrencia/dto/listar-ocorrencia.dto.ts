@@ -21,7 +21,15 @@ export class ListarOcorrenciaDto {
   aluno?: string;
 
   @IsOptional()
-  @IsDateString({}, { message: 'Data inválida. Use o formato AAAA-MMM-DD' })
+  @IsString()
+  severidade?: string;
+
+  @IsOptional()
+  @IsString()
+  matricula?: string;
+
+  @IsOptional()
+  @IsDateString({}, { message: 'Data inválida. Use o formato AAAA-MM-DD' })
   data?: string;
 
   @IsOptional()
