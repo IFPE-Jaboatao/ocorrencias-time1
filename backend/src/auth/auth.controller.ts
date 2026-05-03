@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/create-usuario.dto';
 import { Funcao } from './enums/funcao-usuario.enum';
@@ -71,6 +71,40 @@ export class AuthController {
     return {
       message: 'Usuário e perfil criados com sucesso',
       userId: novoUsuario.id,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard, FuncoesGuard)
+  @Funcoes(Funcao.ADMIN)
+  @Put('admin/vinculo')
+  async vincularAlunoResponsavel(
+    @Body()
+    body: {
+      alunoId: number;
+      responsavelId: number;
+    },
+  ) {
+    const aluno = await this.alunoService.findByUsuarioId(body.alunoId);
+    const responsavel = await this.responsavelService.findOneById(
+      body.responsavelId,
+    );
+
+    if (!aluno) {
+      throw new Error('Aluno não encontrado');
+    }
+    if (!responsavel) {
+      throw new Error('Responsável não encontrado');
+    }
+
+    aluno.responsaveis.push(responsavel);
+    await this.alunoService.update(aluno);
+    responsavel.alunos.push(aluno);
+    await this.responsavelService.update(responsavel.id, responsavel);
+
+    return {
+      message: 'Aluno vinculado ao responsável com sucesso',
+      alunoId: aluno.id,
+      responsavelId: responsavel.id,
     };
   }
 }
