@@ -6,19 +6,20 @@ import {
   Res,
   UploadedFile,
   UseInterceptors,
+  Body,
 } from '@nestjs/common';
-import { FilesService } from './files.service';
+import { EvidenciaService } from './evidencia.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
 
-@Controller('files')
-export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+@Controller('evidencia')
+export class EvidenciaController {
+  constructor(private readonly evidenciaService: EvidenciaService) {}
 
   @Post('upload')
   @UseInterceptors(
-    FileInterceptor('file', {
+    FileInterceptor('evidencia', {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
@@ -29,16 +30,25 @@ export class FilesController {
       }),
     }),
   )
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  //transformado em async pra guardar no banco de dados
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('ocorrencia') ocorrenciaId: string, //recebe o id do formData
+  ) {
+    //chama o serviço pra salvar o registro no banco de dados
+    const novaEvidencia = await this.evidenciaService.create({
+      path: file.filename,
+      ocorrencia: { id: Number(ocorrenciaId) } as any,
+    });
     return {
       message: 'Arquivo enviado com sucesso',
-      filename: file.filename,
+      evidencia: novaEvidencia, //retorna os dados que foram pro banco
     };
   }
   @Get('download/:filename')
   downloadFile(@Param('filename') filename: string, @Res() res: Response) {
     //aqui pegamos o caminho absoluto para baixar o arquivo
-    const filepath = this.filesService.getFilePath(filename);
+    const filepath = this.evidenciaService.getFilePath(filename);
     res.download(filepath);
   }
 }
