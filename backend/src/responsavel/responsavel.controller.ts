@@ -4,10 +4,43 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FuncoesGuard } from '../auth/funcoes.guard';
 import { Funcoes } from '../auth/funcoes.decorator';
 import { Funcao } from '../auth/enums/funcao-usuario.enum';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+
+@ApiTags('Responsável')
 @Controller('responsavel')
 export class ResponsavelController {
   constructor(private readonly responsavelService: ResponsavelService) {}
   @Get('filhos')
+  @ApiOperation({ summary: 'Listar alunos vinculados ao responsável logado' })
+  @ApiBearerAuth()
+  @ApiQuery({
+    name: 'Authorization',
+    required: true,
+    description: 'Token JWT de autenticação e autorização do usuário',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de alunos retornada com sucesso.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado. Token JWT ausente ou inválido.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Proibido. O usuário não tem perfil de responsável para acessar este recurso.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Erro interno do servidor.',
+  })
   @UseGuards(JwtAuthGuard, FuncoesGuard)
   @Funcoes(Funcao.RESPONSAVEL) //bloqueia alunos, profs e admins
   async listarMeusFilhos(@Req() req: any) {

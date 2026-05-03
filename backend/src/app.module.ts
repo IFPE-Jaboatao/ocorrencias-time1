@@ -1,8 +1,6 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ProfessorModule } from './professor/professor.module';
 import { EvidenciaModule } from './evidencia/evidencia.module';
@@ -29,7 +27,5 @@ import { EvidenciaModule } from './evidencia/evidencia.module';
     ProfessorModule,
     EvidenciaModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

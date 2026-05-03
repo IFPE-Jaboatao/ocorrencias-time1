@@ -21,11 +21,10 @@ export class OcorrenciaService {
   async findAll(filtros: ListarOcorrenciaDto) {
     const {
       status,
-      aluno,
+      id_aluno,
       data,
       turma,
       severidade,
-      matricula,
       page = 1,
       limit = 10,
     } = filtros;
@@ -42,8 +41,8 @@ export class OcorrenciaService {
       qb.andWhere('o.status = :status', { status });
     }
 
-    if (aluno) {
-      qb.andWhere('aluno.nome LIKE :aluno', { aluno: `%${aluno}%` });
+    if (id_aluno) {
+      qb.andWhere('aluno.id = :id_aluno', { id_aluno });
     }
 
     if (turma) {
@@ -57,10 +56,6 @@ export class OcorrenciaService {
     // filtro de sveridade
     if (severidade) {
       qb.andWhere('o.severidade = :severidade', { severidade });
-    }
-
-    if (matricula) {
-      qb.andWhere('aluno.matricula = :matricula', { matricula });
     }
 
     // Paginação
