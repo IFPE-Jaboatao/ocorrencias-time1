@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Responsavel } from './responsavel.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
 
@@ -66,7 +66,6 @@ export class ResponsavelService {
     id: number,
     data: Partial<Responsavel>,
     novo_email_responsavel?: string,
-    alunoIds?: number[],
   ): Promise<Responsavel | null> {
     try {
       //busca o responsável existente com as relações
@@ -96,15 +95,8 @@ export class ResponsavelService {
         telefone: data.telefone ?? responsavel.telefone,
         cpf: data.cpf ?? responsavel.cpf,
         usuario: data.usuario ?? responsavel.usuario,
+        aluno: data.aluno ?? responsavel.aluno,
       });
-
-      //aqui atualiza os alunos apenas se um array for enviado
-      if (alunoIds && alunoIds.length > 0) {
-        const alunos = await this.alunoRepository.findBy({
-          id: In(alunoIds),
-        });
-        responsavel.alunos = alunos;
-      }
       //.save garante que a tabela many-to-many seja atualizada
       return await this.responsavelRepository.save(responsavel);
     } catch (error) {
