@@ -105,4 +105,16 @@ export class OcorrenciaService {
     await this.ocorrenciaRepository.update(ocorrencia.id, ocorrencia);
     return this.ocorrenciaRepository.findOneBy({ id: ocorrencia.id });
   }
+  //adicionado método pra registrar a ciência do aluno/responsável
+  async registrarCiencia(id: number): Promise<Ocorrencia> {
+    const ocorrencia = await this.ocorrenciaRepository.findOne({
+      where: { id },
+    });
+    if (!ocorrencia) {
+      throw new NotFoundException(`Ocorrência com ID ${id} não encontrada`);
+    }
+    ocorrencia.ciencia = true; //atualiza a flag para verdadeira
+
+    return await this.ocorrenciaRepository.save(ocorrencia); //salva a atualização no banco de dados
+  }
 }
