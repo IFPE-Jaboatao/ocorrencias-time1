@@ -3,7 +3,6 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  Res,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -57,6 +56,7 @@ export class ResponsavelService {
   async update(
     id: number,
     data: Partial<Responsavel>,
+    novo_email_responsavel?: string,
     alunoIds?: number[],
   ): Promise<Responsavel | null> {
     try {
@@ -68,10 +68,22 @@ export class ResponsavelService {
       if (!responsavel) {
         throw new NotFoundException('Responsável não localizado');
       }
+
+      if (novo_email_responsavel) {
+        const emailExists = await this.responsavelRepository.findOne({
+          where: { usuario: { email: novo_email_responsavel } },
+        });
+        if (emailExists && emailExists.id !== id) {
+          throw new ConflictException(
+            'Já existe um responsável com este email.',
+          );
+        }
+        responsavel.usuario.email = novo_email_responsavel;
+      }
+
       //atualização dos dados básicos
       Object.assign(responsavel, {
         nome: data.nome ?? responsavel.nome,
-        email: data.email ?? responsavel.email,
         telefone: data.telefone ?? responsavel.telefone,
         cpf: data.cpf ?? responsavel.cpf,
         usuario: data.usuario ?? responsavel.usuario,
@@ -97,7 +109,6 @@ export class ResponsavelService {
     try {
       const newResponsavel = this.responsavelRepository.create({
         nome: data.nome,
-        email: data.email,
         telefone: data.telefone,
         cpf: data.cpf,
         usuario: data.usuario,
