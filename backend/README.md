@@ -69,12 +69,13 @@ Crie um arquivo `.env` na raiz do projeto com as seguintes chaves:
 ```env
 PORT=3000
 
-# Configurações do Banco de Dados (MySQL)
 DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=seu_usuario
-DB_PASSWORD=sua_senha
-DB_DATABASE=iflow_db
+MYSQL_DATABASE=ocorrencias
+MYSQL_USER=root
+MYSQL_PASSWORD=root
+JWT_SECRET=secret_key
+JWT_EXPIRES_IN=60m
+NEXT_PUBLIC_API_URL=http://localhost:3000
 
 # Segurança
 JWT_SECRET=seu_segredo_jwt
