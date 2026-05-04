@@ -40,7 +40,6 @@ export class AlunoService {
   }
 
   async update(aluno: Partial<Aluno>): Promise<Aluno | null> {
-    await this.alunoRepository.update(aluno.id, aluno);
-    return this.alunoRepository.findOneBy({ id: aluno.id });
+    return await this.alunoRepository.save(aluno);
   }
 }

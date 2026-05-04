@@ -228,6 +228,14 @@ export class AuthController {
       throw new Error('Responsável não encontrado');
     }
 
+    if (!aluno.responsaveis) {
+      aluno.responsaveis = [];
+    }
+
+    if (!responsavel.alunos) {
+      responsavel.alunos = [];
+    }
+
     aluno.responsaveis.push(responsavel);
     await this.alunoService.update(aluno);
     responsavel.alunos.push(aluno);
