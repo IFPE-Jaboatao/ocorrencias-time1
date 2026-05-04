@@ -1,6 +1,6 @@
 'use client';
 import { useState } from "react"; 
-import { Button, Card,  Label,TextInput } from "flowbite-react";
+import { Button, Card,  Label,TextInput ,Spinner} from "flowbite-react";
 import { api } from "@/services/api"; 
 import { useRouter } from "next/navigation"; 
 
@@ -94,14 +94,20 @@ const [login, setLogin] = useState("");
               required 
             />
           </div>
-
-          <Button 
-            type="submit" 
-            className="bg-[#5da16f] hover:bg-[#4a8a59]"
-            disabled={status.type === 'loading'}
-          >
-            {status.type === 'loading' ? "Carregando..." : "Entrar"}
-          </Button>
+         <Button 
+          type="submit" 
+  className="bg-[#5da16f] hover:bg-[#4a8a59] transition-all"
+  disabled={status.type === 'loading'}
+>
+  {status.type === 'loading' ? (
+    <div className="flex items-center gap-3">
+      <Spinner size="sm" light={true} />
+      <span>Carregando...</span>
+    </div>
+  ) : (
+    "Entrar"
+  )}
+</Button>
         </form>
       </Card>
     </main>
