@@ -1,3 +1,5 @@
+<<<<<<< Updated upstream
+
 # IFlow API
 
 ## Sobre
@@ -10,23 +12,22 @@ A API é responsável por toda a lógica de negócio do sistema, incluindo:
 - **Controle de Acesso (RBAC):** Gestão de permissões baseada em perfis de usuário.
 - **Gerenciamento de Ocorrências:** Lógica central para registro, edição e fluxo de status das ocorrências acadêmicas.
 
-
 ---
 
 ## Tecnologias e versões
 
-| Tecnologia | Versão |
-|---|---|
-| **Node.js** | v20.x ou superior |
-| **NestJS** (`@nestjs/core`) | v10.0.0 |
-| **TypeScript** | v5.1.3 |
-| **TypeORM** | v0.3.28 |
-| **MySQL** (`mysql2`) | v3.22.2 |
-| **JWT** (`@nestjs/jwt`) | v11.0.2 |
-| **Multer** | v2.1.1  |
-| **Swagger** (`@nestjs/swagger`) | v7.4.2 |
-| **Jest**  | v29.7.0 |
-| **Class Validator** | v0.15.1  |
+| Tecnologia                      | Versão            |
+| ------------------------------- | ----------------- |
+| **Node.js**                     | v20.x ou superior |
+| **NestJS** (`@nestjs/core`)     | v10.0.0           |
+| **TypeScript**                  | v5.1.3            |
+| **TypeORM**                     | v0.3.28           |
+| **MySQL** (`mysql2`)            | v3.22.2           |
+| **JWT** (`@nestjs/jwt`)         | v11.0.2           |
+| **Multer**                      | v2.1.1            |
+| **Swagger** (`@nestjs/swagger`) | v7.4.2            |
+| **Jest**                        | v29.7.0           |
+| **Class Validator**             | v0.15.1           |
 
 ---
 
@@ -36,7 +37,7 @@ Antes de iniciar, certifique-se de ter instalado em sua máquina:
 
 - Node.js (versão 20 ou superior)
 - Gerenciador de pacotes (npm ou yarn)
-- Uma instância ativa do **MySQL** 
+- Uma instância ativa do **MySQL**
 
 ---
 
@@ -64,21 +65,7 @@ npm install
 
 ## Variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto com as seguintes chaves:
-
-```env
-PORT=3000
-
-# Configurações do Banco de Dados (MySQL)
-DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=seu_usuario
-DB_PASSWORD=sua_senha
-DB_DATABASE=iflow_db
-
-# Segurança
-JWT_SECRET=seu_segredo_jwt
-```
+Pegue o arquivo `.env.example` e edite-o para tornar ele um `.env` fazendo as alterações que forem necessárias.
 
 ---
 
@@ -135,3 +122,7 @@ npm run build
 ```bash
 npm run start:prod
 ```
+
+=======
+
+> > > > > > > Stashed changes

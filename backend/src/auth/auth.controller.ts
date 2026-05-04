@@ -1,4 +1,11 @@
-import { Controller, Post, Body, UseGuards, Put } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Put,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/create-usuario.dto';
 import { Funcao } from './enums/funcao-usuario.enum';
@@ -52,9 +59,13 @@ export class AuthController {
   async login(@Body() body: LoginDto) {
     const user = await this.authService.validateUser(body.email, body.senha);
     if (!user) {
-      return { message: 'Invalid credentials' };
+      throw new UnauthorizedException('Email ou Senha incorretos');
     }
-    return this.authService.login(user);
+    const result = await this.authService.login(user);
+
+    return {
+      access_token: result.access_token,
+    };
   }
 
   @UseGuards(JwtAuthGuard, FuncoesGuard)
@@ -226,6 +237,14 @@ export class AuthController {
     }
     if (!responsavel) {
       throw new Error('Responsável não encontrado');
+    }
+
+    if (!aluno.responsaveis) {
+      aluno.responsaveis = [];
+    }
+
+    if (!responsavel.alunos) {
+      responsavel.alunos = [];
     }
 
     aluno.responsaveis.push(responsavel);
