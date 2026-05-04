@@ -18,13 +18,10 @@ export class Responsavel {
   @Column({ nullable: false })
   nome: string;
 
-  @Column({ nullable: false })
-  email: string;
-
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   telefone: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   cpf: string;
 
   @OneToOne(() => Usuario)

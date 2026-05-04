@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Evidencia } from './evidencia.entity';
+import { join } from 'path';
+import { existsSync } from 'fs';
 
 @Injectable()
 export class EvidenciaService {
@@ -26,5 +28,16 @@ export class EvidenciaService {
   async update(evidencia: Partial<Evidencia>): Promise<Evidencia | null> {
     await this.evidenciaRepository.update(evidencia.id, evidencia);
     return this.evidenciaRepository.findOneBy({ id: evidencia.id });
+  }
+  getFilePath(filename: string): string {
+    const filePath = join(process.cwd(), 'uploads', filename);
+    //verifica se o arquivo existe na pasta
+    if (!existsSync(filePath)) {
+      throw new NotFoundException(
+        //tratamento de erro
+        `O arquivo: ${filename} não foi encontrado no sistema`,
+      );
+    }
+    return filePath;
   }
 }

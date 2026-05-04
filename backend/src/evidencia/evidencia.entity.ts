@@ -8,10 +8,7 @@ export class Evidencia {
   id: number;
 
   @Column({ nullable: false })
-  nome: string;
-
-  @Column({ nullable: false })
-  arquivo: string;
+  path: string;
 
   @ManyToOne(() => Ocorrencia, (oc) => oc.evidencias)
   ocorrencia: Ocorrencia;

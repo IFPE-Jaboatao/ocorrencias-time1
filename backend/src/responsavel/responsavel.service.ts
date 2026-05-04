@@ -3,10 +3,9 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  Res,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Responsavel } from './responsavel.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
 
@@ -36,6 +35,15 @@ export class ResponsavelService {
     });
   }
 
+  async findByTelefone(telefone: string) {
+    return this.responsavelRepository.findOne({
+      where: { telefone },
+      relations: {
+        alunos: true,
+      },
+    });
+  }
+
   async findByUsuarioId(usuarioId: number): Promise<Responsavel | null> {
     const responsavel = await this.responsavelRepository.findOne({
       where: { usuario: { id: usuarioId } },
@@ -57,7 +65,7 @@ export class ResponsavelService {
   async update(
     id: number,
     data: Partial<Responsavel>,
-    alunoIds?: number[],
+    novo_email_responsavel?: string,
   ): Promise<Responsavel | null> {
     try {
       //busca o responsável existente com as relações
@@ -68,22 +76,27 @@ export class ResponsavelService {
       if (!responsavel) {
         throw new NotFoundException('Responsável não localizado');
       }
+
+      if (novo_email_responsavel) {
+        const emailExists = await this.responsavelRepository.findOne({
+          where: { usuario: { email: novo_email_responsavel } },
+        });
+        if (emailExists && emailExists.id !== id) {
+          throw new ConflictException(
+            'Já existe um responsável com este email.',
+          );
+        }
+        responsavel.usuario.email = novo_email_responsavel;
+      }
+
       //atualização dos dados básicos
       Object.assign(responsavel, {
         nome: data.nome ?? responsavel.nome,
-        email: data.email ?? responsavel.email,
         telefone: data.telefone ?? responsavel.telefone,
         cpf: data.cpf ?? responsavel.cpf,
         usuario: data.usuario ?? responsavel.usuario,
+        aluno: data.aluno ?? responsavel.aluno,
       });
-
-      //aqui atualiza os alunos apenas se um array for enviado
-      if (alunoIds && alunoIds.length > 0) {
-        const alunos = await this.alunoRepository.findBy({
-          id: In(alunoIds),
-        });
-        responsavel.alunos = alunos;
-      }
       //.save garante que a tabela many-to-many seja atualizada
       return await this.responsavelRepository.save(responsavel);
     } catch (error) {
@@ -97,7 +110,6 @@ export class ResponsavelService {
     try {
       const newResponsavel = this.responsavelRepository.create({
         nome: data.nome,
-        email: data.email,
         telefone: data.telefone,
         cpf: data.cpf,
         usuario: data.usuario,
