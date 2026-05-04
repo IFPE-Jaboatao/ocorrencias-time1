@@ -5,12 +5,15 @@ import { api } from "@/services/api";
 import { useRouter } from "next/navigation"; 
 
 export default function LoginPage() {
-  const [login, setLogin] = useState(""); 
+const [login, setLogin] = useState(""); 
   const [senha, setSenha] = useState("");
+  const [status, setStatus] = useState<{ type: 'error' | 'loading' | null, message: string }>({ type: null, message: "" });
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatus({ type: 'loading', message: "" });
+
     try {
       const response = await api.post('/auth/login', { login, senha });
 
@@ -18,11 +21,10 @@ export default function LoginPage() {
         localStorage.setItem('token', response.access_token);
         router.push('/dashboard');
       } else {
-        alert("Usuário ou senha incorretos");
+        setStatus({ type: 'error', message: "Usuário ou senha incorretos" });
       }
     } catch (error) {
-      console.error(error);
-      alert("Erro ao conectar com o servidor");
+      setStatus({ type: 'error', message: "Não foi possível conectar ao servidor" });
     }
   };
   return (
@@ -58,45 +60,47 @@ export default function LoginPage() {
     <div className="absolute bg-[#6ab17e] rounded-lg" style={{ width: '28px', height: '28px', top: '190px', left: '4px' }} />
   </div>
 </div>
-      <Card className="max-w-md w-full shadow-2xl border-none backdrop-blur-md bg-white rounded-md z-10">      
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-500">Login</h1>
-          <p className="text-gray-500 text-sm">Acesse sua conta</p>
+        <Card className="max-w-md w-full shadow-2xl border-none backdrop-blur-md rounded-md bg-white z-10">
+        <div className="text-center mb-4">
+          <h1 className="text-3xl font-bold text-gray-700">Login</h1>
         </div>
 
-        {/* 6. Adicionar o onSubmit no formulário */}
-        <form className="flex flex-col gap-4" onSubmit={handleLogin}>         
+        {status.type === 'error' && (
+          <Alert color="failure" icon={HiInformationCircle} className="mb-2">
+            {status.message}
+          </Alert>
+        )}
+
+        <form className="flex flex-col gap-4" onSubmit={handleLogin}>
           <div>
-            <label htmlFor="login" className="text-gray-600">Usuário</label>
+            <label className="text-gray-600">Usuário</label>
             <TextInput 
-              id="login" 
-              type="text" // Alterado para text pois seu back usa o campo 'login'
-              required 
-              shadow 
               placeholder="Digite seu usuário"
               value={login}
-              onChange={(e) => setLogin(e.target.value)} // 7. Atualizar o estado
+              onChange={(e) => setLogin(e.target.value)}
+              color={status.type === 'error' ? "failure" : "gray"}
+              required 
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="text-gray-600">Senha</label>
+            <label className="text-gray-600">Senha</label>
             <TextInput 
-              id="password" 
-              type="password" 
-              required 
-              shadow 
+              type="password"
               placeholder="Digite sua senha"
               value={senha}
-              onChange={(e) => setSenha(e.target.value)} // 8. Atualizar o estado
+              onChange={(e) => setSenha(e.target.value)}
+              color={status.type === 'error' ? "failure" : "gray"}
+              required 
             />
           </div>
 
           <Button 
             type="submit" 
-            className="bg-[#5da16f] hover:bg-[#4a8a59] transition-colors mt-4 rounded-lg"
+            className="bg-[#5da16f] hover:bg-[#4a8a59]"
+            disabled={status.type === 'loading'}
           >
-            Entrar
+            {status.type === 'loading' ? "Carregando..." : "Entrar"}
           </Button>
         </form>
       </Card>
