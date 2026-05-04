@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsEnum, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  IsOptional,
+  IsEmail,
+} from 'class-validator';
 import { Funcao } from '../enums/funcao-usuario.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -8,7 +14,7 @@ export class RegisterDto {
     example: 'usuario@example.com',
   })
   @IsNotEmpty({ message: 'Email é obrigatório.' })
-  @IsString()
+  @IsEmail({}, { message: 'O e-mail informado não tem um formato válido.' }) // 👈 A mágica aqui!
   email: string;
 
   @ApiProperty({
