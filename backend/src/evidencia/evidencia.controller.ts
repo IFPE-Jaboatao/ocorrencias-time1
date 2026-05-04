@@ -7,17 +7,22 @@ import {
   UploadedFile,
   UseInterceptors,
   Body,
+  BadRequestException,
 } from '@nestjs/common';
 import { EvidenciaService } from './evidencia.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { OcorrenciaService } from 'src/ocorrencia/ocorrencia.service';
 
 @ApiTags('Evidências')
 @Controller('evidencia')
 export class EvidenciaController {
-  constructor(private readonly evidenciaService: EvidenciaService) {}
+  constructor(
+    private readonly evidenciaService: EvidenciaService,
+    private readonly ocorrenciaService: OcorrenciaService,
+  ) {}
 
   @Post('upload')
   @ApiOperation({
@@ -61,6 +66,21 @@ export class EvidenciaController {
     @UploadedFile() file: Express.Multer.File,
     @Body('ocorrencia') ocorrenciaId: string,
   ) {
+    if (!file) {
+      throw new BadRequestException('Arquivo de evidência é obrigatório');
+    }
+    if (!Number(ocorrenciaId) || isNaN(Number(ocorrenciaId))) {
+      throw new BadRequestException('ocorrenciaId inválido');
+    }
+    const existOcorrencia = await this.ocorrenciaService.findOne(
+      Number(ocorrenciaId),
+    );
+    if (!existOcorrencia) {
+      throw new BadRequestException(
+        'Ocorrência não encontrada para o ID fornecido',
+      );
+    }
+
     const novaEvidencia = await this.evidenciaService.create({
       path: file.filename,
       ocorrencia: { id: Number(ocorrenciaId) } as any,
@@ -71,12 +91,12 @@ export class EvidenciaController {
     };
   }
 
-  @Get('download/:filename')
+  @Get('download/:evidenciaId')
   @ApiOperation({ summary: 'Baixar um arquivo de evidência' })
   @ApiQuery({
-    name: 'filename',
+    name: 'evidenciaId',
     required: true,
-    description: 'Nome do arquivo de evidência a ser baixado',
+    description: 'ID da evidência a ser baixada',
   })
   @ApiResponse({
     status: 200,
@@ -90,9 +110,25 @@ export class EvidenciaController {
     status: 500,
     description: 'Erro interno do servidor durante o download do arquivo.',
   })
-  downloadFile(@Param('filename') filename: string, @Res() res: Response) {
+  async downloadFile(
+    @Param('evidenciaId') evidenciaId: string,
+    @Res() res: Response,
+  ) {
+    if (!Number(evidenciaId) || isNaN(Number(evidenciaId))) {
+      throw new BadRequestException('id da evidência é inválido');
+    }
     //aqui pegamos o caminho absoluto para baixar o arquivo
-    const filepath = this.evidenciaService.getFilePath(filename);
+    const evidencia = await this.evidenciaService.findOneById(
+      Number(evidenciaId),
+    );
+
+    if (!evidencia) {
+      throw new BadRequestException(
+        'Evidência não encontrada para o ID fornecido',
+      );
+    }
+    const filepath = this.evidenciaService.getFilePath(evidencia.path);
+
     res.download(filepath);
   }
 }
