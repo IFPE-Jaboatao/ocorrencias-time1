@@ -6,31 +6,42 @@ import { api } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
-  const [login, setLogin] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [status, setStatus] = useState<{
     type: "error" | "loading" | null;
     message: string;
-  }>({ type: null, message: "" });
-  const { login: authLogin } = useAuth();
+  }>({
+    type: null,
+    message: "",
+  });
+
+  const { login: realizarLoginContexto } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus({ type: "loading", message: "" });
 
     try {
-      const response = await api.post("/auth/login", { login, senha });
+      const data = await api.post("/auth/login", {
+        email: loginEmail.trim(),
+        senha: senha,
+      });
 
-      if (response.access_token) {
-        authLogin(response.access_token);
+      if (data && data.access_token) {
+        console.log("Token confirmado! Iniciando sessão...");
+        realizarLoginContexto(data.access_token);
       } else {
-        setStatus({ type: "error", message: "Usuário ou senha incorretos" });
+        setStatus({ type: "error", message: "Resposta inválida do servidor." });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Erro capturado:", error);
       setStatus({
         type: "error",
         message:
-          "Não foi possível conectar ao servidor. Verifique sua conexão.",
+          error.status === 401
+            ? "E-mail ou senha incorretos."
+            : "Erro de conexão com o iFlow.",
       });
     }
   };
@@ -145,11 +156,16 @@ export default function LoginPage() {
 
         <form className="flex flex-col gap-4" onSubmit={handleLogin}>
           <div>
-            <label className="text-gray-600 font-medium">Usuário</label>
+            <div className="mb-2 block">
+              <Label htmlFor="usuario" className="text-gray-600 font-medium">
+                Usuário
+              </Label>
+            </div>
             <TextInput
-              placeholder="Digite seu usuário"
-              value={login}
-              onChange={(e) => setLogin(e.target.value)}
+              id="usuario"
+              placeholder="digite seu email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
               color={status.type === "error" ? "failure" : "gray"}
               required
               disabled={status.type === "loading"}
@@ -157,10 +173,15 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="text-gray-600 font-medium">Senha</label>
+            <div className="mb-2 block">
+              <Label htmlFor="senha" className="text-gray-600 font-medium">
+                Senha
+              </Label>
+            </div>
             <TextInput
+              id="senha"
               type="password"
-              placeholder="Digite sua senha"
+              placeholder="digite sua senha"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               color={status.type === "error" ? "failure" : "gray"}

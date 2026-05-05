@@ -68,8 +68,8 @@ export class AuthController {
     };
   }
 
-  @UseGuards(JwtAuthGuard, FuncoesGuard)
-  @Funcoes(Funcao.ADMIN)
+  //@UseGuards(JwtAuthGuard, FuncoesGuard)
+  //@Funcoes(Funcao.ADMIN)
   @Post('register')
   @ApiOperation({ summary: 'Registrar um novo usuário com perfil específico' })
   @ApiBearerAuth()
