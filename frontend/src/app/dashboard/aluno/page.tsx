@@ -1,18 +1,32 @@
-import { StatCard } from "@/components/StatCard";
-import { api } from "@/services/api";
+"use client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Spinner, Card } from "flowbite-react";
 
-export default async function AdminPage() {
+export default function AlunoDashboard() {
+  const { user, loading } = useAuth();
 
-  const stats = { total: 30, pendentes: 5, taxa: "40%" }; // Mock enquanto o back não sobe
+  if (loading) {
+    return (
+      <div
+        className="flex justify-center items-center min-h-screen"
+        role="status"
+      >
+        <Spinner size="xl" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">Painel Administrativo</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard title="Total suas Ocorrências" value={stats.total} />
-      </div>
-
+    <div className="p-6">
+      <h1 className="text-2xl font-bold text-gray-800 mb-4">Painel Aluno</h1>
+      <Card>
+        <h5 className="text-xl font-bold tracking-tight text-gray-900">
+          Bem-vinda, {user?.name}!
+        </h5>
+        <p className="font-normal text-gray-700">
+          Aqui você pode gerenciar todas suas ocorrências do iFlow.
+        </p>
+      </Card>
     </div>
   );
 }
