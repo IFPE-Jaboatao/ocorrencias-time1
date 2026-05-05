@@ -6,7 +6,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { StatusOcorrencia } from '../ocorrencia.entity';
+import { StatusOcorrencia, Severidade } from '../ocorrencia.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ListarOcorrenciaDto {
@@ -17,25 +17,31 @@ export class ListarOcorrenciaDto {
   @IsOptional()
   @IsEnum(StatusOcorrencia, {
     message:
-      'Status inválido. Use ABERTA, EM_ACOMPANHAMENTO, RESOLVIDA ou ARQUIVADA',
+      'Status inválido. Use Aberta, Em Acompanhamento, Resolvida ou Arquivada',
   })
   status?: StatusOcorrencia;
 
   @ApiProperty({
     description: 'ID do aluno para filtrar ocorrências',
     example: '123456',
+    required: false,
   })
   @IsOptional()
-  @IsString()
-  id_aluno?: string;
+  @Type(() => Number)
+  @IsInt({ message: 'o Id do aluno deve ser um número inteiro' })
+  id_aluno?: number;
 
   @ApiProperty({
     description: 'Severidade da ocorrência para filtrar',
     example: 'Alta',
+    required: false,
+    enum: Severidade,
   })
   @IsOptional()
-  @IsString()
-  severidade?: string;
+  @IsEnum(Severidade, {
+    message: 'Severidade inválida, Use Baixa, Média ou Alta',
+  })
+  severidade?: Severidade;
 
   @ApiProperty({
     description: 'Data da ocorrência para filtrar (formato AAAA-MM-DD)',

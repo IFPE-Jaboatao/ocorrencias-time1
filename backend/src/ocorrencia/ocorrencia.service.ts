@@ -25,6 +25,7 @@ export class OcorrenciaService {
       data,
       turma,
       severidade,
+      descricao,
       page = 1,
       limit = 10,
     } = filtros;
@@ -57,6 +58,11 @@ export class OcorrenciaService {
     if (severidade) {
       qb.andWhere('o.severidade = :severidade', { severidade });
     }
+    if (descricao) {
+      qb.andWhere('(o.descricao LIKE :busca OR aluno.nome LIKE :busca)', {
+        busca: `%${descricao}`,
+      });
+    }
 
     // Paginação
     qb.skip((page - 1) * limit);
@@ -67,12 +73,15 @@ export class OcorrenciaService {
 
     // Total de registos
     const [dados, total] = await qb.getManyAndCount();
-
+    //retorno estruturado
     return {
-      total,
-      page,
-      limit,
       data: dados,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit), //calculo do total de páginas
+      },
     };
   }
 
