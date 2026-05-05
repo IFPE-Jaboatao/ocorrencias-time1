@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ocorrencia, StatusOcorrencia } from './ocorrencia.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
-import { Usuario } from 'src/auth/usuario.entity';
 import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
 import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
 import { BadRequestException } from '@nestjs/common';
@@ -25,6 +24,7 @@ export class OcorrenciaService {
       data,
       turma,
       severidade,
+      descricao,
       page = 1,
       limit = 10,
     } = filtros;
@@ -57,6 +57,11 @@ export class OcorrenciaService {
     if (severidade) {
       qb.andWhere('o.severidade = :severidade', { severidade });
     }
+    if (descricao) {
+      qb.andWhere('(o.descricao LIKE :busca OR aluno.nome LIKE :busca)', {
+        busca: `%${descricao}%`,
+      });
+    }
 
     // Paginação
     qb.skip((page - 1) * limit);
@@ -67,12 +72,15 @@ export class OcorrenciaService {
 
     // Total de registos
     const [dados, total] = await qb.getManyAndCount();
-
+    //retorno estruturado
     return {
-      total,
-      page,
-      limit,
       data: dados,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit), //calculo do total de páginas
+      },
     };
   }
 
@@ -127,32 +135,33 @@ export class OcorrenciaService {
     });
   }
   //alteração ---> usamos agora o dto validado e recebemos o token do jwt
-  async create(
-    CreateOcorrenciaDto: CreateOcorrenciaDto,
-    autorId: number,
-  ): Promise<Ocorrencia> {
-    //adicionada a verificação de existência do aluno
-    const aluno = await this.alunoRepository.findOne({
-      where: { id: CreateOcorrenciaDto.alunoId },
+  async create(dto: CreateOcorrenciaDto, autorId: number): Promise<Ocorrencia> {
+    // 1. Apenas verificamos se o aluno existe (sem carregar o objeto para o save)
+    const alunoExiste = await this.alunoRepository.findOneBy({
+      id: dto.alunoId,
     });
 
-    if (!aluno) {
+    if (!alunoExiste) {
       throw new NotFoundException(
-        `Aluno com ID ${CreateOcorrenciaDto.alunoId} não encontrado no sistema`,
+        `Aluno com ID ${dto.alunoId} não encontrado no sistema`,
       );
     }
-    //adicionada 'preparação da entidade com os dados filtrados e validados pelo dto
+
+    // 2. Criamos a ocorrência mapeando os campos MANUALMENTE
+    // NÃO use '...dto' aqui para evitar que o campo 'alunoId' entre na entidade
     const novaOcorrencia = this.ocorrenciaRepository.create({
-      categoria: CreateOcorrenciaDto.categoria,
-      severidade: CreateOcorrenciaDto.severidade,
-      descricao: CreateOcorrenciaDto.descricao,
-      contexto: CreateOcorrenciaDto.contexto,
+      categoria: dto.categoria,
+      severidade: dto.severidade,
+      descricao: dto.descricao,
+      contexto: dto.contexto,
+      status: StatusOcorrencia.ABERTA,
+      // Passamos apenas a referência do ID (o jeito mais seguro no TypeORM)
+      aluno: { id: dto.alunoId },
+      autor: { id: Number(autorId) }, // Garantimos que o ID seja um número
     });
-    //adicionada vinculação do aluno encontrado e o autor pelo jwt
-    novaOcorrencia.aluno = aluno; //associamos o aluno encontrado à ocorrência
-    novaOcorrencia.autor = { id: autorId } as Usuario; //associamos o autor (usuário logado) à ocorrência usando o ID do token
-    //aqui a ocorrência é salva no banco de dados
-    return this.ocorrenciaRepository.save(novaOcorrencia);
+
+    // 3. O save agora fará um INSERT puro, sem tentar dar UPDATE em nada
+    return await this.ocorrenciaRepository.save(novaOcorrencia);
   }
 
   async update(ocorrencia: Partial<Ocorrencia>): Promise<Ocorrencia | null> {

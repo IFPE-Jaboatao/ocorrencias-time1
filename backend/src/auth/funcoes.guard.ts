@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { FUNCOES_KEY } from './funcoes.decorator';
@@ -17,7 +22,15 @@ export class FuncoesGuard extends JwtAuthGuard implements CanActivate {
     if (!requiredFuncoes) {
       return true;
     }
+
     const { user } = context.switchToHttp().getRequest();
-    return requiredFuncoes.includes(user.funcao);
+
+    if (!requiredFuncoes.includes(user.funcao)) {
+      throw new ForbiddenException(
+        'O seu perfil não tem permissão para acessar este recurso',
+      );
+    }
+
+    return true;
   }
 }

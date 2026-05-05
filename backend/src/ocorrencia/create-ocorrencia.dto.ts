@@ -4,7 +4,9 @@ import {
   IsNotEmpty,
   IsEnum,
   IsOptional,
-  IsNumber,
+  IsInt,
+  IsPositive,
+  MaxLength,
 } from 'class-validator';
 import { Severidade } from 'src/ocorrencia/ocorrencia.entity';
 
@@ -14,8 +16,9 @@ export class CreateOcorrenciaDto {
     description: 'ID do aluno relacionado à ocorrência',
     example: 123456,
   })
-  @IsNumber()
-  @IsNotEmpty({ message: 'o ID do aluno é obrigatório' })
+  @IsInt({ message: 'O ID do aluno deve ser um número inteiro' })
+  @IsPositive({ message: 'O ID do aluno deve ser um número positivo' })
+  @IsNotEmpty({ message: 'O ID do aluno é obrigatório' })
   alunoId: number;
 
   @ApiProperty({
@@ -23,6 +26,9 @@ export class CreateOcorrenciaDto {
     example: 'Problema Técnico',
   })
   @IsString()
+  @MaxLength(150, {
+    message: 'A categoria não pode ter mais de 150 caracteres',
+  })
   @IsNotEmpty({ message: 'A categoria é obrigatória' })
   categoria: string;
 
@@ -30,7 +36,7 @@ export class CreateOcorrenciaDto {
     description: 'Severidade da ocorrência',
     example: 'Alta',
   })
-  @IsEnum(Severidade, { message: 'A severidade deve ser baixa, média ou alta' })
+  @IsEnum(Severidade, { message: 'A severidade deve ser Baixa, Média ou Alta' })
   @IsNotEmpty({ message: 'A severidade é obrigatória' })
   severidade: Severidade;
 
@@ -39,6 +45,9 @@ export class CreateOcorrenciaDto {
     example: 'O computador não liga e apresenta uma tela azul.',
   })
   @IsString()
+  @MaxLength(2000, {
+    message: 'A descrição não pode ultrapassar 2000 caracteres',
+  })
   @IsNotEmpty({ message: 'A descrição da ocorrência é obrigatória' })
   descricao: string;
 

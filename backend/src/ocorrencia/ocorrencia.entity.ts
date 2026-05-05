@@ -13,11 +13,11 @@ import { Comentario } from 'src/comentario/comentario.entity';
 import { Evidencia } from 'src/evidencia/evidencia.entity';
 import { Usuario } from 'src/auth/usuario.entity';
 
-//adicioonado enum para 'blindar' o banco de dados, impede que
+//adicionado enum para 'blindar' o banco de dados, impede que
 //o frontend envie severidade ou status com erros de digitação
 export enum Severidade {
   BAIXA = 'Baixa',
-  MEDIA = 'Media',
+  MEDIA = 'Média',
   ALTA = 'Alta',
 }
 
