@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-
 # IFlow API
 
 ## Sobre
@@ -122,7 +120,3 @@ npm run build
 ```bash
 npm run start:prod
 ```
-
-=======
-
-> > > > > > > Stashed changes
