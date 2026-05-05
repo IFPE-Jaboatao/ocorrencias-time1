@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button, Card, Label, TextInput, Spinner, Alert } from "flowbite-react";
 import { HiInformationCircle } from "react-icons/hi";
 import { api } from "@/services/api";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const [login, setLogin] = useState("");
@@ -12,7 +12,7 @@ export default function LoginPage() {
     type: "error" | "loading" | null;
     message: string;
   }>({ type: null, message: "" });
-  const router = useRouter();
+  const { login: authLogin } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,15 +22,15 @@ export default function LoginPage() {
       const response = await api.post("/auth/login", { login, senha });
 
       if (response.access_token) {
-        localStorage.setItem("token", response.access_token);
-        router.push("/dashboard");
+        authLogin(response.access_token);
       } else {
         setStatus({ type: "error", message: "Usuário ou senha incorretos" });
       }
     } catch (error) {
       setStatus({
         type: "error",
-        message: "Não foi possível conectar ao servidor",
+        message:
+          "Não foi possível conectar ao servidor. Verifique sua conexão.",
       });
     }
   };
@@ -134,6 +134,7 @@ export default function LoginPage() {
       <Card className="max-w-md w-full shadow-2xl border-none backdrop-blur-md rounded-md bg-white z-10">
         <div className="text-center mb-4">
           <h1 className="text-3xl font-bold text-gray-700">Login</h1>
+          <p className="text-gray-500 text-sm">Sistema de Ocorrências iFlow</p>
         </div>
 
         {status.type === "error" && (
@@ -144,18 +145,19 @@ export default function LoginPage() {
 
         <form className="flex flex-col gap-4" onSubmit={handleLogin}>
           <div>
-            <label className="text-gray-600">Usuário</label>
+            <label className="text-gray-600 font-medium">Usuário</label>
             <TextInput
-              placeholder="Digite seu usuário" //no figma esta pelo email, mas na modelagem do backend colocaram pelo nome;
+              placeholder="Digite seu usuário"
               value={login}
               onChange={(e) => setLogin(e.target.value)}
               color={status.type === "error" ? "failure" : "gray"}
               required
+              disabled={status.type === "loading"}
             />
           </div>
 
           <div>
-            <label className="text-gray-600">Senha</label>
+            <label className="text-gray-600 font-medium">Senha</label>
             <TextInput
               type="password"
               placeholder="Digite sua senha"
@@ -163,17 +165,19 @@ export default function LoginPage() {
               onChange={(e) => setSenha(e.target.value)}
               color={status.type === "error" ? "failure" : "gray"}
               required
+              disabled={status.type === "loading"}
             />
           </div>
+
           <Button
             type="submit"
-            className="bg-[#5da16f] hover:bg-[#4a8a59] transition-all"
+            className="bg-[#5da16f] enabled:hover:bg-[#4a8a59] transition-all"
             disabled={status.type === "loading"}
           >
             {status.type === "loading" ? (
               <div className="flex items-center gap-3">
                 <Spinner size="sm" light={true} />
-                <span>Carregando...</span>
+                <span>Autenticando...</span>
               </div>
             ) : (
               "Entrar"

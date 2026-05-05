@@ -8,48 +8,65 @@ interface User {
   role: "ADMIN" | "ALUNO" | "PROFESSOR";
 }
 
+interface DecodedToken {
+  role: "ADMIN" | "ALUNO" | "PROFESSOR";
+  name?: string;
+  exp: number;
+}
+
 interface AuthContextType {
   user: User | null;
-  login: (token: string, userData: User) => void;
+  login: (token: string) => void;
   logout: () => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user_data");
-    if (savedUser) setUser(JSON.parse(savedUser));
+
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
   }, []);
 
   const login = (token: string) => {
     try {
-      const decoded: any = jwtDecode(token);
-      const userRole = decoded.role;
-      const userName = decoded.name || "Usuário";
+      const decoded = jwtDecode<DecodedToken>(token);
 
-      const userData = { name: userName, role: userRole };
+      const userData: User = {
+        name: decoded.name || "Usuário",
+        role: decoded.role,
+      };
+
       localStorage.setItem("token", token);
       localStorage.setItem("user_data", JSON.stringify(userData));
 
       setUser(userData);
-      router.push(`/dashboard/${userRole.toLowerCase()}`);
+
+      router.push(`/dashboard/${decoded.role.toLowerCase()}`);
     } catch (error) {
-      console.error("Erro ao decodificar o token:", error);
+      console.error("Falha no Login:", error);
     }
   };
 
   const logout = () => {
-    localStorage.clear();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_data");
     setUser(null);
     router.push("/login");
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
