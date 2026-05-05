@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { jwtDecode } from "jwt-decode";
 
 interface User {
   name: string;
@@ -24,12 +25,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (savedUser) setUser(JSON.parse(savedUser));
   }, []);
 
-  const login = (token: string, userData: User) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user_data", JSON.stringify(userData));
-    setUser(userData);
+  const login = (token: string) => {
+    try {
+      const decoded: any = jwtDecode(token);
+      const userRole = decoded.role;
+      const userName = decoded.name || "Usuário";
 
-    router.push(`/dashboard/${userData.role.toLowerCase()}`);
+      const userData = { name: userName, role: userRole };
+      localStorage.setItem("token", token);
+      localStorage.setItem("user_data", JSON.stringify(userData));
+
+      setUser(userData);
+      router.push(`/dashboard/${userRole.toLowerCase()}`);
+    } catch (error) {
+      console.error("Erro ao decodificar o token:", error);
+    }
   };
 
   const logout = () => {
