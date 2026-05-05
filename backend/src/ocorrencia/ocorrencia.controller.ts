@@ -8,6 +8,7 @@ import {
   UseGuards,
   Param,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { OcorrenciaService } from './ocorrencia.service';
 import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
@@ -16,6 +17,7 @@ import { FuncoesGuard } from 'src/auth/funcoes.guard';
 import { Funcoes } from 'src/auth/funcoes.decorator';
 import { Funcao } from 'src/auth/enums/funcao-usuario.enum';
 import { AtualizarStatusDto } from './dto/atualizar-status.dto';
+import { StatusOcorrencia, Severidade } from './ocorrencia.entity';
 import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
 import {
   ApiBearerAuth,
@@ -41,11 +43,25 @@ export class OcorrenciaController {
     required: false,
     description: 'ID do aluno para filtrar ocorrências por aluno específico',
   })
+  //atualizado status da ocorrência como múltipla escolha para eliminar chance de erros de digitação
+  @ApiQuery({
+    name: 'status',
+    description: 'Status da ocorrência para filtragem',
+    required: false,
+    enum: StatusOcorrencia,
+    schema: {
+      default: StatusOcorrencia.ABERTA,
+    },
+  })
   @ApiQuery({
     name: 'severidade',
     required: false,
     description:
       'Severidade da ocorrência (baixa, média, alta) para filtrar por gravidade',
+    enum: Severidade,
+    schema: {
+      default: Severidade.BAIXA,
+    },
   })
   @ApiQuery({
     name: 'data',
@@ -124,7 +140,15 @@ export class OcorrenciaController {
   })
   @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
   async create(@Body() dto: CreateOcorrenciaDto, @Req() req: any) {
-    const autorId = req.user.sub;
+    console.log('Payload do JWT:', req.user);
+
+    const autorId = req.user?.sub || req.user?.id || req.user?.userId;
+
+    if (!autorId) {
+      throw new BadRequestException(
+        'Não foi possível extrair o ID do usuário do token.',
+      );
+    }
 
     return await this.ocorrenciaService.create(dto, autorId);
   }

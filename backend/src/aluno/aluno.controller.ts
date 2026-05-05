@@ -26,7 +26,7 @@ export class AlunoController {
   @ApiBearerAuth()
   @ApiQuery({
     name: 'Authorization',
-    required: true,
+    required: false,
     description: 'Token JWT de autenticação e autorização do usuário',
   })
   @ApiResponse({

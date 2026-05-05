@@ -20,12 +20,20 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.useGlobalPipes(new ValidationPipe());
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Remove campos extras que não estão no DTO
+      forbidNonWhitelisted: true, // Retorna erro 400 se enviarem campos não permitidos
+      transform: true, // Converte os dados para os tipos corretos (ex: string para number)
+    }),
+  );
   app.enableCors({
     origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
   await app.listen(process.env.PORT ?? 3001);
+
 }
 bootstrap();

@@ -26,6 +26,10 @@ export class AlunoService {
     return this.alunoRepository.findOneBy({ usuario: { id: usuarioId } });
   }
 
+  async findByMatricula(matricula: string): Promise<Aluno | null> {
+    return this.alunoRepository.findOneBy({ matricula });
+  }
+
   async create(aluno: Partial<Aluno>): Promise<Aluno> {
     try {
       const newAluno = this.alunoRepository.create(aluno);

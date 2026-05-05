@@ -5,6 +5,9 @@ import {
   UseGuards,
   Put,
   UnauthorizedException,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/create-usuario.dto';
@@ -104,13 +107,13 @@ export class AuthController {
     name: 'cpf',
     required: false,
     description:
-      'CPF do responsável (apenas para função RESPONSAVEL, opcional)',
+      'CPF do responsável deve ser no formato XXX.XXX.XXX-XX (apenas para função RESPONSAVEL, opcional)',
   })
   @ApiQuery({
     name: 'telefone',
     required: false,
     description:
-      'Telefone do responsável (apenas para função RESPONSAVEL, opcional)',
+      'Telefone do responsável deve ser no formato (XX) XXXXX-XXXX (apenas para função RESPONSAVEL, opcional)',
   })
   @ApiQuery({
     name: 'matricula',
@@ -143,6 +146,50 @@ export class AuthController {
     @Body()
     body: RegisterDto,
   ) {
+    if (body.funcao == Funcao.RESPONSAVEL) {
+      function validarCPFFormato(cpf) {
+        const regex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+        return regex.test(cpf);
+      }
+      function validarTelefoneFormato(telefone) {
+        const regex = /^\(\d{2}\) \d{5}-\d{4}$/;
+        return regex.test(telefone);
+      }
+      if (!validarCPFFormato(body.cpf)) {
+        throw new BadRequestException(
+          'CPF inválido. O formato deve ser XXX.XXX.XXX-XX',
+        );
+      }
+      if (body.telefone && !validarTelefoneFormato(body.telefone)) {
+        throw new BadRequestException(
+          'Telefone inválido. O formato deve ser (XX) XXXXX-XXXX',
+        );
+      }
+      const existCpf = await this.responsavelService.findByCpf(body.cpf);
+      if (existCpf) {
+        throw new ConflictException(
+          'CPF já cadastrado para outro responsável.',
+        );
+      }
+      const existTelefone = await this.responsavelService.findByTelefone(
+        body.telefone,
+      );
+      if (existTelefone) {
+        throw new ConflictException(
+          'Telefone já cadastrado para outro responsável.',
+        );
+      }
+    } else if (body.funcao == Funcao.ALUNO) {
+      const existmatricula = await this.alunoService.findByMatricula(
+        body.matricula,
+      );
+      if (existmatricula) {
+        throw new ConflictException(
+          'Matrícula já cadastrada para outro aluno.',
+        );
+      }
+    }
+
     // Usuário base do login, senha, email e tipo
     const novoUsuario = await this.authService.register(
       body.senha,
@@ -159,17 +206,6 @@ export class AuthController {
         usuario: novoUsuario,
       });
     } else if (body.funcao === Funcao.RESPONSAVEL) {
-      const existCpf = await this.responsavelService.findByCpf(body.cpf);
-      if (existCpf) {
-        throw new Error('CPF já cadastrado para outro responsável.');
-      }
-      const existTelefone = await this.responsavelService.findByTelefone(
-        body.telefone,
-      );
-      if (existTelefone) {
-        throw new Error('Telefone já cadastrado para outro responsável.');
-      }
-
       await this.responsavelService.create({
         nome: body.nome,
         telefone: body.telefone,
@@ -233,10 +269,10 @@ export class AuthController {
     );
 
     if (!aluno) {
-      throw new Error('Aluno não encontrado');
+      throw new NotFoundException('Aluno não encontrado');
     }
     if (!responsavel) {
-      throw new Error('Responsável não encontrado');
+      throw new NotFoundException('Responsável não encontrado');
     }
 
     if (!aluno.responsaveis) {

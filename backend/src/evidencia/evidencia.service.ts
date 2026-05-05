@@ -16,7 +16,7 @@ export class EvidenciaService {
     return this.evidenciaRepository.find();
   }
 
-  async findOne(id: number): Promise<Evidencia | null> {
+  async findOneById(id: number): Promise<Evidencia | null> {
     return this.evidenciaRepository.findOneBy({ id });
   }
 
@@ -29,13 +29,13 @@ export class EvidenciaService {
     await this.evidenciaRepository.update(evidencia.id, evidencia);
     return this.evidenciaRepository.findOneBy({ id: evidencia.id });
   }
-  getFilePath(filename: string): string {
-    const filePath = join(process.cwd(), 'uploads', filename);
+  getFilePath(filepath: string): string {
+    const filePath = join(process.cwd(), 'uploads', filepath);
     //verifica se o arquivo existe na pasta
     if (!existsSync(filePath)) {
       throw new NotFoundException(
         //tratamento de erro
-        `O arquivo: ${filename} não foi encontrado no sistema`,
+        `O arquivo com path igual a "${filepath}" não foi encontrado no sistema`,
       );
     }
     return filePath;
