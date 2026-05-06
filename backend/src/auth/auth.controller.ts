@@ -1,19 +1,21 @@
 import {
   Controller,
   Post,
-  Body,
   UseGuards,
   Put,
   UnauthorizedException,
   NotFoundException,
   ConflictException,
   BadRequestException,
+  Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/create-usuario.dto';
 import { Funcao } from './enums/funcao-usuario.enum';
 import { ResponsavelService } from 'src/responsavel/responsavel.service';
 import { AlunoService } from 'src/aluno/aluno.service';
+import { ProfessorService } from 'src/professor/professor.service'; // 👈 Import adicionado
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Funcoes } from './funcoes.decorator';
 import { FuncoesGuard } from './funcoes.guard';
@@ -33,6 +35,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly alunoService: AlunoService,
     private readonly responsavelService: ResponsavelService,
+    private readonly professorService: ProfessorService, // 👈 Injetado corretamente
   ) {}
 
   @Post('login')
@@ -59,7 +62,7 @@ export class AuthController {
     status: 500,
     description: 'Erro interno do servidor durante a autenticação.',
   })
-  async login(@Body() body: LoginDto) {
+  async login(@Query() body: LoginDto) {
     const user = await this.authService.validateUser(body.email, body.senha);
     if (!user) {
       throw new UnauthorizedException('Email ou Senha incorretos');
@@ -89,8 +92,9 @@ export class AuthController {
   @ApiQuery({
     name: 'funcao',
     required: true,
+    enum: Funcao,
     description:
-      'Função do usuário (ALUNO ou RESPONSAVEL) para determinar o tipo de perfil a ser criado',
+      'Função do usuário (ALUNO, RESPONSAVEL ou PROFESSOR) para determinar o tipo de perfil a ser criado',
   })
   @ApiQuery({
     name: 'nome',
@@ -143,9 +147,10 @@ export class AuthController {
     description: 'Erro interno do servidor durante o registro.',
   })
   async register(
-    @Body()
+    @Query()
     body: RegisterDto,
   ) {
+    // 1. Validações preliminares
     if (body.funcao == Funcao.RESPONSAVEL) {
       function validarCPFFormato(cpf) {
         const regex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
@@ -190,14 +195,14 @@ export class AuthController {
       }
     }
 
-    // Usuário base do login, senha, email e tipo
+    // 2. Cria o Usuário base (login, senha, email e tipo)
     const novoUsuario = await this.authService.register(
       body.senha,
       body.email,
       body.funcao,
     );
 
-    // Criação condicional baseada no tipo do usuário
+    // 3. Criação condicional baseada no tipo do usuário
     if (body.funcao === Funcao.ALUNO) {
       await this.alunoService.create({
         nome: body.nome,
@@ -212,8 +217,14 @@ export class AuthController {
         cpf: body.cpf,
         usuario: novoUsuario,
       });
+    } else if (body.funcao === Funcao.PROFESSOR) {
+      await this.professorService.create({
+        nome: body.nome,
+        matricula: body.matricula || `PROF-${Date.now()}`,
+        departamento: body.departamento || 'Geral',
+        usuario: novoUsuario,
+      });
     }
-
     return {
       message: 'Usuário e perfil criados com sucesso',
       userId: novoUsuario.id,
@@ -257,16 +268,12 @@ export class AuthController {
     description: 'Erro interno do servidor durante o vínculo.',
   })
   async vincularAlunoResponsavel(
-    @Body()
-    body: {
-      alunoId: number;
-      responsavelId: number;
-    },
+    @Query('alunoId', ParseIntPipe) alunoId: number,
+    @Query('responsavelId', ParseIntPipe) responsavelId: number,
   ) {
-    const aluno = await this.alunoService.findByUsuarioId(body.alunoId);
-    const responsavel = await this.responsavelService.findOneById(
-      body.responsavelId,
-    );
+    const aluno = await this.alunoService.findByUsuarioId(alunoId);
+    const responsavel =
+      await this.responsavelService.findOneById(responsavelId);
 
     if (!aluno) {
       throw new NotFoundException('Aluno não encontrado');

@@ -73,4 +73,13 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   matricula?: string; // Para Aluno
+
+  @ApiProperty({
+    description: 'Departamento do professor',
+    example: 'Ciências Exatas',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  departamento?: string; // Para Professor
 }

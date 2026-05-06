@@ -68,8 +68,9 @@ export class ListarOcorrenciaDto {
   descricao?: string;
 
   @ApiProperty({
-    description: 'quantidade de ocorrências a serem retornadas por página',
+    description: 'Número da página para paginação',
     example: 10,
+    default: 1,
   })
   @IsOptional()
   @Type(() => Number)
@@ -77,8 +78,9 @@ export class ListarOcorrenciaDto {
   page?: number = 1;
 
   @ApiProperty({
-    description: 'quantidade de ocorrências a serem retornadas por página',
+    description: 'Quantidade de ocorrências a serem retornadas por página',
     example: 10,
+    default: 10,
   })
   @IsOptional()
   @Type(() => Number)

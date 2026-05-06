@@ -10,6 +10,7 @@ import type { StringValue } from 'ms';
 import { Usuario } from './usuario.entity';
 import { AlunoModule } from 'src/aluno/aluno.module';
 import { ResponsavelModule } from 'src/responsavel/responsavel.module';
+import { ProfessorModule } from 'src/professor/professor.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ResponsavelModule } from 'src/responsavel/responsavel.module';
     AlunoModule,
     ResponsavelModule,
     PassportModule,
+    ProfessorModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

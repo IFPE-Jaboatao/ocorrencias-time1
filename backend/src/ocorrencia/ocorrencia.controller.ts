@@ -9,6 +9,7 @@ import {
   Param,
   Query,
   BadRequestException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { OcorrenciaService } from './ocorrencia.service';
 import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
@@ -31,6 +32,7 @@ import {
 @Controller('ocorrencias')
 //adicionada 'blindagem' global do controller
 @UseGuards(JwtAuthGuard, FuncoesGuard)
+@ApiBearerAuth()
 export class OcorrenciaController {
   constructor(private readonly ocorrenciaService: OcorrenciaService) {}
 
@@ -247,8 +249,9 @@ export class OcorrenciaController {
     description: 'Erro interno do servidor.',
   })
   @Funcoes(Funcao.ALUNO, Funcao.RESPONSAVEL)
-  async registrarCiencia(@Param('id') id: string) {
-    return await this.ocorrenciaService.registrarCiencia(+id);
+  //alterado de string para number
+  async registrarCiencia(@Param('id', ParseIntPipe) id: number) {
+    return await this.ocorrenciaService.registrarCiencia(id);
   }
 
   @Patch(':id/status')
@@ -286,13 +289,13 @@ export class OcorrenciaController {
   })
   @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
   async atualizarStatus(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: AtualizarStatusDto,
   ) {
-    return await this.ocorrenciaService.atualizarStatus(+id, dto);
+    return await this.ocorrenciaService.atualizarStatus(id, dto);
   }
 
-  @Get('/:id')
+  @Get(':id')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Obter detalhes de uma ocorrência por ID' })
   @ApiQuery({
@@ -316,7 +319,8 @@ export class OcorrenciaController {
     status: 500,
     description: 'Erro interno do servidor.',
   })
-  async getOcorrencia(@Param('id') id: string) {
-    return await this.ocorrenciaService.findOne(Number(id));
+  async getOcorrencia(@Param('id', ParseIntPipe) id: number) {
+    //parseintpipe garante que o id é um número antes de cair no return
+    return await this.ocorrenciaService.findOne(id);
   }
 }

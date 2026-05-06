@@ -5,6 +5,7 @@ import {
   OneToOne,
   JoinColumn,
   ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 import { Usuario } from '../auth/usuario.entity';
@@ -29,5 +30,6 @@ export class Professor {
   usuario: Usuario;
 
   @ManyToMany(() => Aluno, (aluno) => aluno.professores)
+  @JoinTable()
   alunos: Aluno[];
 }

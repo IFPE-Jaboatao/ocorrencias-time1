@@ -43,8 +43,8 @@ export class ResponsavelService {
       },
     });
   }
-
-  async findByUsuarioId(usuarioId: number): Promise<Responsavel | null> {
+  //alterado o nome para ficar alinhado com o controller
+  async findFilhos(usuarioId: number): Promise<Responsavel | null> {
     const responsavel = await this.responsavelRepository.findOne({
       where: { usuario: { id: usuarioId } },
       //traz os filhos e o histórico de ocorrências
@@ -71,17 +71,20 @@ export class ResponsavelService {
       //busca o responsável existente com as relações
       const responsavel = await this.responsavelRepository.findOne({
         where: { id },
-        relations: ['alunos'],
+        relations: ['usuario'],
       });
       if (!responsavel) {
         throw new NotFoundException('Responsável não localizado');
       }
 
-      if (novo_email_responsavel) {
-        const emailExists = await this.responsavelRepository.findOne({
+      if (novo_email_responsavel && responsavel.usuario) {
+        const emailCount = await this.responsavelRepository.count({
           where: { usuario: { email: novo_email_responsavel } },
         });
-        if (emailExists && emailExists.id !== id) {
+        if (
+          emailCount > 0 &&
+          responsavel.usuario.email !== novo_email_responsavel
+        ) {
           throw new ConflictException(
             'Já existe um responsável com este email.',
           );
@@ -94,14 +97,16 @@ export class ResponsavelService {
         nome: data.nome ?? responsavel.nome,
         telefone: data.telefone ?? responsavel.telefone,
         cpf: data.cpf ?? responsavel.cpf,
-        usuario: data.usuario ?? responsavel.usuario,
-        aluno: data.aluno ?? responsavel.aluno,
       });
       //.save garante que a tabela many-to-many seja atualizada
       return await this.responsavelRepository.save(responsavel);
     } catch (error) {
-      console.error(error);
-      if (error instanceof NotFoundException) throw error;
+      console.error('Erro no update de responsável:', error);
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      )
+        throw error;
       throw new BadRequestException('Erro ao atualizar responsável');
     }
   }
@@ -112,7 +117,7 @@ export class ResponsavelService {
         nome: data.nome,
         telefone: data.telefone,
         cpf: data.cpf,
-        usuario: data.usuario,
+        usuario: data.usuario?.id ? { id: data.usuario.id } : undefined,
       });
 
       return await this.responsavelRepository.save(newResponsavel);

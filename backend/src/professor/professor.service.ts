@@ -14,7 +14,7 @@ export class ProfessorService {
   async findByUsuarioId(usuarioId: number): Promise<Professor> {
     const professor = await this.professorRepository.findOne({
       where: { usuario: { id: usuarioId } },
-      relations: ['alunos', 'alunos.ocorrencias'], //aqui retorna os alunos e também o històrcio de ocorrências
+      relations: ['usuario', 'alunos', 'alunos.ocorrencias'], //aqui retorna os alunos e também o històrcio de ocorrências
     });
 
     if (!professor) {
@@ -24,5 +24,9 @@ export class ProfessorService {
     }
 
     return professor;
+  }
+  async create(dadosProfessor: Partial<Professor>): Promise<Professor> {
+    const novoProfessor = this.professorRepository.create(dadosProfessor);
+    return await this.professorRepository.save(novoProfessor);
   }
 }

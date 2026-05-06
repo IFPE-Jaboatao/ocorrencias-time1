@@ -129,10 +129,15 @@ export class OcorrenciaService {
   }
 
   async findOne(id: number): Promise<Ocorrencia | null> {
-    return this.ocorrenciaRepository.findOne({
+    const ocorrencia = await this.ocorrenciaRepository.findOne({
       where: { id },
-      relations: ['aluno', 'autor', 'evidencias', 'comentarios'],
+      relations: ['aluno', 'autor'],
     });
+
+    if (!ocorrencia) {
+      throw new NotFoundException(`Ocorrencia com ID ${id} não encontrada`);
+    }
+    return ocorrencia;
   }
   //alteração ---> usamos agora o dto validado e recebemos o token do jwt
   async create(dto: CreateOcorrenciaDto, autorId: number): Promise<Ocorrencia> {
@@ -185,7 +190,7 @@ export class OcorrenciaService {
     id: number,
     dto: AtualizarStatusDto,
   ): Promise<Ocorrencia> {
-    // Busca a ocorrência para verificar o status anterior
+    // Busca a ocorrência
     const ocorrencia = await this.ocorrenciaRepository.findOne({
       where: { id },
     });
@@ -196,22 +201,32 @@ export class OcorrenciaService {
       );
     }
 
-    // Regra de Negócio: Exigir Justificativa se já estava RESOLVIDA e vai mudar de estado
+    //Exigir Justificativa ao MARCAR como RESOLVIDA
+    if (dto.status === StatusOcorrencia.RESOLVIDA) {
+      if (!dto.justificativa || dto.justificativa.trim() === '') {
+        throw new BadRequestException(
+          'É obrigatório fornecer uma justificativa para marcar a ocorrência como RESOLVIDA',
+        );
+      }
+    }
+
+    //Exigir Justificativa se já estava RESOLVIDA e vai reabrir
     if (
       ocorrencia.status === StatusOcorrencia.RESOLVIDA &&
       dto.status !== StatusOcorrencia.RESOLVIDA
     ) {
       if (!dto.justificativa || dto.justificativa.trim() === '') {
         throw new BadRequestException(
-          'É obrigatório fornecer uma justificativa para alterar o status de uma ocorrência já resolvida.',
+          'É obrigatório fornecer uma justificativa para alterar o status de uma ocorrência já resolvida',
         );
       }
-      // Regista a justificativa enviada
+    }
+    // Atualiza os dados
+    ocorrencia.status = dto.status;
+
+    if (dto.justificativa) {
       ocorrencia.justificativa = dto.justificativa;
     }
-
-    // Atualiza o status
-    ocorrencia.status = dto.status;
 
     // Salva e devolve a ocorrência atualizada
     return await this.ocorrenciaRepository.save(ocorrencia);

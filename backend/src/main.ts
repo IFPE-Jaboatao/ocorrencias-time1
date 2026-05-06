@@ -20,7 +20,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Remove campos extras que não estão no DTO
@@ -34,6 +33,5 @@ async function bootstrap() {
     credentials: true,
   });
   await app.listen(process.env.PORT ?? 3001);
-
 }
 bootstrap();
