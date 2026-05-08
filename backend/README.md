@@ -44,13 +44,13 @@ Antes de iniciar, certifique-se de ter instalado em sua máquina:
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/iflow-backend.git
+https://github.com/IFPE-Jaboatao/ocorrencias-time1.git
 ```
 
 ### 2. Acesse a pasta do projeto
 
 ```bash
-cd iflow-backend
+cd backend
 ```
 
 ### 3. Instale as dependências
