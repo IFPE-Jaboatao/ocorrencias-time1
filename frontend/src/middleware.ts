@@ -8,25 +8,18 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/login" && token && userRole) {
-    return NextResponse.redirect(
-      new URL(`/dashboard/${userRole.toLowerCase()}`, request.url),
-    );
+    return NextResponse.redirect(new URL(`/dashboard/${userRole.toLowerCase()}`, request.url));
   }
 
   if (pathname.startsWith("/dashboard") && !token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (pathname.startsWith("/dashboard/admin") && userRole !== "ADMIN") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (pathname.startsWith("/dashboard/aluno") && userRole !== "ALUNO") {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (pathname.startsWith("/dashboard/professor") && userRole !== "PROFESSOR") {
-    return NextResponse.redirect(new URL("/login", request.url));
+  const roles = ["ADMIN", "ALUNO", "PROFESSOR", "RESPONSAVEL"];
+  for (const role of roles) {
+    if (pathname.startsWith(`/dashboard/${role.toLowerCase()}`) && userRole !== role) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
   }
 
   return NextResponse.next();
