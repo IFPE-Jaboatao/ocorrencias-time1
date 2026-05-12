@@ -1,15 +1,20 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: 'class',
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "node_modules/flowbite-react/lib/esm/**/*.js", // 👈 ESSENCIAL
+    "node_modules/flowbite-react/lib/esm/**/*.js", 
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        iflowGreen: "#15803d", 
+      }
+    },
   },
   plugins: [
-    require("flowbite/plugin"), // 👈 ESSENCIAL
+    require("flowbite/plugin"),
   ],
 };
 
