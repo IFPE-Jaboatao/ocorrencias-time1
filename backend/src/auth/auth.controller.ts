@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Body,
+  Res,
   UseGuards,
   Put,
   UnauthorizedException,
@@ -25,7 +26,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-
+import { Response } from 'express';
 @ApiTags('Autenticação e Registro')
 @Controller('auth')
 export class AuthController {
@@ -59,20 +60,31 @@ export class AuthController {
     status: 500,
     description: 'Erro interno do servidor durante a autenticação.',
   })
-  async login(@Body() body: LoginDto) {
+  async login(
+    @Body() body: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const user = await this.authService.validateUser(body.email, body.senha);
     if (!user) {
       throw new UnauthorizedException('Email ou Senha incorretos');
     }
     const result = await this.authService.login(user);
 
+    res.cookie('token', result.access_token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 3600000,
+    });
+
     return {
-      access_token: result.access_token,
+      name: user.nome || 'Usuário',
+      funcao: user.funcao,
     };
   }
 
- // @UseGuards(JwtAuthGuard, FuncoesGuard)
- // @Funcoes(Funcao.ADMIN)
+  // @UseGuards(JwtAuthGuard, FuncoesGuard)
+  // @Funcoes(Funcao.ADMIN)
   @Post('register')
   @ApiOperation({ summary: 'Registrar um novo usuário com perfil específico' })
   @ApiBearerAuth()
