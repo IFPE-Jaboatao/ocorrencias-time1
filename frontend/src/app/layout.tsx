@@ -16,7 +16,7 @@ export default function RootLayout({
       <body className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <AuthProvider>
           <Navbar />
-          <main className="pt-28 min-h-screen container mx-auto px-4">
+          <main >
             {children}
           </main>
         </AuthProvider>
