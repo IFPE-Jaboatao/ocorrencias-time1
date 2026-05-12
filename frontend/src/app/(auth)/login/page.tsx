@@ -28,13 +28,13 @@ export default function LoginPage() {
         senha: senha,
       });
 
-      if (data && data.access_token) {
-        console.log("Token confirmado! Iniciando sessão...");
-        realizarLoginContexto(data.access_token);
+if (data && data.funcao) { 
+        console.log("Login autorizado! Iniciando sessão...");
+                realizarLoginContexto(data); 
       } else {
         setStatus({ type: "error", message: "Resposta inválida do servidor." });
       }
-    } catch (error: any) {
+    } catch (error: any){
       console.error("Erro capturado:", error);
       setStatus({
         type: "error",

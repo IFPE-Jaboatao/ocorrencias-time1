@@ -10,6 +10,7 @@ export const api = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
         redirect: "follow",
+        credentials: "include", 
       });
 
       if (res.ok) {
@@ -17,7 +18,6 @@ export const api = {
       }
 
       const errorData = await res.json().catch(() => ({}));
-
       const error = new Error(errorData.message || "Erro na autenticação");
       (error as any).status = res.status;
 
