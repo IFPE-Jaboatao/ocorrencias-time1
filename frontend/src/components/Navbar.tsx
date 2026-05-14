@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { DarkThemeToggle } from "flowbite-react";
 import { HiHome, HiClipboardList, HiOutlineLogout } from "react-icons/hi";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -42,12 +43,22 @@ export function Navbar() {
             <Link
               key={item.id}
               href={item.href}
-              className={`p-3 rounded-full transition-all ${isActive ? "bg-white text-green-700 shadow-lg scale-110" : "text-white hover:bg-green-600"}`}
+              className={`relative p-3 rounded-full transition-all duration-300 ${isActive ? "text-green-700" : "text-white hover:bg-green-600"}`}
             >
-              <item.icon size={24} />
+              {isActive && (
+                <motion.div
+                  layoutId="bubble"
+                  className="absolute inset-0 bg-white rounded-full shadow-lg"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <div className="relative z-10">
+                <item.icon size={24} />
+              </div>
             </Link>
           );
         })}
+
         <div className="w-[1px] h-6 bg-white/20 mx-1" />
         <DarkThemeToggle className="text-white hover:bg-green-600 border-none focus:ring-0" />
         <button
