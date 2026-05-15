@@ -20,13 +20,14 @@ import { Funcoes } from './funcoes.decorator';
 import { FuncoesGuard } from './funcoes.guard';
 import { LoginDto } from './dto/login.dto';
 import {
-  ApiBearerAuth,
+  ApiBody,
+  ApiCookieAuth,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
+import { VincularAlunoResponsavelDto } from './dto/vincular-aluno-responsavel.dto';
 @ApiTags('Autenticação e Registro')
 @Controller('auth')
 export class AuthController {
@@ -38,19 +39,10 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'Autenticar usuário e obter token JWT' })
-  @ApiQuery({
-    name: 'email',
-    required: true,
-    description: 'Email do usuário para autenticação',
-  })
-  @ApiQuery({
-    name: 'senha',
-    required: true,
-    description: 'Senha do usuário para autenticação',
-  })
   @ApiResponse({
     status: 200,
-    description: 'Autenticação bem-sucedida. Token JWT retornado.',
+    description:
+      'Autenticação bem-sucedida. Token JWT retornado no cookie HttpOnly.',
   })
   @ApiResponse({
     status: 401,
@@ -83,55 +75,14 @@ export class AuthController {
     };
   }
 
-  // @UseGuards(JwtAuthGuard, FuncoesGuard)
-  // @Funcoes(Funcao.ADMIN)
+  @UseGuards(JwtAuthGuard, FuncoesGuard)
+  @Funcoes(Funcao.ADMIN)
   @Post('register')
-  @ApiOperation({ summary: 'Registrar um novo usuário com perfil específico' })
-  @ApiBearerAuth()
-  @ApiQuery({
-    name: 'email',
-    required: true,
-    description: 'Email do usuário para registro',
+  @ApiOperation({
+    summary:
+      'Registrar um novo usuário com perfil específico (restrito a usuários com perfil ADMIN).',
   })
-  @ApiQuery({
-    name: 'senha',
-    required: true,
-    description: 'Senha do usuário para registro',
-  })
-  @ApiQuery({
-    name: 'funcao',
-    required: true,
-    description:
-      'Função do usuário (ALUNO ou RESPONSAVEL) para determinar o tipo de perfil a ser criado',
-  })
-  @ApiQuery({
-    name: 'nome',
-    required: false,
-    description:
-      'Nome do usuário para o perfil (apenas para função ALUNO, RESPONSAVEL e PROFESSOR, opcional)',
-  })
-  @ApiQuery({
-    name: 'turma',
-    required: false,
-    description: 'Turma do aluno (apenas para função ALUNO, opcional)',
-  })
-  @ApiQuery({
-    name: 'cpf',
-    required: false,
-    description:
-      'CPF do responsável deve ser no formato XXX.XXX.XXX-XX (apenas para função RESPONSAVEL, opcional)',
-  })
-  @ApiQuery({
-    name: 'telefone',
-    required: false,
-    description:
-      'Telefone do responsável deve ser no formato (XX) XXXXX-XXXX (apenas para função RESPONSAVEL, opcional)',
-  })
-  @ApiQuery({
-    name: 'matricula',
-    required: false,
-    description: 'Matrícula do aluno (apenas para função ALUNO, opcional)',
-  })
+  @ApiCookieAuth('token')
   @ApiResponse({
     status: 201,
     description: 'Usuário e perfil criados com sucesso.',
@@ -235,18 +186,11 @@ export class AuthController {
   @UseGuards(JwtAuthGuard, FuncoesGuard)
   @Funcoes(Funcao.ADMIN)
   @Put('admin/vinculo')
-  @ApiOperation({ summary: 'Vincular um aluno a um responsável existente' })
-  @ApiBearerAuth()
-  @ApiQuery({
-    name: 'alunoId',
-    required: true,
-    description: 'ID do aluno a ser vinculado ao responsável',
+  @ApiOperation({
+    summary:
+      'Vincular um aluno a um responsável existente (restrito a usuários com perfil ADMIN).',
   })
-  @ApiQuery({
-    name: 'responsavelId',
-    required: true,
-    description: 'ID do responsável ao qual o aluno será vinculado',
-  })
+  @ApiCookieAuth('token')
   @ApiResponse({
     status: 200,
     description: 'Aluno vinculado ao responsável com sucesso.',
@@ -265,15 +209,16 @@ export class AuthController {
       'Proibido. O usuário não tem perfil de administrador para acessar este recurso.',
   })
   @ApiResponse({
+    status: 404,
+    description: 'Aluno ou responsável não encontrado para os IDs fornecidos.',
+  })
+  @ApiResponse({
     status: 500,
     description: 'Erro interno do servidor durante o vínculo.',
   })
   async vincularAlunoResponsavel(
     @Body()
-    body: {
-      alunoId: number;
-      responsavelId: number;
-    },
+    body: VincularAlunoResponsavelDto,
   ) {
     const aluno = await this.alunoService.findByUsuarioId(body.alunoId);
     const responsavel = await this.responsavelService.findOneById(

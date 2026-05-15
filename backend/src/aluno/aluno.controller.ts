@@ -6,9 +6,8 @@ import { Funcoes } from 'src/auth/funcoes.decorator';
 import { AlunoService } from './aluno.service';
 import { Funcao } from 'src/auth/enums/funcao-usuario.enum';
 import {
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -22,13 +21,11 @@ export class AlunoController {
   ) {}
 
   @Get('ocorrencias')
-  @ApiOperation({ summary: 'Listar ocorrências vinculadas a um aluno' })
-  @ApiBearerAuth()
-  @ApiQuery({
-    name: 'Authorization',
-    required: false,
-    description: 'Token JWT de autenticação e autorização do usuário',
+  @ApiOperation({
+    summary:
+      'Listar ocorrências vinculadas a um aluno (restrito a usuários com perfil ALUNO).',
   })
+  @ApiCookieAuth('token')
   @ApiResponse({
     status: 200,
     description: 'Lista de ocorrências do aluno retornada com sucesso.',

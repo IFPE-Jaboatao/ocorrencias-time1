@@ -13,7 +13,13 @@ import { EvidenciaService } from './evidencia.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { OcorrenciaService } from 'src/ocorrencia/ocorrencia.service';
 
 @ApiTags('Evidências')
@@ -26,25 +32,39 @@ export class EvidenciaController {
 
   @Post('upload')
   @ApiOperation({
-    summary: 'Enviar um arquivo de evidência para uma ocorrência',
+    summary:
+      'Enviar um arquivo de evidência para uma ocorrência (sem restrição de perfil).',
   })
-  @ApiQuery({
-    name: 'ocorrencia',
-    required: true,
-    description: 'ID da ocorrência à qual a evidência está vinculada',
-  })
-  @ApiQuery({
-    name: 'evidencia',
-    required: true,
-    description: 'Arquivo de evidência a ser enviado (form-data)',
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        evidencia: {
+          type: 'string',
+          description: 'Arquivo para ser enviado e vinculado a ocorrência.',
+          format: 'binary',
+        },
+        ocorrencia: {
+          type: 'string',
+          description: 'Identificador único (id) da ocorrência.',
+          example: '343',
+        },
+      },
+      required: ['evidencia', 'ocorrencia'],
+    },
   })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Arquivo enviado com sucesso',
   })
   @ApiResponse({
     status: 400,
     description: 'Requisição inválida. Verifique os parâmetros e o arquivo.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Ocorrência não encontrada para o ID fornecido.',
   })
   @ApiResponse({
     status: 500,
@@ -92,11 +112,8 @@ export class EvidenciaController {
   }
 
   @Get('download/:evidenciaId')
-  @ApiOperation({ summary: 'Baixar um arquivo de evidência' })
-  @ApiQuery({
-    name: 'evidenciaId',
-    required: true,
-    description: 'ID da evidência a ser baixada',
+  @ApiOperation({
+    summary: 'Baixar um arquivo de evidência (sem restrição de perfil).',
   })
   @ApiResponse({
     status: 200,
@@ -104,7 +121,7 @@ export class EvidenciaController {
   })
   @ApiResponse({
     status: 404,
-    description: 'Arquivo não encontrado.',
+    description: 'Arquivo não enviado.',
   })
   @ApiResponse({
     status: 500,

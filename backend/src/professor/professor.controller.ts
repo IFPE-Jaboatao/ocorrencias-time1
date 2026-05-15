@@ -5,9 +5,8 @@ import { FuncoesGuard } from '../auth/funcoes.guard';
 import { Funcoes } from '../auth/funcoes.decorator';
 import { Funcao } from '../auth/enums/funcao-usuario.enum';
 import {
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -18,13 +17,11 @@ export class ProfessorController {
   constructor(private readonly professorService: ProfessorService) {}
 
   @Get('meus-alunos')
-  @ApiOperation({ summary: 'Listar alunos vinculados ao professor logado' })
-  @ApiBearerAuth()
-  @ApiQuery({
-    name: 'Authorization',
-    required: true,
-    description: 'Token JWT de autenticação e autorização do usuário',
+  @ApiOperation({
+    summary:
+      'Listar alunos vinculados ao professor logado (restrito a usuários com perfil PROFESSOR).',
   })
+  @ApiCookieAuth('token')
   @ApiResponse({
     status: 200,
     description: 'Lista de alunos retornada com sucesso.',
