@@ -17,11 +17,13 @@ async function bootstrap() {
       'API responsável pela gestão de ocorrências acadêmicas e disciplinares, permitindo registro, acompanhamento, notificações e auditoria com segurança e transparência.',
     )
     .setVersion('1.0')
-    .addBearerAuth()
+    .addCookieAuth('token')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: { withCredentials: true },
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

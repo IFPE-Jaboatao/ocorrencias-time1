@@ -5,9 +5,8 @@ import { FuncoesGuard } from '../auth/funcoes.guard';
 import { Funcoes } from '../auth/funcoes.decorator';
 import { Funcao } from '../auth/enums/funcao-usuario.enum';
 import {
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -17,13 +16,11 @@ import {
 export class ResponsavelController {
   constructor(private readonly responsavelService: ResponsavelService) {}
   @Get('filhos')
-  @ApiOperation({ summary: 'Listar alunos vinculados ao responsável logado' })
-  @ApiBearerAuth()
-  @ApiQuery({
-    name: 'Authorization',
-    required: true,
-    description: 'Token JWT de autenticação e autorização do usuário',
+  @ApiOperation({
+    summary:
+      'Listar alunos vinculados ao responsável logado (restrito a usuários com perfil RESPONSÁVEL)',
   })
+  @ApiCookieAuth('token')
   @ApiResponse({
     status: 200,
     description: 'Lista de alunos retornada com sucesso.',

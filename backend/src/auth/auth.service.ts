@@ -17,6 +17,7 @@ export class AuthService {
   // Função que valida se o e-mail existe e se a senha bate
   async validateUser(email: string, senhaDigitada: string): Promise<any> {
     const usuario = await this.userRepository.findOneBy({ email });
+    console.log('Usuário encontrado:', usuario);
 
     if (usuario) {
       // Compara a senha que veio do Swagger com a senha criptografada do Banco

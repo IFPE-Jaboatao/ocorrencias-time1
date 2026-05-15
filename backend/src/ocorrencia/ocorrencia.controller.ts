@@ -20,7 +20,7 @@ import { AtualizarStatusDto } from './dto/atualizar-status.dto';
 import { StatusOcorrencia, Severidade } from './ocorrencia.entity';
 import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
 import {
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
   ApiQuery,
   ApiResponse,
@@ -36,8 +36,11 @@ export class OcorrenciaController {
 
   @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
   @Get()
-  @ApiOperation({ summary: 'Listar ocorrências com filtros opcionais' })
-  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Listar ocorrências com filtros opcionais (restrito a usuários com perfil ADMIN ou PROFESSOR).',
+  })
+  @ApiCookieAuth('token')
   @ApiQuery({
     name: 'id_aluno',
     required: false,
@@ -110,13 +113,11 @@ export class OcorrenciaController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Criar uma nova ocorrência' })
-  @ApiBearerAuth()
-  @ApiQuery({
-    name: 'Authorization',
-    required: true,
-    description: 'Token JWT de autenticação e autorização do usuário',
+  @ApiOperation({
+    summary:
+      'Criar uma nova ocorrência (restrito a usuários com perfil ADMIN ou PROFESSOR).',
   })
+  @ApiCookieAuth('token')
   @ApiResponse({
     status: 201,
     description: 'Ocorrência criada com sucesso.',
@@ -154,14 +155,10 @@ export class OcorrenciaController {
   }
 
   @Get('admin/recentes')
-  @ApiBearerAuth()
+  @ApiCookieAuth('token')
   @ApiOperation({
-    summary: 'Listar ocorrências recentes para o dashboard do admin',
-  })
-  @ApiQuery({
-    name: 'Authorization',
-    required: true,
-    description: 'Token JWT de autenticação e autorização do usuário',
+    summary:
+      'Listar ocorrências recentes para o dashboard do admin (restrito a usuários com perfil ADMIN).',
   })
   @ApiResponse({
     status: 200,
@@ -186,12 +183,10 @@ export class OcorrenciaController {
   }
 
   @Get('admin/dashboard')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Obter métricas para o dashboard do admin' })
-  @ApiQuery({
-    name: 'Authorization',
-    required: true,
-    description: 'Token JWT de autenticação e autorização do usuário',
+  @ApiCookieAuth('token')
+  @ApiOperation({
+    summary:
+      'Obter métricas para o dashboard do admin (restrito a usuários com perfil ADMIN).',
   })
   @ApiResponse({
     status: 200,
@@ -216,14 +211,10 @@ export class OcorrenciaController {
   }
 
   @Post(':id/ciencia')
-  @ApiBearerAuth()
+  @ApiCookieAuth('token')
   @ApiOperation({
-    summary: 'Registrar ciência de uma ocorrência por aluno ou responsável',
-  })
-  @ApiQuery({
-    name: 'Authorization',
-    required: true,
-    description: 'Token JWT de autenticação e autorização do usuário',
+    summary:
+      'Registrar ciência de uma ocorrência por aluno ou responsável (restrito a usuários com perfil ALUNO ou RESPONSÁVEL).',
   })
   @ApiResponse({
     status: 200,
@@ -252,12 +243,10 @@ export class OcorrenciaController {
   }
 
   @Patch(':id/status')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Atualizar o status de uma ocorrência' })
-  @ApiQuery({
-    name: 'Authorization',
-    required: true,
-    description: 'Token JWT de autenticação e autorização do usuário',
+  @ApiCookieAuth('token')
+  @ApiOperation({
+    summary:
+      'Atualizar o status de uma ocorrência (restrito a usuários com perfil ADMIN ou PROFESSOR).',
   })
   @ApiResponse({
     status: 200,
@@ -293,12 +282,10 @@ export class OcorrenciaController {
   }
 
   @Get('/:id')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Obter detalhes de uma ocorrência por ID' })
-  @ApiQuery({
-    name: 'Authorization',
-    required: true,
-    description: 'Token JWT de autenticação e autorização do usuário',
+  @ApiCookieAuth('token')
+  @ApiOperation({
+    summary:
+      'Obter detalhes de uma ocorrência por ID (sem restrição de perfil).',
   })
   @ApiResponse({
     status: 200,
