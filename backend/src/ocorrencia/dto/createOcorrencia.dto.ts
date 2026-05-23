@@ -75,5 +75,5 @@ export class CreateOcorrenciaDto {
   })
   @IsString()
   @IsNotEmpty({ message: 'A data da ocorrência é obrigatória' })
-  data_ocorrencia: Date;
+  dataOcorrencia: Date;
 }

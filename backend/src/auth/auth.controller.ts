@@ -8,8 +8,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/create-usuario.dto';
-import { Funcao } from './enums/funcao-usuario.enum';
+import { RegisterDto } from './dto/createUsuario.dto';
+import { Funcao } from './enums/funcaoUsuario.enum';
 import { ResponsavelService } from 'src/responsavel/responsavel.service';
 import { AlunoService } from 'src/aluno/aluno.service';
 import { JwtAuthGuard } from './jwt-auth.guard';

@@ -11,13 +11,13 @@ import {
   Put,
 } from '@nestjs/common';
 import { OcorrenciaService } from './ocorrencia.service';
-import { CreateOcorrenciaDto } from './dto/create-ocorrencia.dto';
+import { CreateOcorrenciaDto } from './dto/createOcorrencia.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FuncoesGuard } from 'src/auth/funcoes.guard';
 import { Funcoes } from 'src/auth/funcoes.decorator';
-import { Funcao } from 'src/auth/enums/funcao-usuario.enum';
-import { AtualizarStatusDto } from './dto/atualizar-status.dto';
-import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
+import { Funcao } from 'src/auth/enums/funcaoUsuario.enum';
+import { AtualizarStatusDto } from './dto/atualizarStatus.dto';
+import { ListarOcorrenciaDto } from './dto/listarOcorrencia.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -108,7 +108,7 @@ export class OcorrenciaController {
   })
   @ApiBearerAuth('token')
   @ApiQuery({
-    name: 'id_aluno',
+    name: 'alunoId',
     required: false,
     description: 'ID do aluno para filtrar ocorrências por aluno específico',
   })

@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsEmail,
 } from 'class-validator';
-import { Funcao } from '../enums/funcao-usuario.enum';
+import { Funcao } from '../enums/funcaoUsuario.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
@@ -14,7 +14,7 @@ export class RegisterDto {
     example: 'usuario@example.com',
   })
   @IsNotEmpty({ message: 'Email é obrigatório.' })
-  @IsEmail({}, { message: 'O e-mail informado não tem um formato válido.' }) // 👈 A mágica aqui!
+  @IsEmail({}, { message: 'O e-mail informado não tem um formato válido.' })
   email: string;
 
   @ApiProperty({
@@ -33,7 +33,6 @@ export class RegisterDto {
   @IsEnum(Funcao, { message: 'Função inválida.' })
   funcao: Funcao;
 
-  // Campos opcionais dependendo do tipo (admin, aluno, professor ou responsável)
   @ApiProperty({
     description: 'Nome do usuário',
     example: 'João da Silva',

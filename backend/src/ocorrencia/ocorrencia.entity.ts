@@ -15,7 +15,7 @@ import { Severidade } from './enum/severidade.enum';
 import { StatusOcorrencia } from './enum/statusOcorrencia.enum';
 import { CategoriaOcorrencia } from './enum/categoria.enum';
 
-@Entity('Ocorrencia')
+@Entity('ocorrencia')
 export class Ocorrencia {
   @PrimaryGeneratedColumn()
   id: number;
@@ -44,10 +44,10 @@ export class Ocorrencia {
   descricao: string;
 
   @CreateDateColumn()
-  data_criacao: Date;
+  dataCriacao: Date;
 
   @Column({ nullable: true })
-  data_ocorrencia: Date;
+  dataOcorrencia: Date;
 
   @Column({ nullable: true, default: false })
   ciencia: boolean;

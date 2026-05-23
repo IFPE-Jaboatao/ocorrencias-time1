@@ -3,7 +3,7 @@ import { ResponsavelService } from './responsavel.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FuncoesGuard } from '../auth/funcoes.guard';
 import { Funcoes } from '../auth/funcoes.decorator';
-import { Funcao } from '../auth/enums/funcao-usuario.enum';
+import { Funcao } from '../auth/enums/funcaoUsuario.enum';
 import {
   ApiBearerAuth,
   ApiOperation,

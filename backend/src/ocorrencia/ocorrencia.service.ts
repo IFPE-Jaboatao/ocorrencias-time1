@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Ocorrencia } from './ocorrencia.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
-import { CreateOcorrenciaDto } from './dto/create-ocorrencia.dto';
-import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
-import { AtualizarStatusDto } from './dto/atualizar-status.dto';
+import { CreateOcorrenciaDto } from './dto/createOcorrencia.dto';
+import { ListarOcorrenciaDto } from './dto/listarOcorrencia.dto';
+import { AtualizarStatusDto } from './dto/atualizarStatus.dto';
 import { StatusOcorrencia } from './enum/statusOcorrencia.enum';
 @Injectable()
 export class OcorrenciaService {
@@ -19,7 +19,7 @@ export class OcorrenciaService {
   async findAll(filtros: ListarOcorrenciaDto) {
     const {
       status,
-      id_aluno,
+      alunoId,
       data,
       turma,
       severidade,
@@ -40,8 +40,8 @@ export class OcorrenciaService {
       qb.andWhere('o.status = :status', { status });
     }
 
-    if (id_aluno) {
-      qb.andWhere('aluno.id = :id_aluno', { id_aluno });
+    if (alunoId) {
+      qb.andWhere('aluno.id = :alunoId', { alunoId });
     }
 
     if (turma) {
@@ -49,7 +49,7 @@ export class OcorrenciaService {
     }
 
     if (data) {
-      qb.andWhere('DATE(o.data_criacao) = :data', { data });
+      qb.andWhere('DATE(o.dataCriacao) = :data', { data });
     }
 
     // filtro de severidade
@@ -67,7 +67,7 @@ export class OcorrenciaService {
     qb.take(limit);
 
     // Ordenação das ocorrências
-    qb.orderBy('o.data_criacao', 'DESC');
+    qb.orderBy('o.dataCriacao', 'DESC');
 
     // Total de registos
     const [dados, total] = await qb.getManyAndCount();
@@ -85,7 +85,7 @@ export class OcorrenciaService {
   async findRecentes(): Promise<Ocorrencia[]> {
     return this.ocorrenciaRepository.find({
       order: {
-        data_criacao: 'DESC',
+        dataCriacao: 'DESC',
       },
       take: 5,
       relations: {
@@ -114,7 +114,7 @@ export class OcorrenciaService {
       pendentes,
       resolvidas,
       taxaResolucao,
-      ocorrencias_recentes: await this.findRecentes(),
+      ocorrenciasRecentes: await this.findRecentes(),
     };
   }
   async findAllByAluno(alunoId: number): Promise<Ocorrencia[]> {
@@ -146,7 +146,7 @@ export class OcorrenciaService {
       severidade: dto.severidade,
       titulo: dto.titulo,
       descricao: dto.descricao,
-      data_ocorrencia: dto.data_ocorrencia,
+      dataOcorrencia: dto.dataOcorrencia,
       status: StatusOcorrencia.ABERTA,
       aluno: { id: dto.alunoId },
       autor: { id: Number(autorId) },

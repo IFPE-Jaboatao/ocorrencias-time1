@@ -56,7 +56,7 @@ export class ResponsavelService {
   async update(
     id: number,
     data: Partial<Responsavel>,
-    novo_email_responsavel?: string,
+    novoEmailResponsavel?: string,
   ): Promise<Responsavel | null> {
     try {
       //busca o responsável existente com as relações
@@ -68,16 +68,16 @@ export class ResponsavelService {
         throw new NotFoundException('Responsável não localizado');
       }
 
-      if (novo_email_responsavel) {
+      if (novoEmailResponsavel) {
         const emailExists = await this.responsavelRepository.findOne({
-          where: { usuario: { email: novo_email_responsavel } },
+          where: { usuario: { email: novoEmailResponsavel } },
         });
         if (emailExists && emailExists.id !== id) {
           throw new ConflictException(
             'Já existe um responsável com este email.',
           );
         }
-        responsavel.usuario.email = novo_email_responsavel;
+        responsavel.usuario.email = novoEmailResponsavel;
       }
 
       Object.assign(responsavel, {

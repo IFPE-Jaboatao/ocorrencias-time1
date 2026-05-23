@@ -30,7 +30,7 @@ export class ListarOcorrenciaDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'o Id do aluno deve ser um número inteiro' })
-  id_aluno?: number;
+  alunoId?: number;
 
   @ApiProperty({
     description: 'Severidade da ocorrência para filtrar',

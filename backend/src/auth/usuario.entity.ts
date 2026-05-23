@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { Funcao } from './enums/funcao-usuario.enum';
+import { Funcao } from './enums/funcaoUsuario.enum';
 
 @Entity('usuario')
 export class Usuario {
