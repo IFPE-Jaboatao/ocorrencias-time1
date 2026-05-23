@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { Funcao } from './enums/funcao-usuario.enum';
 
-@Entity()
+@Entity('usuario')
 export class Usuario {
   @PrimaryGeneratedColumn()
   id: number;
@@ -18,7 +18,4 @@ export class Usuario {
     nullable: false,
   })
   funcao: Funcao;
-
-  @Column({ default: false })
-  status: boolean; // Ativo/Inativo
 }

@@ -2,7 +2,6 @@ import {
   Controller,
   Post,
   Body,
-  Res,
   UseGuards,
   Put,
   UnauthorizedException,
@@ -20,13 +19,11 @@ import { Funcoes } from './funcoes.decorator';
 import { FuncoesGuard } from './funcoes.guard';
 import { LoginDto } from './dto/login.dto';
 import {
-  ApiBody,
   ApiCookieAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Response } from 'express';
 import { VincularAlunoResponsavelDto } from './dto/vincular-aluno-responsavel.dto';
 @ApiTags('Autenticação e Registro')
 @Controller('auth')
@@ -52,27 +49,12 @@ export class AuthController {
     status: 500,
     description: 'Erro interno do servidor durante a autenticação.',
   })
-  async login(
-    @Body() body: LoginDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async login(@Body() body: LoginDto) {
     const user = await this.authService.validateUser(body.email, body.senha);
     if (!user) {
       throw new UnauthorizedException('Email ou Senha incorretos');
     }
-    const result = await this.authService.login(user);
-
-    res.cookie('token', result.access_token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 3600000,
-    });
-
-    return {
-      name: user.nome || 'Usuário',
-      funcao: user.funcao,
-    };
+    return await this.authService.login(user);
   }
 
   @UseGuards(JwtAuthGuard, FuncoesGuard)

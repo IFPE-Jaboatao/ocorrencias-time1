@@ -10,7 +10,7 @@ import {
 import { Usuario } from '../auth/usuario.entity';
 import { Aluno } from '../aluno/aluno.entity';
 
-@Entity('professores')
+@Entity('professor')
 export class Professor {
   @PrimaryGeneratedColumn()
   id: number;
