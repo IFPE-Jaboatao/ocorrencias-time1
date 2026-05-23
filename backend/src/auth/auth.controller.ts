@@ -3,9 +3,7 @@ import {
   Post,
   Body,
   UseGuards,
-  Put,
   UnauthorizedException,
-  NotFoundException,
   ConflictException,
   BadRequestException,
 } from '@nestjs/common';
@@ -24,7 +22,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { VincularAlunoResponsavelDto } from './dto/vincular-aluno-responsavel.dto';
 @ApiTags('Autenticação e Registro')
 @Controller('auth')
 export class AuthController {
@@ -162,75 +159,6 @@ export class AuthController {
     return {
       message: 'Usuário e perfil criados com sucesso',
       userId: novoUsuario.id,
-    };
-  }
-
-  @UseGuards(JwtAuthGuard, FuncoesGuard)
-  @Funcoes(Funcao.ADMIN)
-  @Put('admin/vinculo')
-  @ApiOperation({
-    summary:
-      'Vincular um aluno a um responsável existente (restrito a usuários com perfil ADMIN).',
-  })
-  @ApiBearerAuth('token')
-  @ApiResponse({
-    status: 200,
-    description: 'Aluno vinculado ao responsável com sucesso.',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Requisição inválida. Verifique os dados fornecidos.',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Não autorizado. Token JWT ausente ou inválido.',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      'Proibido. O usuário não tem perfil de administrador para acessar este recurso.',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Aluno ou responsável não encontrado para os IDs fornecidos.',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor durante o vínculo.',
-  })
-  async vincularAlunoResponsavel(
-    @Body()
-    body: VincularAlunoResponsavelDto,
-  ) {
-    const aluno = await this.alunoService.findByUsuarioId(body.alunoId);
-    const responsavel = await this.responsavelService.findOneById(
-      body.responsavelId,
-    );
-
-    if (!aluno) {
-      throw new NotFoundException('Aluno não encontrado');
-    }
-    if (!responsavel) {
-      throw new NotFoundException('Responsável não encontrado');
-    }
-
-    if (!aluno.responsaveis) {
-      aluno.responsaveis = [];
-    }
-
-    if (!responsavel.alunos) {
-      responsavel.alunos = [];
-    }
-
-    aluno.responsaveis.push(responsavel);
-    await this.alunoService.update(aluno);
-    responsavel.alunos.push(aluno);
-    await this.responsavelService.update(responsavel.id, responsavel);
-
-    return {
-      message: 'Aluno vinculado ao responsável com sucesso',
-      alunoId: aluno.id,
-      responsavelId: responsavel.id,
     };
   }
 }
