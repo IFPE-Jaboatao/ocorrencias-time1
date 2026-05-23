@@ -5,7 +5,7 @@ import { FuncoesGuard } from '../auth/funcoes.guard';
 import { Funcoes } from '../auth/funcoes.decorator';
 import { Funcao } from '../auth/enums/funcao-usuario.enum';
 import {
-  ApiCookieAuth,
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -20,7 +20,7 @@ export class ResponsavelController {
     summary:
       'Listar alunos vinculados ao responsável logado (restrito a usuários com perfil RESPONSÁVEL)',
   })
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiResponse({
     status: 200,
     description: 'Lista de alunos retornada com sucesso.',

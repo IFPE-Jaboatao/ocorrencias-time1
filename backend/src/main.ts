@@ -15,7 +15,17 @@ async function bootstrap() {
       'API responsável pela gestão de ocorrências acadêmicas e disciplinares, permitindo registro, acompanhamento, notificações e auditoria com segurança e transparência.',
     )
     .setVersion('1.0')
-    .addCookieAuth('token')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Insira o token JWT',
+        in: 'header',
+      },
+      'token',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

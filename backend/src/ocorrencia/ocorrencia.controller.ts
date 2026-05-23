@@ -20,7 +20,7 @@ import { AtualizarStatusDto } from './dto/atualizar-status.dto';
 import { StatusOcorrencia, Severidade } from './ocorrencia.entity';
 import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
 import {
-  ApiCookieAuth,
+  ApiBearerAuth,
   ApiOperation,
   ApiQuery,
   ApiResponse,
@@ -40,7 +40,7 @@ export class OcorrenciaController {
     summary:
       'Listar ocorrências com filtros opcionais (restrito a usuários com perfil ADMIN ou PROFESSOR).',
   })
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiQuery({
     name: 'id_aluno',
     required: false,
@@ -117,7 +117,7 @@ export class OcorrenciaController {
     summary:
       'Criar uma nova ocorrência (restrito a usuários com perfil ADMIN ou PROFESSOR).',
   })
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiResponse({
     status: 201,
     description: 'Ocorrência criada com sucesso.',
@@ -155,7 +155,7 @@ export class OcorrenciaController {
   }
 
   @Get('admin/recentes')
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiOperation({
     summary:
       'Listar ocorrências recentes para o dashboard do admin (restrito a usuários com perfil ADMIN).',
@@ -183,7 +183,7 @@ export class OcorrenciaController {
   }
 
   @Get('admin/dashboard')
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiOperation({
     summary:
       'Obter métricas para o dashboard do admin (restrito a usuários com perfil ADMIN).',
@@ -211,7 +211,7 @@ export class OcorrenciaController {
   }
 
   @Post(':id/ciencia')
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiOperation({
     summary:
       'Registrar ciência de uma ocorrência por aluno ou responsável (restrito a usuários com perfil ALUNO ou RESPONSÁVEL).',
@@ -243,7 +243,7 @@ export class OcorrenciaController {
   }
 
   @Patch(':id/status')
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiOperation({
     summary:
       'Atualizar o status de uma ocorrência (restrito a usuários com perfil ADMIN ou PROFESSOR).',
@@ -282,7 +282,7 @@ export class OcorrenciaController {
   }
 
   @Get('/:id')
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiOperation({
     summary:
       'Obter detalhes de uma ocorrência por ID (sem restrição de perfil).',

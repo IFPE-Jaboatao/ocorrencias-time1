@@ -6,7 +6,7 @@ import { Funcoes } from 'src/auth/funcoes.decorator';
 import { AlunoService } from './aluno.service';
 import { Funcao } from 'src/auth/enums/funcao-usuario.enum';
 import {
-  ApiCookieAuth,
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -25,7 +25,7 @@ export class AlunoController {
     summary:
       'Listar ocorrências vinculadas a um aluno (restrito a usuários com perfil ALUNO).',
   })
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiResponse({
     status: 200,
     description: 'Lista de ocorrências do aluno retornada com sucesso.',

@@ -19,7 +19,7 @@ import { Funcoes } from './funcoes.decorator';
 import { FuncoesGuard } from './funcoes.guard';
 import { LoginDto } from './dto/login.dto';
 import {
-  ApiCookieAuth,
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -64,7 +64,7 @@ export class AuthController {
     summary:
       'Registrar um novo usuário com perfil específico (restrito a usuários com perfil ADMIN).',
   })
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiResponse({
     status: 201,
     description: 'Usuário e perfil criados com sucesso.',
@@ -172,7 +172,7 @@ export class AuthController {
     summary:
       'Vincular um aluno a um responsável existente (restrito a usuários com perfil ADMIN).',
   })
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiResponse({
     status: 200,
     description: 'Aluno vinculado ao responsável com sucesso.',
