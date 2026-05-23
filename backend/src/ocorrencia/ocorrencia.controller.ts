@@ -27,7 +27,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-@ApiTags('Ocorrências')
+@ApiTags('Ocorrência')
 @Controller('ocorrencias')
 @UseGuards(JwtAuthGuard, FuncoesGuard)
 export class OcorrenciaController {

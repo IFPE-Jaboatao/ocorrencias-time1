@@ -22,7 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { OcorrenciaService } from 'src/ocorrencia/ocorrencia.service';
 
-@ApiTags('Evidências')
+@ApiTags('Evidência')
 @Controller('evidencia')
 export class EvidenciaController {
   constructor(

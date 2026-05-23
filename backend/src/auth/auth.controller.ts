@@ -22,7 +22,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-@ApiTags('Autenticação e Registro')
+@ApiTags('Autenticação e registro')
 @Controller('auth')
 export class AuthController {
   constructor(

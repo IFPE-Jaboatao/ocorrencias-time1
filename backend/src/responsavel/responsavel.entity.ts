@@ -10,7 +10,7 @@ import {
 
 import { Aluno } from 'src/aluno/aluno.entity';
 import { Usuario } from 'src/auth/usuario.entity';
-@Entity('responsavel')
+@Entity('Responsável')
 export class Responsavel {
   @PrimaryGeneratedColumn()
   id: number;
