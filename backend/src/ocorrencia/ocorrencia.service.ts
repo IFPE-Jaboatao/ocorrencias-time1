@@ -53,7 +53,7 @@ export class OcorrenciaService {
       qb.andWhere('DATE(o.data_criacao) = :data', { data });
     }
 
-    // filtro de sveridade
+    // filtro de severidade
     if (severidade) {
       qb.andWhere('o.severidade = :severidade', { severidade });
     }
@@ -72,14 +72,13 @@ export class OcorrenciaService {
 
     // Total de registos
     const [dados, total] = await qb.getManyAndCount();
-    //retorno estruturado
     return {
       data: dados,
       meta: {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit), //calculo do total de páginas
+        totalPages: Math.ceil(total / limit),
       },
     };
   }
@@ -96,21 +95,18 @@ export class OcorrenciaService {
       },
     });
   }
+
   async getDashboardMetrics() {
-    //conta o total de ocorrências
     const total = await this.ocorrenciaRepository.count();
 
-    //contagem das ocorrencias pendentes
     const pendentes = await this.ocorrenciaRepository.count({
       where: { status: StatusOcorrencia.ABERTA },
     });
 
-    //contagem das ocorrências que foram resolvidas
     const resolvidas = await this.ocorrenciaRepository.count({
       where: { status: StatusOcorrencia.RESOLVIDA },
     });
 
-    //cálculo da taxa de resolução
     const taxaResolucao =
       total > 0 ? ((resolvidas / total) * 100).toFixed(2) + '%' : '0.00%';
 
@@ -119,6 +115,7 @@ export class OcorrenciaService {
       pendentes,
       resolvidas,
       taxaResolucao,
+      ocorrencias_recentes: await this.findRecentes(),
     };
   }
   async findAllByAluno(alunoId: number): Promise<Ocorrencia[]> {
@@ -134,9 +131,7 @@ export class OcorrenciaService {
       relations: ['aluno', 'autor', 'evidencias', 'comentarios'],
     });
   }
-  //alteração ---> usamos agora o dto validado e recebemos o token do jwt
   async create(dto: CreateOcorrenciaDto, autorId: number): Promise<Ocorrencia> {
-    // 1. Apenas verificamos se o aluno existe (sem carregar o objeto para o save)
     const alunoExiste = await this.alunoRepository.findOneBy({
       id: dto.alunoId,
     });
@@ -147,20 +142,16 @@ export class OcorrenciaService {
       );
     }
 
-    // 2. Criamos a ocorrência mapeando os campos MANUALMENTE
-    // NÃO use '...dto' aqui para evitar que o campo 'alunoId' entre na entidade
     const novaOcorrencia = this.ocorrenciaRepository.create({
       categoria: dto.categoria,
       severidade: dto.severidade,
       descricao: dto.descricao,
       contexto: dto.contexto,
       status: StatusOcorrencia.ABERTA,
-      // Passamos apenas a referência do ID (o jeito mais seguro no TypeORM)
       aluno: { id: dto.alunoId },
-      autor: { id: Number(autorId) }, // Garantimos que o ID seja um número
+      autor: { id: Number(autorId) },
     });
 
-    // 3. O save agora fará um INSERT puro, sem tentar dar UPDATE em nada
     return await this.ocorrenciaRepository.save(novaOcorrencia);
   }
 
@@ -168,7 +159,6 @@ export class OcorrenciaService {
     await this.ocorrenciaRepository.update(ocorrencia.id, ocorrencia);
     return this.ocorrenciaRepository.findOneBy({ id: ocorrencia.id });
   }
-  //adicionado método pra registrar a ciência do aluno/responsável
   async registrarCiencia(id: number): Promise<Ocorrencia> {
     const ocorrencia = await this.ocorrenciaRepository.findOne({
       where: { id },
@@ -176,16 +166,15 @@ export class OcorrenciaService {
     if (!ocorrencia) {
       throw new NotFoundException(`Ocorrência com ID ${id} não encontrada`);
     }
-    ocorrencia.ciencia = true; //atualiza a flag para verdadeira
+    ocorrencia.ciencia = true;
 
-    return await this.ocorrenciaRepository.save(ocorrencia); //salva a atualização no banco de dados
+    return await this.ocorrenciaRepository.save(ocorrencia);
   }
 
   async atualizarStatus(
     id: number,
     dto: AtualizarStatusDto,
   ): Promise<Ocorrencia> {
-    // Busca a ocorrência para verificar o status anterior
     const ocorrencia = await this.ocorrenciaRepository.findOne({
       where: { id },
     });
@@ -206,14 +195,11 @@ export class OcorrenciaService {
           'É obrigatório fornecer uma justificativa para alterar o status de uma ocorrência já resolvida.',
         );
       }
-      // Regista a justificativa enviada
       ocorrencia.justificativa = dto.justificativa;
     }
 
-    // Atualiza o status
     ocorrencia.status = dto.status;
 
-    // Salva e devolve a ocorrência atualizada
     return await this.ocorrenciaRepository.save(ocorrencia);
   }
 }

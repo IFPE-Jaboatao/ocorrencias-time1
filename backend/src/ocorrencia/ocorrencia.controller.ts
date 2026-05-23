@@ -2,13 +2,13 @@ import {
   Controller,
   Post,
   Get,
-  Patch,
   Body,
   Req,
   UseGuards,
   Param,
   Query,
   BadRequestException,
+  Put,
 } from '@nestjs/common';
 import { OcorrenciaService } from './ocorrencia.service';
 import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
@@ -29,10 +29,77 @@ import {
 
 @ApiTags('Ocorrências')
 @Controller('ocorrencias')
-//adicionada 'blindagem' global do controller
 @UseGuards(JwtAuthGuard, FuncoesGuard)
 export class OcorrenciaController {
   constructor(private readonly ocorrenciaService: OcorrenciaService) {}
+
+  @Post()
+  @ApiOperation({
+    summary:
+      'Criar uma nova ocorrência (restrito a usuários com perfil ADMIN ou PROFESSOR).',
+  })
+  @ApiBearerAuth('token')
+  @ApiResponse({
+    status: 201,
+    description: 'Ocorrência criada com sucesso.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Requisição inválida. Verifique os dados fornecidos.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado. Token JWT ausente ou inválido.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Proibido. O usuário não tem perfil de ADMIN ou PROFESSOR para acessar este recurso.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Erro interno do servidor.',
+  })
+  @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
+  async create(@Body() dto: CreateOcorrenciaDto, @Req() req: any) {
+    console.log('Payload do JWT:', req.user);
+
+    const autorId = req.user?.sub || req.user?.id || req.user?.userId;
+
+    if (!autorId) {
+      throw new BadRequestException(
+        'Não foi possível extrair o ID do usuário do token.',
+      );
+    }
+
+    return await this.ocorrenciaService.create(dto, autorId);
+  }
+
+  @Get('/:id')
+  @ApiBearerAuth('token')
+  @ApiOperation({
+    summary:
+      'Obter detalhes de uma ocorrência por ID (sem restrição de perfil).',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Detalhes da ocorrência retornados com sucesso.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado. Token JWT ausente ou inválido.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Ocorrência não encontrada.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Erro interno do servidor.',
+  })
+  async getOcorrencia(@Param('id') id: string) {
+    return await this.ocorrenciaService.findOne(Number(id));
+  }
 
   @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
   @Get()
@@ -112,81 +179,11 @@ export class OcorrenciaController {
     return await this.ocorrenciaService.findAll(filtros);
   }
 
-  @Post()
-  @ApiOperation({
-    summary:
-      'Criar uma nova ocorrência (restrito a usuários com perfil ADMIN ou PROFESSOR).',
-  })
-  @ApiBearerAuth('token')
-  @ApiResponse({
-    status: 201,
-    description: 'Ocorrência criada com sucesso.',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Requisição inválida. Verifique os dados fornecidos.',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Não autorizado. Token JWT ausente ou inválido.',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      'Proibido. O usuário não tem perfil de ADMIN ou PROFESSOR para acessar este recurso.',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor.',
-  })
-  @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
-  async create(@Body() dto: CreateOcorrenciaDto, @Req() req: any) {
-    console.log('Payload do JWT:', req.user);
-
-    const autorId = req.user?.sub || req.user?.id || req.user?.userId;
-
-    if (!autorId) {
-      throw new BadRequestException(
-        'Não foi possível extrair o ID do usuário do token.',
-      );
-    }
-
-    return await this.ocorrenciaService.create(dto, autorId);
-  }
-
-  @Get('admin/recentes')
+  @Get('dashboard')
   @ApiBearerAuth('token')
   @ApiOperation({
     summary:
-      'Listar ocorrências recentes para o dashboard do admin (restrito a usuários com perfil ADMIN).',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista de ocorrências recentes retornada com sucesso.',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Não autorizado. Token JWT ausente ou inválido.',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      'Proibido. O usuário não tem perfil de ADMIN para acessar este recurso.',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor.',
-  })
-  @Funcoes(Funcao.ADMIN)
-  async findRecentes() {
-    return await this.ocorrenciaService.findRecentes();
-  }
-
-  @Get('admin/dashboard')
-  @ApiBearerAuth('token')
-  @ApiOperation({
-    summary:
-      'Obter métricas para o dashboard do admin (restrito a usuários com perfil ADMIN).',
+      'Obter métricas e últimas ocorrências para o dashboard do admin (restrito a usuários com perfil ADMIN).',
   })
   @ApiResponse({
     status: 200,
@@ -210,7 +207,7 @@ export class OcorrenciaController {
     return await this.ocorrenciaService.getDashboardMetrics();
   }
 
-  @Post(':id/ciencia')
+  @Put(':id/ciencia')
   @ApiBearerAuth('token')
   @ApiOperation({
     summary:
@@ -242,7 +239,7 @@ export class OcorrenciaController {
     return await this.ocorrenciaService.registrarCiencia(+id);
   }
 
-  @Patch(':id/status')
+  @Put(':id/status')
   @ApiBearerAuth('token')
   @ApiOperation({
     summary:
@@ -279,31 +276,5 @@ export class OcorrenciaController {
     @Body() dto: AtualizarStatusDto,
   ) {
     return await this.ocorrenciaService.atualizarStatus(+id, dto);
-  }
-
-  @Get('/:id')
-  @ApiBearerAuth('token')
-  @ApiOperation({
-    summary:
-      'Obter detalhes de uma ocorrência por ID (sem restrição de perfil).',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Detalhes da ocorrência retornados com sucesso.',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Não autorizado. Token JWT ausente ou inválido.',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Ocorrência não encontrada.',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor.',
-  })
-  async getOcorrencia(@Param('id') id: string) {
-    return await this.ocorrenciaService.findOne(Number(id));
   }
 }
