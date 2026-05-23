@@ -8,7 +8,8 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { StatusOcorrencia, Severidade } from '../ocorrencia.entity';
+import { StatusOcorrencia } from '../enum/statusOcorrencia.enum';
+import { Severidade } from '../enum/severidade.enum';
 
 export class FiltroOcorrenciaDto {
   //filtros ajustados

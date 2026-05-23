@@ -89,28 +89,13 @@ export class AuthController {
     body: RegisterDto,
   ) {
     if (body.funcao == Funcao.RESPONSAVEL) {
-      function validarCPFFormato(cpf) {
-        const regex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-        return regex.test(cpf);
-      }
       function validarTelefoneFormato(telefone) {
         const regex = /^\(\d{2}\) \d{5}-\d{4}$/;
         return regex.test(telefone);
       }
-      if (!validarCPFFormato(body.cpf)) {
-        throw new BadRequestException(
-          'CPF inválido. O formato deve ser XXX.XXX.XXX-XX',
-        );
-      }
       if (body.telefone && !validarTelefoneFormato(body.telefone)) {
         throw new BadRequestException(
           'Telefone inválido. O formato deve ser (XX) XXXXX-XXXX',
-        );
-      }
-      const existCpf = await this.responsavelService.findByCpf(body.cpf);
-      if (existCpf) {
-        throw new ConflictException(
-          'CPF já cadastrado para outro responsável.',
         );
       }
       const existTelefone = await this.responsavelService.findByTelefone(
@@ -151,7 +136,6 @@ export class AuthController {
       await this.responsavelService.create({
         nome: body.nome,
         telefone: body.telefone,
-        cpf: body.cpf,
         usuario: novoUsuario,
       });
     }

@@ -11,13 +11,12 @@ import {
   Put,
 } from '@nestjs/common';
 import { OcorrenciaService } from './ocorrencia.service';
-import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
+import { CreateOcorrenciaDto } from './dto/create-ocorrencia.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FuncoesGuard } from 'src/auth/funcoes.guard';
 import { Funcoes } from 'src/auth/funcoes.decorator';
 import { Funcao } from 'src/auth/enums/funcao-usuario.enum';
 import { AtualizarStatusDto } from './dto/atualizar-status.dto';
-import { StatusOcorrencia, Severidade } from './ocorrencia.entity';
 import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
 import {
   ApiBearerAuth,
@@ -26,6 +25,8 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { StatusOcorrencia } from './enum/statusOcorrencia.enum';
+import { Severidade } from './enum/severidade.enum';
 
 @ApiTags('Ocorrência')
 @Controller('ocorrencias')
@@ -62,8 +63,6 @@ export class OcorrenciaController {
   })
   @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
   async create(@Body() dto: CreateOcorrenciaDto, @Req() req: any) {
-    console.log('Payload do JWT:', req.user);
-
     const autorId = req.user?.sub || req.user?.id || req.user?.userId;
 
     if (!autorId) {

@@ -1,6 +1,6 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { StatusOcorrencia } from '../ocorrencia.entity';
+import { IsEnum, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { StatusOcorrencia } from '../enum/statusOcorrencia.enum';
 
 export class AtualizarStatusDto {
   @ApiProperty({
@@ -10,12 +10,4 @@ export class AtualizarStatusDto {
   @IsNotEmpty({ message: 'O novo status é obrigatório.' })
   @IsEnum(StatusOcorrencia, { message: 'Status inválido.' })
   status: StatusOcorrencia;
-
-  @ApiProperty({
-    description: 'Justificativa para a alteração de status',
-    example: 'O problema foi resolvido pelo técnico.',
-  })
-  @IsOptional()
-  @IsString()
-  justificativa?: string;
 }

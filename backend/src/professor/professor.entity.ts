@@ -21,9 +21,6 @@ export class Professor {
   @Column({ nullable: false, unique: true })
   matricula: string;
 
-  @Column({ nullable: false })
-  departamento: string;
-
   @OneToOne(() => Usuario)
   @JoinColumn()
   usuario: Usuario;

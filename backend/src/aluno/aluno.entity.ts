@@ -6,14 +6,13 @@ import {
   JoinColumn,
   ManyToMany,
   JoinTable,
-  OneToMany, //importação do decorator para a relação de 1:N
+  OneToMany,
 } from 'typeorm';
 
 import { Responsavel } from 'src/responsavel/responsavel.entity';
 import { Usuario } from 'src/auth/usuario.entity';
-import { Ocorrencia } from 'src/ocorrencia/ocorrencia.entity'; //aqui 'chamamos' a ocorrÊncia para o typeorm saber quem é
+import { Ocorrencia } from 'src/ocorrencia/ocorrencia.entity';
 import { Professor } from 'src/professor/professor.entity';
-//adicionado o import do professor para criar a relação de aluno x professor quando formos usar
 @Entity('aluno')
 export class Aluno {
   @PrimaryGeneratedColumn()
@@ -28,30 +27,25 @@ export class Aluno {
   @Column({ nullable: false })
   turma: string;
 
-  //relação de 1:1 de aluno x usuário
   @OneToOne(() => Usuario)
-  @JoinColumn({ name: 'usuario_id' }) // alterado para manter o padrão da nomenclatura
+  @JoinColumn({ name: 'usuarioId' })
   usuario: Usuario;
 
-  //relação N:N de alunos x responsÁveis
   @ManyToMany(() => Responsavel, (res) => res.alunos)
   @JoinTable({
-    name: 'aluno_responsavel', // nome da tabela intermediária
+    name: 'aluno_responsavel',
     joinColumn: {
-      name: 'aluno_id',
+      name: 'alunoId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'responsavel_id',
+      name: 'responsavelId',
       referencedColumnName: 'id',
     },
-  }) // cria a tabela intermediária automaticamente
+  })
   responsaveis: Responsavel[];
-  //relação de 1:N de aluno x ocorrências
   @OneToMany(() => Ocorrencia, (ocorrencia) => ocorrencia.aluno)
   ocorrencias: Ocorrencia[];
-  //relação de N:N de alunos x professores
   @ManyToMany(() => Professor, (professor) => professor.alunos)
   professores: Professor[];
-  //adição do relacionamento manytomany com professor
 }

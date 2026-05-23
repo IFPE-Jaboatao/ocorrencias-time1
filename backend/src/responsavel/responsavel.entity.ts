@@ -10,7 +10,7 @@ import {
 
 import { Aluno } from 'src/aluno/aluno.entity';
 import { Usuario } from 'src/auth/usuario.entity';
-@Entity('Responsável')
+@Entity('responsavel')
 export class Responsavel {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,9 +21,6 @@ export class Responsavel {
   @Column({ nullable: false, unique: true })
   telefone: string;
 
-  @Column({ nullable: false, unique: true })
-  cpf: string;
-
   @OneToOne(() => Usuario)
   @JoinColumn()
   usuario: Usuario;
@@ -31,5 +28,5 @@ export class Responsavel {
   @ManyToMany(() => Aluno, (aluno) => aluno.responsaveis)
   alunos: Aluno[];
   @JoinTable()
-  aluno: Aluno[]; //adicionado o join table para que ele possa criar a tabela intermediaria
+  aluno: Aluno[];
 }

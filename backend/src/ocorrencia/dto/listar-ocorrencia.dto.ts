@@ -6,8 +6,9 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { StatusOcorrencia, Severidade } from '../ocorrencia.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { StatusOcorrencia } from '../enum/statusOcorrencia.enum';
+import { Severidade } from '../enum/severidade.enum';
 
 export class ListarOcorrenciaDto {
   @ApiProperty({

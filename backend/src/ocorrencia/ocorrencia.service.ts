@@ -1,18 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Ocorrencia, StatusOcorrencia } from './ocorrencia.entity';
+import { Ocorrencia } from './ocorrencia.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
-import { CreateOcorrenciaDto } from './create-ocorrencia.dto';
+import { CreateOcorrenciaDto } from './dto/create-ocorrencia.dto';
 import { ListarOcorrenciaDto } from './dto/listar-ocorrencia.dto';
-import { BadRequestException } from '@nestjs/common';
 import { AtualizarStatusDto } from './dto/atualizar-status.dto';
+import { StatusOcorrencia } from './enum/statusOcorrencia.enum';
 @Injectable()
 export class OcorrenciaService {
   constructor(
     @InjectRepository(Ocorrencia)
     private readonly ocorrenciaRepository: Repository<Ocorrencia>,
-    //adicionado o repositório de aluno para validar a existência do aluno
     @InjectRepository(Aluno)
     private readonly alunoRepository: Repository<Aluno>,
   ) {}
@@ -145,8 +144,9 @@ export class OcorrenciaService {
     const novaOcorrencia = this.ocorrenciaRepository.create({
       categoria: dto.categoria,
       severidade: dto.severidade,
+      titulo: dto.titulo,
       descricao: dto.descricao,
-      contexto: dto.contexto,
+      data_ocorrencia: dto.data_ocorrencia,
       status: StatusOcorrencia.ABERTA,
       aluno: { id: dto.alunoId },
       autor: { id: Number(autorId) },
@@ -183,19 +183,6 @@ export class OcorrenciaService {
       throw new NotFoundException(
         `Ocorrência com ID ${id} não encontrada no sistema.`,
       );
-    }
-
-    // Regra de Negócio: Exigir Justificativa se já estava RESOLVIDA e vai mudar de estado
-    if (
-      ocorrencia.status === StatusOcorrencia.RESOLVIDA &&
-      dto.status !== StatusOcorrencia.RESOLVIDA
-    ) {
-      if (!dto.justificativa || dto.justificativa.trim() === '') {
-        throw new BadRequestException(
-          'É obrigatório fornecer uma justificativa para alterar o status de uma ocorrência já resolvida.',
-        );
-      }
-      ocorrencia.justificativa = dto.justificativa;
     }
 
     ocorrencia.status = dto.status;

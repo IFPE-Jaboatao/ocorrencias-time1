@@ -26,15 +26,6 @@ export class ResponsavelService {
     return this.responsavelRepository.findOneBy({ id });
   }
 
-  async findByCpf(cpf: string) {
-    return this.responsavelRepository.findOne({
-      where: { cpf },
-      relations: {
-        alunos: true,
-      },
-    });
-  }
-
   async findByTelefone(telefone: string) {
     return this.responsavelRepository.findOne({
       where: { telefone },
@@ -89,15 +80,12 @@ export class ResponsavelService {
         responsavel.usuario.email = novo_email_responsavel;
       }
 
-      //atualização dos dados básicos
       Object.assign(responsavel, {
         nome: data.nome ?? responsavel.nome,
         telefone: data.telefone ?? responsavel.telefone,
-        cpf: data.cpf ?? responsavel.cpf,
         usuario: data.usuario ?? responsavel.usuario,
         aluno: data.aluno ?? responsavel.aluno,
       });
-      //.save garante que a tabela many-to-many seja atualizada
       return await this.responsavelRepository.save(responsavel);
     } catch (error) {
       console.error(error);
@@ -111,7 +99,6 @@ export class ResponsavelService {
       const newResponsavel = this.responsavelRepository.create({
         nome: data.nome,
         telefone: data.telefone,
-        cpf: data.cpf,
         usuario: data.usuario,
       });
 
