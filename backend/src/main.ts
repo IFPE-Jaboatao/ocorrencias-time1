@@ -25,13 +25,28 @@ async function bootstrap() {
         in: 'header',
       },
       'token',
-  )
+    )
     .addTag('Autenticação e registro', 'Login e registro de usuários')
-    .addTag('Ocorrência', 'Gerenciamento de ocorrências, incluindo criação, listagem e atualização de status')
-    .addTag('Evidência', 'Gerenciamento de evidências relacionadas às ocorrências')
-    .addTag('Aluno', 'Recursos específicos para alunos, como listagem de ocorrências pessoais')
-    .addTag('Responsável', 'Recursos específicos para responsáveis, como listagem de aluno vinculado')
-    .addTag('Professor', 'Recursos específicos para professores, como listagem de alunos vinculados')
+    .addTag(
+      'Ocorrência',
+      'Gerenciamento de ocorrências, incluindo criação, listagem e atualização de status',
+    )
+    .addTag(
+      'Evidência',
+      'Gerenciamento de evidências relacionadas às ocorrências',
+    )
+    .addTag(
+      'Aluno',
+      'Recursos específicos para alunos, como listagem de ocorrências pessoais',
+    )
+    .addTag(
+      'Responsável',
+      'Recursos específicos para responsáveis, como listagem de aluno vinculado',
+    )
+    .addTag(
+      'Professor',
+      'Recursos específicos para professores, como listagem de alunos vinculados',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
