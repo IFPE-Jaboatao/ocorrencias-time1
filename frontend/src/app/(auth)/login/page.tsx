@@ -22,6 +22,12 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!loginEmail.trim() || !senha) {
+      setStatus({ type: "error", message: "Preencha todos os campos." });
+      return;
+    }
+
     setStatus({ type: "loading", message: "" });
 
     try {
@@ -50,41 +56,41 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#f8faf9] to-[#e6f2ea] dark:from-[#111827] dark:to-[#1f2937] flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute top-4 right-4 z-20">
-  <button
-    onClick={() => {
-      const html = document.documentElement;
-      html.classList.toggle("dark");
-      localStorage.setItem(
-        "flowbite-theme-mode",
-        html.classList.contains("dark") ? "dark" : "light",
-      );
-    }}
-    className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
-  >
-    {/* Lua - aparece no modo claro */}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5 block dark:hidden"
-      fill="currentColor"
-      viewBox="0 0 20 20"
-    >
-      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-    </svg>
-    {/* Sol - aparece no modo escuro */}
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5 hidden dark:block"
-      fill="currentColor"
-      viewBox="0 0 20 20"
-    >
-      <path
-        fillRule="evenodd"
-        d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 011.414-1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-        clipRule="evenodd"
-      />
-    </svg>
-  </button>
-</div>
+        <button
+          onClick={() => {
+            const html = document.documentElement;
+            html.classList.toggle("dark");
+            localStorage.setItem(
+              "flowbite-theme-mode",
+              html.classList.contains("dark") ? "dark" : "light",
+            );
+          }}
+          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
+        >
+          {/* Lua - aparece no modo claro */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 block dark:hidden"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+          </svg>
+          {/* Sol - aparece no modo escuro */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5 hidden dark:block"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 011.414-1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
       {/* 🔹 ESQUERDA */}
       <div
         className="absolute pointer-events-none"
@@ -180,22 +186,32 @@ export default function LoginPage() {
           />
         </div>
       </div>
-<Card className="max-w-md w-full shadow-2xl border-none backdrop-blur-md rounded-md bg-white dark:bg-gray-800 z-10">
-          <div className="text-center mb-4">
-          <h1 className="text-3xl font-bold text-gray-700 dark:text-gray-100">Login</h1>
-<p className="text-gray-500 text-sm dark:text-gray-400">Sistema de Ocorrências iFlow</p>
+      <Card className="max-w-md w-full shadow-2xl border-none backdrop-blur-md rounded-md bg-white dark:bg-gray-800 z-10">
+        <div className="text-center mb-4">
+          <h1 className="text-3xl font-bold text-gray-700 dark:text-gray-100">
+            Login
+          </h1>
+          <p className="text-gray-500 text-sm dark:text-gray-400">
+            Sistema de Ocorrências iFlow
+          </p>
         </div>
 
         {status.type === "error" && (
-          <Alert color="failure" icon={HiInformationCircle} className="mb-2">
+          <Alert
+            color="failure"
+            icon={HiInformationCircle}
+            className="mb-2 text-red-700 bg-red-50 border border-red-300"
+          >
             {status.message}
           </Alert>
         )}
-
         <form className="flex flex-col gap-4" onSubmit={handleLogin}>
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="usuario" className="text-gray-600 dark:text-gray-300 font-medium">
+              <Label
+                htmlFor="usuario"
+                className="text-gray-600 dark:text-gray-300 font-medium"
+              >
                 Usuário
               </Label>
             </div>
@@ -205,14 +221,16 @@ export default function LoginPage() {
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
               color={status.type === "error" ? "failure" : "gray"}
-              required
               disabled={status.type === "loading"}
             />
           </div>
 
           <div>
             <div className="mb-2 block">
-              <Label htmlFor="senha" className="text-gray-600 dark:text-gray-300 font-medium">
+              <Label
+                htmlFor="senha"
+                className="text-gray-600 dark:text-gray-300 font-medium"
+              >
                 Senha
               </Label>
             </div>
@@ -223,14 +241,13 @@ export default function LoginPage() {
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
               color={status.type === "error" ? "failure" : "gray"}
-              required
               disabled={status.type === "loading"}
             />
           </div>
 
           <Button
             type="submit"
-            className="bg-[#5da16f] enabled:hover:bg-[#4a8a59] transition-all"
+            className="bg-[#5da16f] enabled:hover:bg-[#4a8a59] transition-all py-2.5"
             disabled={status.type === "loading"}
           >
             {status.type === "loading" ? (
