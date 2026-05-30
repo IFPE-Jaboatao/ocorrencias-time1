@@ -7,7 +7,7 @@ export class Turma {
   id: number;
 
   @Column({ nullable: false, unique: true })
-  serie: string; // ex.: 1 -> primeiro
+  serie: number; // ex.: 1 -> primeiro
 
   @Column({ nullable: false })
   turma: string; // ex.: A

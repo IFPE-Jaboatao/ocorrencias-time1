@@ -3,7 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import { Usuario } from './usuario.entity';
+
+import { Usuario } from '../usuario/usuario.entity';
 import { Funcao } from './enums/funcaoUsuario.enum';
 
 @Injectable()
@@ -28,14 +29,20 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
-    const payload = { sub: user.id, funcao: user.funcao };
+  async login(user: Usuario) {
+    const payload = { sub: user.id, nome: user.nome, funcao: user.funcao };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
 
-  async register(senha: string, email: string, funcao: Funcao) {
+  async register(
+    senha: string,
+    email: string,
+    funcao: Funcao,
+    cpf: number,
+    nome: string,
+  ) {
     const userExists = await this.userRepository.findOne({
       where: { email },
     });
@@ -49,6 +56,8 @@ export class AuthService {
       email,
       senha: hashedPassword,
       funcao,
+      cpf,
+      nome,
     });
 
     return await this.userRepository.save(user);

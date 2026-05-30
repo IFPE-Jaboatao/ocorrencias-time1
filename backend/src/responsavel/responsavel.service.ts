@@ -81,7 +81,6 @@ export class ResponsavelService {
       }
 
       Object.assign(responsavel, {
-        nome: data.nome ?? responsavel.nome,
         telefone: data.telefone ?? responsavel.telefone,
         usuario: data.usuario ?? responsavel.usuario,
         aluno: data.aluno ?? responsavel.aluno,
@@ -97,7 +96,6 @@ export class ResponsavelService {
   async create(data: Partial<Responsavel>): Promise<Responsavel> {
     try {
       const newResponsavel = this.responsavelRepository.create({
-        nome: data.nome,
         telefone: data.telefone,
         usuario: data.usuario,
       });

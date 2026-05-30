@@ -8,8 +8,6 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Severidade } from '../enum/severidade.enum';
-import { CategoriaOcorrencia } from '../enum/categoria.enum';
-
 export class CreateOcorrenciaDto {
   @ApiProperty({
     description: 'ID do aluno relacionado à ocorrência',
@@ -22,16 +20,11 @@ export class CreateOcorrenciaDto {
 
   @ApiProperty({
     description: 'Categoria da ocorrência',
-    example: CategoriaOcorrencia.CONDUTA_INDISCIPLINAR,
+    example: 'Conduta indisciplinar',
   })
-  @IsEnum(CategoriaOcorrencia, {
-    message:
-      'A categoria deve ser uma das opções válidas (' +
-      Object.values(CategoriaOcorrencia).join(', ') +
-      ')',
-  })
+  @IsString()
   @IsNotEmpty({ message: 'A categoria é obrigatória' })
-  categoria: CategoriaOcorrencia;
+  categoria: string;
 
   @ApiProperty({
     description: 'Severidade da ocorrência',

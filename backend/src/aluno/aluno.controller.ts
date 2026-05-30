@@ -1,8 +1,8 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { OcorrenciaService } from '../ocorrencia/ocorrencia.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { FuncoesGuard } from 'src/auth/funcoes.guard';
-import { Funcoes } from 'src/auth/funcoes.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt/guards/jwt-auth.guard';
+import { FuncoesGuard } from 'src/auth/jwt/guards/funcoes.guard';
+import { Funcoes } from 'src/auth/jwt/decorators/funcoes.decorator';
 import { AlunoService } from './aluno.service';
 import { Funcao } from 'src/auth/enums/funcaoUsuario.enum';
 import {

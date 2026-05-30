@@ -43,10 +43,6 @@ async function bootstrap() {
       'Responsável',
       'Recursos específicos para responsáveis, como listagem de aluno vinculado',
     )
-    .addTag(
-      'Professor',
-      'Recursos específicos para professores, como listagem de alunos vinculados',
-    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
