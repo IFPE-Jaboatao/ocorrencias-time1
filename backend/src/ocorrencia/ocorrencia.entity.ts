@@ -10,22 +10,18 @@ import {
 
 import { Aluno } from 'src/aluno/aluno.entity';
 import { Evidencia } from 'src/evidencia/evidencia.entity';
-import { Usuario } from 'src/auth/usuario.entity';
+import { Usuario } from 'src/usuario/usuario.entity';
 import { Severidade } from './enum/severidade.enum';
 import { StatusOcorrencia } from './enum/statusOcorrencia.enum';
-import { CategoriaOcorrencia } from './enum/categoria.enum';
+import { Turma } from 'src/turma/turma.entity';
 
 @Entity('ocorrencia')
 export class Ocorrencia {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    type: 'enum',
-    enum: CategoriaOcorrencia,
-    default: CategoriaOcorrencia.CONDUTA_INDISCIPLINAR,
-  })
-  categoria: CategoriaOcorrencia;
+  @Column({ nullable: false })
+  categoria: string;
 
   @Column({ type: 'enum', enum: Severidade, default: Severidade.MEDIA })
   severidade: Severidade;
@@ -37,10 +33,10 @@ export class Ocorrencia {
   })
   status: StatusOcorrencia;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ nullable: false })
   titulo: string;
 
-  @Column('text')
+  @Column()
   descricao: string;
 
   @CreateDateColumn()
@@ -52,7 +48,7 @@ export class Ocorrencia {
   @Column({ nullable: true, default: false })
   ciencia: boolean;
 
-  @ManyToOne(() => Aluno, (aluno) => aluno.ocorrencias)
+  @ManyToOne(() => Aluno)
   @JoinColumn({ name: 'alunoId' })
   aluno: Aluno;
 
@@ -62,4 +58,8 @@ export class Ocorrencia {
 
   @OneToMany(() => Evidencia, (ev) => ev.ocorrencia)
   evidencias: Evidencia[];
+
+  @ManyToOne(() => Turma)
+  @JoinColumn({ name: 'turmaId' })
+  turma: Turma | null; // REGRA DE NEGÓCIO: a ocorrência pode ter envolvimento de uma turma ou não
 }

@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { Funcao } from './enums/funcaoUsuario.enum';
+import { Funcao } from '../auth/enums/funcaoUsuario.enum';
 
 @Entity('usuario')
 export class Usuario {
@@ -11,6 +11,12 @@ export class Usuario {
 
   @Column({ nullable: false, unique: true })
   email: string;
+
+  @Column({ nullable: false })
+  nome: string;
+
+  @Column({ nullable: false, unique: true })
+  cpf: number;
 
   @Column({
     type: 'enum',

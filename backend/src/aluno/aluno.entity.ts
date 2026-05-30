@@ -7,25 +7,24 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 
 import { Responsavel } from 'src/responsavel/responsavel.entity';
-import { Usuario } from 'src/auth/usuario.entity';
+import { Usuario } from 'src/usuario/usuario.entity';
 import { Ocorrencia } from 'src/ocorrencia/ocorrencia.entity';
-import { Professor } from 'src/professor/professor.entity';
+import { Turma } from 'src/turma/turma.entity';
 @Entity('aluno')
 export class Aluno {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
-  nome: string;
-
   @Column({ nullable: false, unique: true })
   matricula: string;
 
-  @Column({ nullable: false })
-  turma: string;
+  @ManyToOne(() => Turma)
+  @JoinColumn({ name: 'turmaId' })
+  turma: Turma;
 
   @OneToOne(() => Usuario)
   @JoinColumn({ name: 'usuarioId' })
@@ -46,6 +45,4 @@ export class Aluno {
   responsaveis: Responsavel[];
   @OneToMany(() => Ocorrencia, (ocorrencia) => ocorrencia.aluno)
   ocorrencias: Ocorrencia[];
-  @ManyToMany(() => Professor, (professor) => professor.alunos)
-  professores: Professor[];
 }
