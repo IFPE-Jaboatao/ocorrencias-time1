@@ -11,7 +11,6 @@ export default function LateralSteps({ passoAtual }: { passoAtual: number }) {
 
   return (
     <div className="flex flex-col gap-10 relative mt-6 ml-4">
-      {/* 🟢 Linha vertical customizada em Tailwind */}
       <div className="absolute left-[19px] top-3 bottom-3 w-0.5 bg-gray-200 z-0" />
 
       {etapas.map((etapa) => {
@@ -20,7 +19,6 @@ export default function LateralSteps({ passoAtual }: { passoAtual: number }) {
 
         return (
           <div key={etapa.id} className="flex items-center gap-4 z-10 relative">
-            {/* 🟢 Bolinha Indicadora com as cores do iFlow */}
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300
                 ${concluido 
@@ -32,7 +30,6 @@ export default function LateralSteps({ passoAtual }: { passoAtual: number }) {
               {concluido ? <HiCheck className="w-5 h-5" /> : etapa.id}
             </div>
 
-            {/* 🟢 Texto da Etapa */}
             <div className="flex flex-col">
               <span
                 className={`text-sm font-semibold transition-all duration-300 ${
