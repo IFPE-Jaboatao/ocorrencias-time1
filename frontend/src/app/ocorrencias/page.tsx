@@ -37,21 +37,46 @@ export default function CadastrarOcorrenciaPage() {
     alert("Ocorrência registrada com sucesso!");
   };
 
-  // Validação simples para liberar o botão avançar no passo 1
   const passo1Valido = formData.matriculaCpf && formData.tipoOcorrencia;
   const passo2Valido = formData.detalhamento.trim().length > 0;
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 transition-colors pt-10">
-      <Card className="w-full max-w-5xl shadow-xl border-none rounded-lg p-0 overflow-hidden bg-white dark:bg-gray-800 dark:border-gray-700">
-        
+<Card className="w-full max-w-5xl shadow-xl border-none rounded-lg p-0 overflow-hidden bg-white dark:bg-gray-800 dark:border-gray-700 relative">        
         {/* <div className="bg-[#5da16f] h-12 w-full flex items-center justify-center ">
           <div className="bg-white/20 p-1.5 rounded-md text-white text-xs font-bold pt-10">
             ✓ Registro de Ocorrência
           </div>
         </div> */}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+      {/* 🟢 QUADRADINHOS SUPERIORES */}
+      <div className="absolute top-5 right-0 flex flex-col gap-1 opacity-40 pointer-events-none select-none z-0">
+        <div className="flex gap-1 justify-end">
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+          
+        </div>
+        <div className="flex gap-1">
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+        </div>
+      </div>
+
+      {/* 🟢 QUADRADINHOS INFERIORES  */}
+      <div className="absolute bottom-0 left-1 flex gap-1 items-end opacity-40 pointer-events-none select-none z-0">
+        <div className="flex flex-col gap-1">
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+          <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+        </div>
+        <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
+      </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 relative z-10">
           <div className="md:col-span-1 border-r border-gray-200 dark:border-gray-700 pr-4">
             <LateralSteps passoAtual={passo} />
           </div>
