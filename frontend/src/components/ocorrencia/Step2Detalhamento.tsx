@@ -24,14 +24,8 @@ export default function Step2Detalhamento({ formData, atualizarDados, onNext, on
           onChange={(e) => atualizarDados({ detalhamento: e.target.value })}
           placeholder="Digite aqui o relatório descritivo..." 
           required
+          
         />
-      </div>
-
-      <div className="flex justify-between mt-6">
-        <Button color="light" onClick={onBack}>Voltar</Button>
-        <Button className="bg-[#5da16f] enabled:hover:bg-[#4a8a59]" onClick={onNext} disabled={!formData.detalhamento}>
-          Avançar
-        </Button>
       </div>
     </div>
   );

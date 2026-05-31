@@ -39,11 +39,6 @@ export default function Step3Upload({ formData, atualizarDados, onNext, onBack }
           <strong>Arquivos selecionados:</strong> {formData.anexos.map(f => f.name).join(", ")}
         </div>
       )}
-
-      <div className="flex justify-between mt-6">
-        <Button color="light" onClick={onBack}>Voltar</Button>
-        <Button className="bg-[#5da16f] enabled:hover:bg-[#4a8a59]" onClick={onNext}>Avançar</Button>
-      </div>
     </div>
   );
 }

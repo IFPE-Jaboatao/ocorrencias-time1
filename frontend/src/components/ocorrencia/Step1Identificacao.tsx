@@ -27,12 +27,13 @@ export default function Step1Identificacao({ formData, atualizarDados, onNext }:
           value={formData.matriculaCpf} 
           onChange={(e) => atualizarDados({ matriculaCpf: e.target.value })} 
           required 
+          className="[&_input]:rounded-md [&_input]:py-2.5 transition-all"
         />
       </div>
 
       <div>
         <Label htmlFor="nome" className="text-gray-600 mb-2 block">Nome completo do aluno (campo automático)</Label>
-        <TextInput id="nome" value={formData.nomeAluno} disabled placeholder="Buscando automaticamente..." />
+        <TextInput id="nome" value={formData.nomeAluno} disabled placeholder="Buscando automaticamente..." className="[&_input]:rounded-md [&_input]:py-2.5 transition-all"/>
       </div>
 
       <div>
@@ -42,6 +43,7 @@ export default function Step1Identificacao({ formData, atualizarDados, onNext }:
           value={formData.tipoOcorrencia} 
           onChange={(e) => atualizarDados({ tipoOcorrencia: e.target.value })} 
           required
+          className="[&_select]:rounded-md [&_select]:py-2.5 transition-all"
         >
           <option value="">Selecione uma opção</option>
           <option value="FALTA_INJUSTIFICADA">Falta Injustificada</option>
@@ -49,10 +51,6 @@ export default function Step1Identificacao({ formData, atualizarDados, onNext }:
           <option value="BULLYING">Bullying</option>
           <option value="OUTROS">Outros</option>
         </Select>
-      </div>
-
-      <div className="flex justify-end mt-6">
-        <Button type="submit" className="bg-[#5da16f] enabled:hover:bg-[#4a8a59]">Avançar</Button>
       </div>
     </form>
   );
