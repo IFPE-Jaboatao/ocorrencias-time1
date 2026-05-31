@@ -4,6 +4,7 @@ import { Card } from "flowbite-react"; ;
 import LateralSteps from "@/components/ocorrencia/LateralSteps";
 import Step1Identificacao from "@/components/ocorrencia/Step1Identificacao";
 import Step2Detalhamento from "@/components/ocorrencia/Step2Detalhamento";
+import Step3Upload from "@/components/ocorrencia/Step3Upload";
 
 
 export interface OcorrenciaFormData {
@@ -61,6 +62,14 @@ export default function CadastrarOcorrenciaPage() {
               )}
               {passo === 2 && (
               <Step2Detalhamento 
+                formData={formData} 
+                atualizarDados={atualizarDados} 
+                onNext={proximoPasso} 
+                onBack={passoAnterior} 
+              />
+            )}
+            {passo === 3 && (
+              <Step3Upload 
                 formData={formData} 
                 atualizarDados={atualizarDados} 
                 onNext={proximoPasso} 
