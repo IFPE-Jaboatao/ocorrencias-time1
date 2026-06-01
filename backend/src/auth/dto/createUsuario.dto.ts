@@ -4,8 +4,12 @@ import {
   IsEnum,
   IsOptional,
   IsEmail,
+  IsNumber,
+  Length,
+  IsPhoneNumber,
+  Matches,
 } from 'class-validator';
-import { Funcao } from '../enums/funcao-usuario.enum';
+import { Funcao } from '../enums/funcaoUsuario.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
@@ -14,7 +18,7 @@ export class RegisterDto {
     example: 'usuario@example.com',
   })
   @IsNotEmpty({ message: 'Email é obrigatório.' })
-  @IsEmail({}, { message: 'O e-mail informado não tem um formato válido.' }) // 👈 A mágica aqui!
+  @IsEmail({}, { message: 'O e-mail informado não tem um formato válido.' })
   email: string;
 
   @ApiProperty({
@@ -33,44 +37,43 @@ export class RegisterDto {
   @IsEnum(Funcao, { message: 'Função inválida.' })
   funcao: Funcao;
 
-  // Campos opcionais dependendo do tipo (admin, aluno, professor ou responsável)
   @ApiProperty({
-    description: 'Nome do usuário',
+    description: 'Nome do usuário (admin, professor, aluno ou responsável)',
     example: 'João da Silva',
   })
-  @IsOptional()
   @IsString()
-  nome: string; // Para Aluno e Responsável
+  nome: string;
 
   @ApiProperty({
-    description: 'Turma do aluno',
-    example: 'Turma A',
+    description: 'ID da turma para aluno',
+    example: '1',
   })
   @IsOptional()
-  @IsString()
-  turma?: string; // Para Aluno
+  @IsNumber()
+  turmaId?: number;
 
   @ApiProperty({
-    description: 'CPF do responsável',
-    example: '123.456.789-00',
+    description: 'CPF para admin, professor, aluno ou responsavel',
+    example: '12345678911',
   })
-  @IsOptional()
-  @IsString()
-  cpf?: string; // Para Responsável
+  @IsNumber()
+  @Length(11, 11)
+  cpf?: number;
 
   @ApiProperty({
     description: 'Telefone do responsável',
-    example: '(11) 98765-4321',
+    example: '81999999999',
   })
   @IsOptional()
+  @Matches(/^\d{11}$/)
   @IsString()
-  telefone?: string; // Para Responsável
+  telefone?: string;
 
   @ApiProperty({
-    description: 'Matrícula do aluno',
+    description: 'Matrícula do professor ou aluno',
     example: '123456',
   })
   @IsOptional()
   @IsString()
-  matricula?: string; // Para Aluno
+  matricula?: string;
 }

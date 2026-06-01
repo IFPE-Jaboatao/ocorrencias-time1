@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { FUNCOES_KEY } from './funcoes.decorator';
+import { FUNCOES_KEY } from '../decorators/funcoes.decorator';
 
 @Injectable()
 export class FuncoesGuard extends JwtAuthGuard implements CanActivate {

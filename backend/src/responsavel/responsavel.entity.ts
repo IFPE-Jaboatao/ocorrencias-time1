@@ -9,27 +9,21 @@ import {
 } from 'typeorm';
 
 import { Aluno } from 'src/aluno/aluno.entity';
-import { Usuario } from 'src/auth/usuario.entity';
+import { Usuario } from 'src/usuario/usuario.entity';
 @Entity('responsavel')
 export class Responsavel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
-  nome: string;
-
   @Column({ nullable: false, unique: true })
   telefone: string;
 
-  @Column({ nullable: false, unique: true })
-  cpf: string;
-
   @OneToOne(() => Usuario)
-  @JoinColumn()
+  @JoinColumn({ name: 'usuarioId' })
   usuario: Usuario;
 
   @ManyToMany(() => Aluno, (aluno) => aluno.responsaveis)
   alunos: Aluno[];
   @JoinTable()
-  aluno: Aluno[]; //adicionado o join table para que ele possa criar a tabela intermediaria
+  aluno: Aluno[];
 }

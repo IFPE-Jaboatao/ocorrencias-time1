@@ -5,11 +5,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(cookieParser());
 
   const config = new DocumentBuilder()
     .setTitle('IFlow API')
@@ -17,7 +15,34 @@ async function bootstrap() {
       'API responsável pela gestão de ocorrências acadêmicas e disciplinares, permitindo registro, acompanhamento, notificações e auditoria com segurança e transparência.',
     )
     .setVersion('1.0')
-    .addCookieAuth('token')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Insira o token JWT',
+        in: 'header',
+      },
+      'token',
+    )
+    .addTag('Autenticação e registro', 'Login e registro de usuários')
+    .addTag(
+      'Ocorrência',
+      'Gerenciamento de ocorrências, incluindo criação, listagem e atualização de status',
+    )
+    .addTag(
+      'Evidência',
+      'Gerenciamento de evidências relacionadas às ocorrências',
+    )
+    .addTag(
+      'Aluno',
+      'Recursos específicos para alunos, como listagem de ocorrências pessoais',
+    )
+    .addTag(
+      'Responsável',
+      'Recursos específicos para responsáveis, como listagem de aluno vinculado',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

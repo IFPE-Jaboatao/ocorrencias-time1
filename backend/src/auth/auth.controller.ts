@@ -2,40 +2,80 @@ import {
   Controller,
   Post,
   Body,
-  Res,
   UseGuards,
-  Put,
   UnauthorizedException,
-  NotFoundException,
   ConflictException,
-  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto } from './dto/create-usuario.dto';
-import { Funcao } from './enums/funcao-usuario.enum';
+import { RegisterDto } from './dto/createUsuario.dto';
+import { Funcao } from './enums/funcaoUsuario.enum';
 import { ResponsavelService } from 'src/responsavel/responsavel.service';
 import { AlunoService } from 'src/aluno/aluno.service';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { Funcoes } from './funcoes.decorator';
-import { FuncoesGuard } from './funcoes.guard';
+import { JwtAuthGuard } from './jwt/guards/jwt-auth.guard';
+import { Funcoes } from './jwt/decorators/funcoes.decorator';
+import { FuncoesGuard } from './jwt/guards/funcoes.guard';
 import { LoginDto } from './dto/login.dto';
 import {
-  ApiBody,
-  ApiCookieAuth,
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Response } from 'express';
-import { VincularAlunoResponsavelDto } from './dto/vincular-aluno-responsavel.dto';
-@ApiTags('Autenticação e Registro')
+import { TurmaService } from 'src/turma/turma.service';
+import { Usuario } from 'src/usuario/usuario.entity';
+@ApiTags('Autenticação e registro')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly alunoService: AlunoService,
     private readonly responsavelService: ResponsavelService,
+    private readonly turmaService: TurmaService,
   ) {}
+
+  private async validarDadosEspecificos(body: RegisterDto) {
+    switch (body.funcao) {
+      case Funcao.RESPONSAVEL:
+        const existTelefone = await this.responsavelService.findByTelefone(
+          body.telefone,
+        );
+        if (existTelefone) {
+          throw new ConflictException(
+            'Telefone já cadastrado para outro responsável.',
+          );
+        }
+        break;
+      case Funcao.ALUNO:
+        const existmatricula = await this.alunoService.findByMatricula(
+          body.matricula,
+        );
+        if (existmatricula) {
+          throw new ConflictException(
+            'Matrícula já cadastrada para outro aluno.',
+          );
+        }
+        break;
+    }
+  }
+
+  private async criarPerfilEspecifico(body: RegisterDto, usuario: Usuario) {
+    switch (body.funcao) {
+      case Funcao.ALUNO:
+        const turma = await this.turmaService.findOneById(body.turmaId);
+        await this.alunoService.create({
+          matricula: body.matricula,
+          turma,
+          usuario,
+        });
+        break;
+      case Funcao.RESPONSAVEL:
+        await this.responsavelService.create({
+          telefone: body.telefone,
+          usuario,
+        });
+        break;
+    }
+  }
 
   @Post('login')
   @ApiOperation({ summary: 'Autenticar usuário e obter token JWT' })
@@ -52,27 +92,12 @@ export class AuthController {
     status: 500,
     description: 'Erro interno do servidor durante a autenticação.',
   })
-  async login(
-    @Body() body: LoginDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async login(@Body() body: LoginDto) {
     const user = await this.authService.validateUser(body.email, body.senha);
     if (!user) {
       throw new UnauthorizedException('Email ou Senha incorretos');
     }
-    const result = await this.authService.login(user);
-
-    res.cookie('token', result.access_token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      maxAge: 3600000,
-    });
-
-    return {
-      name: user.nome || 'Usuário',
-      funcao: user.funcao,
-    };
+    return await this.authService.login(user);
   }
 
   //@UseGuards(JwtAuthGuard, FuncoesGuard)
@@ -82,7 +107,7 @@ export class AuthController {
     summary:
       'Registrar um novo usuário com perfil específico (restrito a usuários com perfil ADMIN).',
   })
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiResponse({
     status: 201,
     description: 'Usuário e perfil criados com sucesso.',
@@ -109,146 +134,22 @@ export class AuthController {
     @Body()
     body: RegisterDto,
   ) {
-    if (body.funcao == Funcao.RESPONSAVEL) {
-      function validarCPFFormato(cpf) {
-        const regex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-        return regex.test(cpf);
-      }
-      function validarTelefoneFormato(telefone) {
-        const regex = /^\(\d{2}\) \d{5}-\d{4}$/;
-        return regex.test(telefone);
-      }
-      if (!validarCPFFormato(body.cpf)) {
-        throw new BadRequestException(
-          'CPF inválido. O formato deve ser XXX.XXX.XXX-XX',
-        );
-      }
-      if (body.telefone && !validarTelefoneFormato(body.telefone)) {
-        throw new BadRequestException(
-          'Telefone inválido. O formato deve ser (XX) XXXXX-XXXX',
-        );
-      }
-      const existCpf = await this.responsavelService.findByCpf(body.cpf);
-      if (existCpf) {
-        throw new ConflictException(
-          'CPF já cadastrado para outro responsável.',
-        );
-      }
-      const existTelefone = await this.responsavelService.findByTelefone(
-        body.telefone,
-      );
-      if (existTelefone) {
-        throw new ConflictException(
-          'Telefone já cadastrado para outro responsável.',
-        );
-      }
-    } else if (body.funcao == Funcao.ALUNO) {
-      const existmatricula = await this.alunoService.findByMatricula(
-        body.matricula,
-      );
-      if (existmatricula) {
-        throw new ConflictException(
-          'Matrícula já cadastrada para outro aluno.',
-        );
-      }
-    }
+    await this.validarDadosEspecificos(body); // validação
 
     // Usuário base do login, senha, email e tipo
     const novoUsuario = await this.authService.register(
       body.senha,
       body.email,
       body.funcao,
+      body.cpf,
+      body.nome,
     );
 
-    // Criação condicional baseada no tipo do usuário
-    if (body.funcao === Funcao.ALUNO) {
-      await this.alunoService.create({
-        nome: body.nome,
-        matricula: body.matricula,
-        turma: body.turma,
-        usuario: novoUsuario,
-      });
-    } else if (body.funcao === Funcao.RESPONSAVEL) {
-      await this.responsavelService.create({
-        nome: body.nome,
-        telefone: body.telefone,
-        cpf: body.cpf,
-        usuario: novoUsuario,
-      });
-    }
+    await this.criarPerfilEspecifico(body, novoUsuario);
 
     return {
       message: 'Usuário e perfil criados com sucesso',
       userId: novoUsuario.id,
-    };
-  }
-
-  @UseGuards(JwtAuthGuard, FuncoesGuard)
-  @Funcoes(Funcao.ADMIN)
-  @Put('admin/vinculo')
-  @ApiOperation({
-    summary:
-      'Vincular um aluno a um responsável existente (restrito a usuários com perfil ADMIN).',
-  })
-  @ApiCookieAuth('token')
-  @ApiResponse({
-    status: 200,
-    description: 'Aluno vinculado ao responsável com sucesso.',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Requisição inválida. Verifique os dados fornecidos.',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Não autorizado. Token JWT ausente ou inválido.',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      'Proibido. O usuário não tem perfil de administrador para acessar este recurso.',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Aluno ou responsável não encontrado para os IDs fornecidos.',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor durante o vínculo.',
-  })
-  async vincularAlunoResponsavel(
-    @Body()
-    body: VincularAlunoResponsavelDto,
-  ) {
-    const aluno = await this.alunoService.findByUsuarioId(body.alunoId);
-    const responsavel = await this.responsavelService.findOneById(
-      body.responsavelId,
-    );
-
-    if (!aluno) {
-      throw new NotFoundException('Aluno não encontrado');
-    }
-    if (!responsavel) {
-      throw new NotFoundException('Responsável não encontrado');
-    }
-
-    if (!aluno.responsaveis) {
-      aluno.responsaveis = [];
-    }
-
-    if (!responsavel.alunos) {
-      responsavel.alunos = [];
-    }
-
-    aluno.responsaveis.push(responsavel);
-    await this.alunoService.update(aluno);
-    responsavel.alunos.push(aluno);
-    await this.responsavelService.update(responsavel.id, responsavel);
-
-    return {
-      message: 'Aluno vinculado ao responsável com sucesso',
-      alunoId: aluno.id,
-      responsavelId: responsavel.id,
     };
   }
 }
