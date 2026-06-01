@@ -34,36 +34,35 @@ A API é responsável por toda a lógica de negócio do sistema, incluindo:
 Antes de iniciar, certifique-se de ter instalado em sua máquina:
 
 - Node.js (versão 20 ou superior)
-- Gerenciador de pacotes (npm ou yarn)
-- Uma instância ativa do **MySQL**
+- NPM
+- Uma instância ativa do MySQL
 
 ---
 
 ## Instalação e primeiros passos
 
 ### 1. Clone o repositório
-
 ```bash
 https://github.com/IFPE-Jaboatao/ocorrencias-time1.git
 ```
 
-### 2. Acesse a pasta do projeto
+### 2. Pré-requisitos
+- Copie o arquivo .env.example e renomeie a cópia para .env.
+- Edite o arquivo .env com as configurações necessárias para o seu ambiente.
 
+### 3. Configure o banco de dados
+- Inicie uma instância MySQL (local, em nuvem ou via Docker).
+- Certifique-se de que as credenciais de conexão sejam as mesmas definidas no arquivo .env.
+
+### 4. Acesse a pasta do projeto
 ```bash
 cd backend
 ```
 
-### 3. Instale as dependências
-
+### 5. Instale as dependências
 ```bash
 npm install
 ```
-
----
-
-## Variáveis de ambiente
-
-Pegue o arquivo `.env.example` e edite-o para tornar ele um `.env` fazendo as alterações que forem necessárias.
 
 ---
 
@@ -88,7 +87,6 @@ A API utiliza Swagger para documentação automática. Com o servidor rodando, v
 ---
 
 ## Testes `(em desenvolvimento)`
-
 O projeto utiliza o framework **Jest** para garantir a qualidade do código.
 
 **Executar testes unitários:**

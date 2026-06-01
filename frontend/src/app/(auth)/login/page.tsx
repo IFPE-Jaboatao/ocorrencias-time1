@@ -67,7 +67,6 @@ export default function LoginPage() {
           }}
           className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors"
         >
-          {/* Lua - aparece no modo claro */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-5 h-5 block dark:hidden"
@@ -76,7 +75,6 @@ export default function LoginPage() {
           >
             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
           </svg>
-          {/* Sol - aparece no modo escuro */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-5 h-5 hidden dark:block"
@@ -222,6 +220,7 @@ export default function LoginPage() {
               onChange={(e) => setLoginEmail(e.target.value)}
               color={status.type === "error" ? "failure" : "gray"}
               disabled={status.type === "loading"}
+              className="[&_input]:rounded-md [&_input]:py-2.5 transition-all"
             />
           </div>
 
@@ -242,12 +241,13 @@ export default function LoginPage() {
               onChange={(e) => setSenha(e.target.value)}
               color={status.type === "error" ? "failure" : "gray"}
               disabled={status.type === "loading"}
+              className="[&_input]:rounded-md [&_input]:py-2.5 transition-all"
             />
           </div>
 
           <Button
             type="submit"
-            className="bg-[#5da16f] enabled:hover:bg-[#4a8a59] transition-all py-2.5"
+            className="bg-[#5da16f] enabled:hover:bg-[#4a8a59] transition-all py-2.5 rounded-md shadow-sm"
             disabled={status.type === "loading"}
           >
             {status.type === "loading" ? (
