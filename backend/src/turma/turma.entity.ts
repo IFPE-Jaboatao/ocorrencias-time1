@@ -9,7 +9,13 @@ export class Turma {
   @Column({ nullable: false, unique: true })
   serie: number; // ex.: 1 -> primeiro
 
-  @Column({ nullable: false })
+  @Column({
+    nullable: false,
+    transformer: {
+      to: (value: string) => value?.toUpperCase(), // Transforma em maiúsculo ao salvar
+      from: (value: string) => value, // Mantém igual ao ler do banco
+    },
+  })
   turma: string; // ex.: A
 
   @Column({

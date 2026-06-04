@@ -27,6 +27,7 @@ async function bootstrap() {
       'token',
     )
     .addTag('Autenticação e registro', 'Login e registro de usuários')
+    .addTag('Turma', 'Gerenciamento de turmas')
     .addTag(
       'Ocorrência',
       'Gerenciamento de ocorrências, incluindo criação, listagem e atualização de status',

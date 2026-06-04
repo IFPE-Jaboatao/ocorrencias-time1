@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Turma } from './turma.entity';
 import { Turno } from './enum/turno.enum';
+import { TurmaDto } from './dto/createTurma.dto';
 
 @Injectable()
 export class TurmaService {
@@ -31,7 +32,17 @@ export class TurmaService {
     return this.turmaRepository.findOneBy({ turno });
   }
 
-  async create(turma: Partial<Turma>): Promise<Turma> {
+  async create(turma: TurmaDto): Promise<Turma> {
+    const findOneBySerieAndTurmaAndTurno = await this.turmaRepository.findOneBy(
+      {
+        serie: turma.serie,
+        turma: turma.turma,
+        turno: turma.turno,
+      },
+    );
+    if (findOneBySerieAndTurmaAndTurno) {
+      throw new ConflictException('Turma já existe');
+    }
     const newTurma = this.turmaRepository.create(turma);
     return this.turmaRepository.save(newTurma);
   }

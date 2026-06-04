@@ -1,6 +1,6 @@
 export enum Turno {
-  MANHA = 'Manhã',
-  TARDE = 'Tarde',
-  INTEGRAL = 'Integral',
-  NOITE = 'Noite',
+  MANHA = 'manha',
+  TARDE = 'tarde',
+  INTEGRAL = 'integral',
+  NOITE = 'noite',
 }
