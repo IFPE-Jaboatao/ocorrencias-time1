@@ -5,6 +5,7 @@ import { RegisterDto } from './dto/createUsuario.dto';
 import { TurmaService } from 'src/turma/turma.service';
 import { ResponsavelService } from 'src/responsavel/responsavel.service';
 import { AlunoService } from 'src/aluno/aluno.service';
+import { ProfessorService } from 'src/professor/professor.service';
 
 @Injectable()
 export class RegistrationService {
@@ -12,6 +13,7 @@ export class RegistrationService {
     private readonly alunoService: AlunoService,
     private readonly responsavelService: ResponsavelService,
     private readonly turmaService: TurmaService,
+    private readonly professorService: ProfessorService,
   ) {}
 
   async validarDadosEspecificos(body: RegisterDto) {
@@ -52,6 +54,12 @@ export class RegistrationService {
       case Funcao.RESPONSAVEL:
         await this.responsavelService.create({
           telefone: body.telefone,
+          usuario,
+        });
+        break;
+      case Funcao.PROFESSOR:
+        await this.professorService.create({
+          matricula: body.matricula,
           usuario,
         });
         break;

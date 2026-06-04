@@ -18,16 +18,25 @@ export class AlunoService {
     return this.alunoRepository.find();
   }
 
-  async findOne(id: number): Promise<Aluno | null> {
-    return this.alunoRepository.findOneBy({ id });
+  async findOneById(id: number): Promise<Aluno | null> {
+    return this.alunoRepository.findOne({
+      where: { id },
+      relations: ['turma', 'usuario', 'responsaveis', 'ocorrencias'],
+    });
   }
 
   async findByUsuarioId(usuarioId: number): Promise<Aluno | null> {
-    return this.alunoRepository.findOneBy({ usuario: { id: usuarioId } });
+    return this.alunoRepository.findOne({
+      where: { usuario: { id: usuarioId } },
+      relations: ['turma', 'usuario', 'responsaveis', 'ocorrencias'],
+    });
   }
 
   async findByMatricula(matricula: string): Promise<Aluno | null> {
-    return this.alunoRepository.findOneBy({ matricula });
+    return this.alunoRepository.findOne({
+      where: { matricula },
+      relations: ['turma', 'usuario', 'responsaveis', 'ocorrencias'],
+    });
   }
 
   async create(aluno: Partial<Aluno>): Promise<Aluno> {

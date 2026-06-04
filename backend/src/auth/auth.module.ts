@@ -12,6 +12,8 @@ import { AlunoModule } from 'src/aluno/aluno.module';
 import { ResponsavelModule } from 'src/responsavel/responsavel.module';
 import { TurmaModule } from 'src/turma/turma.module';
 import { RegistrationService } from './registration.service';
+import { UsuarioModule } from 'src/usuario/usuario.module';
+import { ProfessorModule } from 'src/professor/professor.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { RegistrationService } from './registration.service';
     ResponsavelModule,
     PassportModule,
     TurmaModule,
+    UsuarioModule,
+    ProfessorModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

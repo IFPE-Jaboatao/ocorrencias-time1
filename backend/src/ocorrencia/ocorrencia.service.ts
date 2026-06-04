@@ -5,7 +5,6 @@ import { Ocorrencia } from './ocorrencia.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
 import { CreateOcorrenciaDto } from './dto/createOcorrencia.dto';
 import { ListarOcorrenciaDto } from './dto/listarOcorrencia.dto';
-import { AtualizarStatusDto } from './dto/atualizarStatus.dto';
 import { StatusOcorrencia } from './enum/statusOcorrencia.enum';
 @Injectable()
 export class OcorrenciaService {
@@ -16,14 +15,71 @@ export class OcorrenciaService {
     private readonly alunoRepository: Repository<Aluno>,
   ) {}
 
+  private mapearOcorrencia(ocorrencia: Ocorrencia) {
+    if (!ocorrencia) return null;
+
+    let autorUsuario = null;
+    if (ocorrencia.autor) {
+      const { senha, cpf, ...dadosPublicosAutor } = ocorrencia.autor;
+      autorUsuario = dadosPublicosAutor;
+    }
+
+    let alunoTratado = null;
+    if (ocorrencia.aluno) {
+      const { usuario, responsaveis, turma, ...dadosAluno } = ocorrencia.aluno;
+
+      const usuarioAlunoLimpo = usuario
+        ? {
+            id: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email,
+            funcao: usuario.funcao,
+          }
+        : null;
+
+      const responsaveisLimpos =
+        responsaveis?.map((resp) => {
+          const u = resp.usuario;
+          return {
+            id: resp.id,
+            usuario: u
+              ? { id: u.id, nome: u.nome, email: u.email, funcao: u.funcao }
+              : null,
+          };
+        }) || [];
+
+      alunoTratado = {
+        ...dadosAluno,
+        usuario: usuarioAlunoLimpo,
+        turma: turma || null,
+        responsaveis: responsaveisLimpos,
+      };
+    }
+
+    return {
+      id: ocorrencia.id,
+      categoria: ocorrencia.categoria,
+      severidade: ocorrencia.severidade,
+      status: ocorrencia.status,
+      titulo: ocorrencia.titulo,
+      descricao: ocorrencia.descricao,
+      dataCriacao: ocorrencia.dataCriacao,
+      dataOcorrencia: ocorrencia.dataOcorrencia,
+      ciencia: ocorrencia.ciencia,
+      aluno: alunoTratado,
+      autorUsuario: autorUsuario, // renomeado para evitar confusão com o usuário do aluno
+      evidencias: ocorrencia.evidencias,
+      turma: ocorrencia.turma,
+    };
+  }
+
   async findAll(filtros: ListarOcorrenciaDto) {
     const {
       status,
       alunoId,
       data,
-      turma,
+      turmaId,
       severidade,
-      descricao,
       page = 1,
       limit = 10,
     } = filtros;
@@ -31,48 +87,47 @@ export class OcorrenciaService {
     const qb = this.ocorrenciaRepository
       .createQueryBuilder('o')
       .leftJoinAndSelect('o.aluno', 'aluno')
+      .leftJoinAndSelect('aluno.turma', 'alunoTurma') // turma do aluno
+      .leftJoinAndSelect('aluno.usuario', 'alunoUsuario')
+      .leftJoinAndSelect('aluno.responsaveis', 'responsaveis')
+      .leftJoinAndSelect('responsaveis.usuario', 'responsaveisUsuario')
       .leftJoinAndSelect('o.autor', 'autor')
       .leftJoinAndSelect('o.evidencias', 'evidencias')
-      .leftJoinAndSelect('o.comentarios', 'comentarios');
+      .leftJoinAndSelect('o.turma', 'turma'); // turma da ocorrência (pode ser null)
 
     // Filtros Originais
     if (status) {
       qb.andWhere('o.status = :status', { status });
     }
-
     if (alunoId) {
       qb.andWhere('aluno.id = :alunoId', { alunoId });
     }
 
-    if (turma) {
-      qb.andWhere('aluno.turma = :turma', { turma });
+    if (turmaId) {
+      qb.andWhere('turma.id = :turmaId', { turmaId });
     }
 
     if (data) {
       qb.andWhere('DATE(o.dataCriacao) = :data', { data });
     }
-
-    // filtro de severidade
     if (severidade) {
       qb.andWhere('o.severidade = :severidade', { severidade });
-    }
-    if (descricao) {
-      qb.andWhere('(o.descricao LIKE :busca OR aluno.nome LIKE :busca)', {
-        busca: `%${descricao}%`,
-      });
     }
 
     // Paginação
     qb.skip((page - 1) * limit);
     qb.take(limit);
-
-    // Ordenação das ocorrências
     qb.orderBy('o.dataCriacao', 'DESC');
 
-    // Total de registos
     const [dados, total] = await qb.getManyAndCount();
+
+    // Mapeamento para limpar dados sensíveis e reestruturar o JSON
+    const ocorrenciasTratadas = dados.map((ocorrencia) =>
+      this.mapearOcorrencia(ocorrencia),
+    );
+
     return {
-      data: dados,
+      ocorrencias: ocorrenciasTratadas,
       meta: {
         total,
         page,
@@ -82,17 +137,30 @@ export class OcorrenciaService {
     };
   }
 
-  async findRecentes(): Promise<Ocorrencia[]> {
-    return this.ocorrenciaRepository.find({
+  async findRecentes(): Promise<any[]> {
+    const ultimasOcorrencias = await this.ocorrenciaRepository.find({
       order: {
         dataCriacao: 'DESC',
       },
       take: 5,
-      relations: {
-        aluno: true,
-        autor: true,
-      },
+      relations: [
+        'aluno',
+        'autor',
+        'evidencias',
+        'turma',
+        'aluno.turma',
+        'aluno.usuario',
+        'aluno.responsaveis',
+        'aluno.responsaveis.usuario',
+      ],
     });
+
+    // Mapeamento para limpar dados sensíveis e reestruturar o JSON
+    const ocorrenciasTratadas = ultimasOcorrencias.map((ocorrencia) =>
+      this.mapearOcorrencia(ocorrencia),
+    );
+
+    return ocorrenciasTratadas;
   }
 
   async getDashboardMetrics() {
@@ -117,20 +185,46 @@ export class OcorrenciaService {
       ocorrenciasRecentes: await this.findRecentes(),
     };
   }
-  async findAllByAluno(alunoId: number): Promise<Ocorrencia[]> {
-    return this.ocorrenciaRepository.find({
+  async findAllByAluno(alunoId: number): Promise<any[]> {
+    const ocorrencias = await this.ocorrenciaRepository.find({
       where: { aluno: { id: alunoId } },
-      relations: ['aluno', 'autor', 'evidencias', 'comentarios'],
+      relations: [
+        'aluno',
+        'aluno.turma',
+        'aluno.usuario',
+        'aluno.responsaveis',
+        'aluno.responsaveis.usuario',
+        'autor',
+        'evidencias',
+        'turma',
+      ],
     });
+
+    // Mapeamento para limpar dados sensíveis e reestruturar o JSON
+    const ocorrenciasTratadas = ocorrencias.map((ocorrencia) =>
+      this.mapearOcorrencia(ocorrencia),
+    );
+    return ocorrenciasTratadas;
   }
 
-  async findOne(id: number): Promise<Ocorrencia | null> {
-    return this.ocorrenciaRepository.findOne({
+  async findOne(id: number): Promise<any> {
+    const ocorrencia = await this.ocorrenciaRepository.findOne({
       where: { id },
-      relations: ['aluno', 'autor', 'evidencias', 'comentarios'],
+      relations: [
+        'aluno',
+        'aluno.turma',
+        'aluno.usuario',
+        'aluno.responsaveis',
+        'aluno.responsaveis.usuario',
+        'autor',
+        'evidencias',
+        'turma',
+      ],
     });
+    return this.mapearOcorrencia(ocorrencia);
   }
-  async create(dto: CreateOcorrenciaDto, autorId: number): Promise<Ocorrencia> {
+
+  async create(dto: CreateOcorrenciaDto, autorId: number): Promise<any> {
     const alunoExiste = await this.alunoRepository.findOneBy({
       id: dto.alunoId,
     });
@@ -150,16 +244,15 @@ export class OcorrenciaService {
       status: StatusOcorrencia.ABERTA,
       aluno: { id: dto.alunoId },
       autor: { id: Number(autorId) },
+      turma: dto.turmaId ? { id: dto.turmaId } : null, // REGRA DE NEGÓCIO: a ocorrência pode ter envolvimento de uma turma ou não
     });
 
-    return await this.ocorrenciaRepository.save(novaOcorrencia);
+    return this.mapearOcorrencia(
+      await this.ocorrenciaRepository.save(novaOcorrencia),
+    );
   }
 
-  async update(ocorrencia: Partial<Ocorrencia>): Promise<Ocorrencia | null> {
-    await this.ocorrenciaRepository.update(ocorrencia.id, ocorrencia);
-    return this.ocorrenciaRepository.findOneBy({ id: ocorrencia.id });
-  }
-  async registrarCiencia(id: number): Promise<Ocorrencia> {
+  async registrarCiencia(id: number): Promise<any> {
     const ocorrencia = await this.ocorrenciaRepository.findOne({
       where: { id },
     });
@@ -168,15 +261,24 @@ export class OcorrenciaService {
     }
     ocorrencia.ciencia = true;
 
-    return await this.ocorrenciaRepository.save(ocorrencia);
+    return this.mapearOcorrencia(
+      await this.ocorrenciaRepository.save(ocorrencia),
+    );
   }
 
-  async atualizarStatus(
-    id: number,
-    dto: AtualizarStatusDto,
-  ): Promise<Ocorrencia> {
+  async atualizarStatus(id: number, status: StatusOcorrencia): Promise<any> {
     const ocorrencia = await this.ocorrenciaRepository.findOne({
       where: { id },
+      relations: [
+        'aluno',
+        'aluno.turma',
+        'aluno.usuario',
+        'aluno.responsaveis',
+        'aluno.responsaveis.usuario',
+        'autor',
+        'evidencias',
+        'turma',
+      ],
     });
 
     if (!ocorrencia) {
@@ -185,8 +287,11 @@ export class OcorrenciaService {
       );
     }
 
-    ocorrencia.status = dto.status;
+    ocorrencia.status = status;
+    console.log(ocorrencia);
 
-    return await this.ocorrenciaRepository.save(ocorrencia);
+    return this.mapearOcorrencia(
+      await this.ocorrenciaRepository.save(ocorrencia),
+    );
   }
 }

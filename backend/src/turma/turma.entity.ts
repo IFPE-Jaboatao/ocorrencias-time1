@@ -6,7 +6,7 @@ export class Turma {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ nullable: false })
   serie: number; // ex.: 1 -> primeiro
 
   @Column({

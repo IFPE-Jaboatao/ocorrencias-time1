@@ -6,8 +6,10 @@ import {
   IsInt,
   IsPositive,
   MaxLength,
+  IsOptional,
 } from 'class-validator';
 import { Severidade } from '../enum/severidade.enum';
+import { Type } from 'class-transformer';
 export class CreateOcorrenciaDto {
   @ApiProperty({
     description: 'ID do aluno relacionado à ocorrência',
@@ -69,4 +71,15 @@ export class CreateOcorrenciaDto {
   @IsString()
   @IsNotEmpty({ message: 'A data da ocorrência é obrigatória' })
   dataOcorrencia: Date;
+
+  @ApiProperty({
+    description:
+      'ID da turma envolvida na ocorrência, se aplicável (pode ser null se a ocorrência não estiver relacionada a uma turma específica)',
+    example: 1,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'O ID da turma deve ser um número inteiro' })
+  @IsPositive({ message: 'O ID da turma deve ser um número positivo' })
+  turmaId: number | null;
 }

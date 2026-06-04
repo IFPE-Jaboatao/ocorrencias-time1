@@ -25,4 +25,9 @@ export class ProfessorService {
 
     return professor;
   }
+
+  async create(professor: Partial<Professor>): Promise<Professor> {
+    const newProfessor = this.professorRepository.create(professor);
+    return this.professorRepository.save(newProfessor);
+  }
 }

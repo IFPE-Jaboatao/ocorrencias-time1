@@ -16,11 +16,11 @@ import { JwtAuthGuard } from 'src/auth/jwt/guards/jwt-auth.guard';
 import { FuncoesGuard } from 'src/auth/jwt/guards/funcoes.guard';
 import { Funcoes } from 'src/auth/jwt/decorators/funcoes.decorator';
 import { Funcao } from 'src/auth/enums/funcaoUsuario.enum';
-import { AtualizarStatusDto } from './dto/atualizarStatus.dto';
 import { ListarOcorrenciaDto } from './dto/listarOcorrencia.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -63,6 +63,8 @@ export class OcorrenciaController {
   })
   @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
   async create(@Body() dto: CreateOcorrenciaDto, @Req() req: any) {
+    console.log(req.user);
+    console.log(dto);
     const autorId = req.user?.sub || req.user?.id || req.user?.userId;
 
     if (!autorId) {
@@ -72,6 +74,35 @@ export class OcorrenciaController {
     }
 
     return await this.ocorrenciaService.create(dto, autorId);
+  }
+
+  @Get('dashboard')
+  @ApiBearerAuth('token')
+  @ApiOperation({
+    summary:
+      'Obter métricas e últimas ocorrências para o dashboard do admin (restrito a usuários com perfil ADMIN).',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Métricas do dashboard retornadas com sucesso.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado. Token JWT ausente ou inválido.',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Proibido. O usuário não tem perfil de ADMIN para acessar este recurso.',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Erro interno do servidor.',
+  })
+  @Funcoes(Funcao.ADMIN)
+  async getDashboard() {
+    console.log('dlfdjl');
+    return await this.ocorrenciaService.getDashboardMetrics();
   }
 
   @Get('/:id')
@@ -139,9 +170,9 @@ export class OcorrenciaController {
       'Data de criação da ocorrência para filtrar por data (formato AAAA-MM-DD)',
   })
   @ApiQuery({
-    name: 'turma',
+    name: 'turmaId',
     required: false,
-    description: 'Turma do aluno para filtrar ocorrências por turma',
+    description: 'ID da turma envolvida para filtrar ocorrências por turma',
   })
   @ApiQuery({
     name: 'page',
@@ -178,39 +209,11 @@ export class OcorrenciaController {
     return await this.ocorrenciaService.findAll(filtros);
   }
 
-  @Get('dashboard')
-  @ApiBearerAuth('token')
-  @ApiOperation({
-    summary:
-      'Obter métricas e últimas ocorrências para o dashboard do admin (restrito a usuários com perfil ADMIN).',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Métricas do dashboard retornadas com sucesso.',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Não autorizado. Token JWT ausente ou inválido.',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      'Proibido. O usuário não tem perfil de ADMIN para acessar este recurso.',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor.',
-  })
-  @Funcoes(Funcao.ADMIN)
-  async getDashboard() {
-    return await this.ocorrenciaService.getDashboardMetrics();
-  }
-
   @Put(':id/ciencia')
   @ApiBearerAuth('token')
   @ApiOperation({
     summary:
-      'Registrar ciência de uma ocorrência por aluno ou responsável (restrito a usuários com perfil ALUNO ou RESPONSÁVEL).',
+      'Registrar ciência de uma ocorrência por responsável (restrito a usuários com perfil RESPONSÁVEL).',
   })
   @ApiResponse({
     status: 200,
@@ -223,7 +226,7 @@ export class OcorrenciaController {
   @ApiResponse({
     status: 403,
     description:
-      'Proibido. O usuário não tem perfil de ALUNO ou RESPONSAVEL para acessar este recurso.',
+      'Proibido. O usuário não tem perfil de RESPONSAVEL para acessar este recurso.',
   })
   @ApiResponse({
     status: 404,
@@ -233,16 +236,28 @@ export class OcorrenciaController {
     status: 500,
     description: 'Erro interno do servidor.',
   })
-  @Funcoes(Funcao.ALUNO, Funcao.RESPONSAVEL)
+  @Funcoes(Funcao.RESPONSAVEL)
   async registrarCiencia(@Param('id') id: string) {
     return await this.ocorrenciaService.registrarCiencia(+id);
   }
 
-  @Put(':id/status')
+  @Put(':id/status/:status')
   @ApiBearerAuth('token')
   @ApiOperation({
     summary:
       'Atualizar o status de uma ocorrência (restrito a usuários com perfil ADMIN ou PROFESSOR).',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID da ocorrência a ser atualizada',
+    required: true,
+  })
+  @ApiParam({
+    name: 'status',
+    description:
+      'Novo status da ocorrência (Aberta, Em Acompanhamento, Resolvida, Arquivada)',
+    required: true,
+    enum: StatusOcorrencia,
   })
   @ApiResponse({
     status: 200,
@@ -272,8 +287,8 @@ export class OcorrenciaController {
   @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
   async atualizarStatus(
     @Param('id') id: string,
-    @Body() dto: AtualizarStatusDto,
+    @Param('status') status: StatusOcorrencia,
   ) {
-    return await this.ocorrenciaService.atualizarStatus(+id, dto);
+    return await this.ocorrenciaService.atualizarStatus(+id, status);
   }
 }

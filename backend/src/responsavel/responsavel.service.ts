@@ -7,15 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Responsavel } from './responsavel.entity';
-import { Aluno } from 'src/aluno/aluno.entity';
 
 @Injectable()
 export class ResponsavelService {
   constructor(
     @InjectRepository(Responsavel)
     private readonly responsavelRepository: Repository<Responsavel>,
-    @InjectRepository(Aluno)
-    private readonly alunoRepository: Repository<Aluno>,
   ) {}
 
   async findAll(): Promise<Responsavel[]> {
@@ -23,27 +20,23 @@ export class ResponsavelService {
   }
 
   async findOneById(id: number): Promise<Responsavel | null> {
-    return this.responsavelRepository.findOneBy({ id });
+    return this.responsavelRepository.findOne({
+      where: { id },
+      relations: ['alunos', 'usuario'],
+    });
   }
 
   async findByTelefone(telefone: string) {
     return this.responsavelRepository.findOne({
       where: { telefone },
-      relations: {
-        alunos: true,
-      },
+      relations: ['alunos', 'usuario'],
     });
   }
 
   async findByUsuarioId(usuarioId: number): Promise<Responsavel | null> {
     const responsavel = await this.responsavelRepository.findOne({
       where: { usuario: { id: usuarioId } },
-      //traz os filhos e o histórico de ocorrências
-      relations: {
-        alunos: {
-          ocorrencias: true,
-        },
-      },
+      relations: ['alunos', 'usuario'],
     });
     if (!responsavel) {
       throw new NotFoundException(
@@ -62,7 +55,7 @@ export class ResponsavelService {
       //busca o responsável existente com as relações
       const responsavel = await this.responsavelRepository.findOne({
         where: { id },
-        relations: ['alunos'],
+        relations: ['alunos', 'usuario'],
       });
       if (!responsavel) {
         throw new NotFoundException('Responsável não localizado');
@@ -71,6 +64,7 @@ export class ResponsavelService {
       if (novoEmailResponsavel) {
         const emailExists = await this.responsavelRepository.findOne({
           where: { usuario: { email: novoEmailResponsavel } },
+          relations: ['usuario'],
         });
         if (emailExists && emailExists.id !== id) {
           throw new ConflictException(
@@ -83,7 +77,7 @@ export class ResponsavelService {
       Object.assign(responsavel, {
         telefone: data.telefone ?? responsavel.telefone,
         usuario: data.usuario ?? responsavel.usuario,
-        aluno: data.aluno ?? responsavel.aluno,
+        //aluno: data.aluno ?? responsavel.aluno,
       });
       return await this.responsavelRepository.save(responsavel);
     } catch (error) {

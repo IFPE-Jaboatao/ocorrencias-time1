@@ -43,6 +43,7 @@ export class Aluno {
     },
   })
   responsaveis: Responsavel[];
+
   @OneToMany(() => Ocorrencia, (ocorrencia) => ocorrencia.aluno)
   ocorrencias: Ocorrencia[];
 }
