@@ -40,7 +40,7 @@ export class AuthService {
     senha: string,
     email: string,
     funcao: Funcao,
-    cpf: number,
+    cpf: string,
     nome: string,
   ) {
     const userExists = await this.userRepository.findOne({

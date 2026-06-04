@@ -15,8 +15,8 @@ export class Usuario {
   @Column({ nullable: false })
   nome: string;
 
-  @Column({ nullable: false, unique: true })
-  cpf: number;
+  @Column({ type: 'varchar', nullable: false, length: 11, unique: true })
+  cpf: string;
 
   @Column({
     type: 'enum',

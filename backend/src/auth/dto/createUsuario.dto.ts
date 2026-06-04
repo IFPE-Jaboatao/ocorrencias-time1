@@ -7,14 +7,13 @@ import {
   IsNumber,
   Length,
   IsPhoneNumber,
-  Matches,
 } from 'class-validator';
 import { Funcao } from '../enums/funcaoUsuario.enum';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
   @ApiProperty({
-    description: 'Email do usuário para registro',
+    description: 'OBRIGATÓRIO: Email do usuário para registro',
     example: 'usuario@example.com',
   })
   @IsNotEmpty({ message: 'Email é obrigatório.' })
@@ -22,7 +21,7 @@ export class RegisterDto {
   email: string;
 
   @ApiProperty({
-    description: 'Senha do usuário para registro',
+    description: 'OBRIGATÓRIO: Senha do usuário para registro',
     example: 'senha123',
   })
   @IsNotEmpty({ message: 'Senha é obrigatória.' })
@@ -30,7 +29,7 @@ export class RegisterDto {
   senha: string;
 
   @ApiProperty({
-    description: 'Função do usuário (admin, professor, aluno ou responsavel)',
+    description: 'OBRIGATÓRIO: Função do usuário',
     example: 'aluno',
   })
   @IsNotEmpty({ message: 'Função é obrigatória.' })
@@ -38,14 +37,14 @@ export class RegisterDto {
   funcao: Funcao;
 
   @ApiProperty({
-    description: 'Nome do usuário (admin, professor, aluno ou responsável)',
+    description: 'OBRIGATÓRIO: Nome do usuário',
     example: 'João da Silva',
   })
   @IsString()
   nome: string;
 
   @ApiProperty({
-    description: 'ID da turma para aluno',
+    description: 'OPCIONAL(apenas para aluno): ID da turma para aluno',
     example: '1',
   })
   @IsOptional()
@@ -53,24 +52,27 @@ export class RegisterDto {
   turmaId?: number;
 
   @ApiProperty({
-    description: 'CPF para admin, professor, aluno ou responsavel',
+    description: 'OBRIGATÓRIO: CPF para admin, professor, aluno ou responsavel',
     example: '12345678911',
   })
-  @IsNumber()
-  @Length(11, 11)
-  cpf?: number;
+  @IsString()
+  @Length(11, 11, { message: 'CPF deve conter 11 dígitos.' })
+  cpf: string;
 
   @ApiProperty({
-    description: 'Telefone do responsável',
-    example: '81999999999',
+    description: 'OPCIONAL(apenas para responsável): Telefone do responsável',
+    example: '+5581900000000',
   })
   @IsOptional()
-  @Matches(/^\d{11}$/)
+  @IsPhoneNumber('BR', {
+    message: 'Número de telefone inválido. Formato esperado: +55XXXXXXXXXXX',
+  })
   @IsString()
   telefone?: string;
 
   @ApiProperty({
-    description: 'Matrícula do professor ou aluno',
+    description:
+      'OPCIONAL(apenas para professor ou aluno): Matrícula do professor ou aluno',
     example: '123456',
   })
   @IsOptional()
