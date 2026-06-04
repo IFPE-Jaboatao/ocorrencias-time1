@@ -15,7 +15,7 @@ export class Usuario {
   @Column({ nullable: false })
   nome: string;
 
-  @Column({ type: 'varchar', nullable: false, length: 11, unique: true })
+  @Column({ type: 'varchar', nullable: false, length: 11, unique: false }) // CPF não deve ser único, pois pode haver um usuário que seja responsável e também professor, por exemplo
   cpf: string;
 
   @Column({

@@ -4,13 +4,10 @@ import {
   Body,
   UseGuards,
   UnauthorizedException,
-  ConflictException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/createUsuario.dto';
 import { Funcao } from './enums/funcaoUsuario.enum';
-import { ResponsavelService } from 'src/responsavel/responsavel.service';
-import { AlunoService } from 'src/aluno/aluno.service';
 import { JwtAuthGuard } from './jwt/guards/jwt-auth.guard';
 import { Funcoes } from './jwt/decorators/funcoes.decorator';
 import { FuncoesGuard } from './jwt/guards/funcoes.guard';
@@ -21,61 +18,15 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { TurmaService } from 'src/turma/turma.service';
-import { Usuario } from 'src/usuario/usuario.entity';
+import { RegistrationService } from './registration.service';
+
 @ApiTags('Autenticação e registro')
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly alunoService: AlunoService,
-    private readonly responsavelService: ResponsavelService,
-    private readonly turmaService: TurmaService,
+    private readonly registrationService: RegistrationService,
   ) {}
-
-  private async validarDadosEspecificos(body: RegisterDto) {
-    switch (body.funcao) {
-      case Funcao.RESPONSAVEL:
-        const existTelefone = await this.responsavelService.findByTelefone(
-          body.telefone,
-        );
-        if (existTelefone) {
-          throw new ConflictException(
-            'Telefone já cadastrado para outro responsável.',
-          );
-        }
-        break;
-      case Funcao.ALUNO:
-        const existmatricula = await this.alunoService.findByMatricula(
-          body.matricula,
-        );
-        if (existmatricula) {
-          throw new ConflictException(
-            'Matrícula já cadastrada para outro aluno.',
-          );
-        }
-        break;
-    }
-  }
-
-  private async criarPerfilEspecifico(body: RegisterDto, usuario: Usuario) {
-    switch (body.funcao) {
-      case Funcao.ALUNO:
-        const turma = await this.turmaService.findOneById(body.turmaId);
-        await this.alunoService.create({
-          matricula: body.matricula,
-          turma,
-          usuario,
-        });
-        break;
-      case Funcao.RESPONSAVEL:
-        await this.responsavelService.create({
-          telefone: body.telefone,
-          usuario,
-        });
-        break;
-    }
-  }
 
   @Post('login')
   @ApiOperation({ summary: 'Autenticar usuário e obter token JWT' })
@@ -134,7 +85,7 @@ export class AuthController {
     @Body()
     body: RegisterDto,
   ) {
-    await this.validarDadosEspecificos(body); // validação
+    await this.registrationService.validarDadosEspecificos(body); // validação
 
     // Usuário base do login, senha, email e tipo
     const novoUsuario = await this.authService.register(
@@ -145,7 +96,7 @@ export class AuthController {
       body.nome,
     );
 
-    await this.criarPerfilEspecifico(body, novoUsuario);
+    await this.registrationService.criarPerfilEspecifico(body, novoUsuario);
 
     return {
       message: 'Usuário e perfil criados com sucesso',
