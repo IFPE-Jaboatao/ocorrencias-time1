@@ -1,22 +1,22 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
 import { Usuario } from '../usuario/usuario.entity';
 import { Funcao } from './enums/funcaoUsuario.enum';
+import { UsuarioService } from 'src/usuario/usuario.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Usuario)
-    private readonly userRepository: Repository<Usuario>,
+    private readonly usuarioService: UsuarioService,
     private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(email: string, senhaDigitada: string): Promise<any> {
-    const usuario = await this.userRepository.findOneBy({ email });
+    const usuario = await this.usuarioService.findOneByEmail(email);
 
     if (usuario) {
       const senhaConfere = await bcrypt.compare(senhaDigitada, usuario.senha);
@@ -43,23 +43,19 @@ export class AuthService {
     cpf: string,
     nome: string,
   ) {
-    const userExists = await this.userRepository.findOne({
-      where: { email },
-    });
+    const userExists = await this.usuarioService.findOneByEmail(email);
 
     if (userExists) {
       throw new ConflictException('Já existe um usuário com este email.');
     }
 
     const hashedPassword = await bcrypt.hash(senha, 10);
-    const user = this.userRepository.create({
+    return await this.usuarioService.create({
       email,
       senha: hashedPassword,
       funcao,
       cpf,
       nome,
     });
-
-    return await this.userRepository.save(user);
   }
 }

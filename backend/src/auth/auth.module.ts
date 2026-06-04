@@ -11,6 +11,7 @@ import { Usuario } from '../usuario/usuario.entity';
 import { AlunoModule } from 'src/aluno/aluno.module';
 import { ResponsavelModule } from 'src/responsavel/responsavel.module';
 import { TurmaModule } from 'src/turma/turma.module';
+import { RegistrationService } from './registration.service';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { TurmaModule } from 'src/turma/turma.module';
     }),
     ConfigModule,
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, RegistrationService],
   controllers: [AuthController],
 })
 export class AuthModule {}
