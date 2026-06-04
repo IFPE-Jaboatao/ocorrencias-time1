@@ -100,8 +100,8 @@ export class AuthController {
     return await this.authService.login(user);
   }
 
-  //@UseGuards(JwtAuthGuard, FuncoesGuard)
-  //@Funcoes(Funcao.ADMIN)
+  @UseGuards(JwtAuthGuard, FuncoesGuard)
+  @Funcoes(Funcao.ADMIN)
   @Post('register')
   @ApiOperation({
     summary:
