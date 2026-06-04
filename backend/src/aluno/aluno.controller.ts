@@ -1,12 +1,12 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { OcorrenciaService } from '../ocorrencia/ocorrencia.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { FuncoesGuard } from 'src/auth/funcoes.guard';
-import { Funcoes } from 'src/auth/funcoes.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt/guards/jwt-auth.guard';
+import { FuncoesGuard } from 'src/auth/jwt/guards/funcoes.guard';
+import { Funcoes } from 'src/auth/jwt/decorators/funcoes.decorator';
 import { AlunoService } from './aluno.service';
-import { Funcao } from 'src/auth/enums/funcao-usuario.enum';
+import { Funcao } from 'src/auth/enums/funcaoUsuario.enum';
 import {
-  ApiCookieAuth,
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -25,7 +25,7 @@ export class AlunoController {
     summary:
       'Listar ocorrências vinculadas a um aluno (restrito a usuários com perfil ALUNO).',
   })
-  @ApiCookieAuth('token')
+  @ApiBearerAuth('token')
   @ApiResponse({
     status: 200,
     description: 'Lista de ocorrências do aluno retornada com sucesso.',
@@ -46,8 +46,8 @@ export class AlunoController {
   @UseGuards(JwtAuthGuard, FuncoesGuard)
   @Funcoes(Funcao.ALUNO)
   async listarMinhasOcorrencias(@Req() req: any) {
-    const usuario_id = req.user.sub;
-    const aluno = await this.alunoService.findByUsuarioId(usuario_id);
+    const usuarioId = req.user.sub;
+    const aluno = await this.alunoService.findByUsuarioId(usuarioId);
     return this.ocorrenciaService.findAllByAluno(aluno.id);
   }
 }

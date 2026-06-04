@@ -4,30 +4,19 @@ import {
   Column,
   OneToOne,
   JoinColumn,
-  ManyToMany,
 } from 'typeorm';
 
-import { Usuario } from '../auth/usuario.entity';
-import { Aluno } from '../aluno/aluno.entity';
+import { Usuario } from '../usuario/usuario.entity';
 
-@Entity('professores')
+@Entity('professor')
 export class Professor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
-  nome: string;
-
   @Column({ nullable: false, unique: true })
   matricula: string;
 
-  @Column({ nullable: false })
-  departamento: string;
-
   @OneToOne(() => Usuario)
-  @JoinColumn()
+  @JoinColumn({ name: 'usuarioId' })
   usuario: Usuario;
-
-  @ManyToMany(() => Aluno, (aluno) => aluno.professores)
-  alunos: Aluno[];
 }

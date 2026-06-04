@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 
 import { Ocorrencia } from 'src/ocorrencia/ocorrencia.entity';
 
-@Entity()
+@Entity('evidencia')
 export class Evidencia {
   @PrimaryGeneratedColumn()
   id: number;

@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { Funcao } from './enums/funcao-usuario.enum';
+import { Funcao } from '../auth/enums/funcaoUsuario.enum';
 
-@Entity()
+@Entity('usuario')
 export class Usuario {
   @PrimaryGeneratedColumn()
   id: number;
@@ -12,13 +12,16 @@ export class Usuario {
   @Column({ nullable: false, unique: true })
   email: string;
 
+  @Column({ nullable: false })
+  nome: string;
+
+  @Column({ type: 'varchar', nullable: false, length: 11, unique: false }) // CPF não deve ser único, pois pode haver um usuário que seja responsável e também professor, por exemplo
+  cpf: string;
+
   @Column({
     type: 'enum',
     enum: Funcao,
     nullable: false,
   })
   funcao: Funcao;
-
-  @Column({ default: false })
-  status: boolean; // Ativo/Inativo
 }

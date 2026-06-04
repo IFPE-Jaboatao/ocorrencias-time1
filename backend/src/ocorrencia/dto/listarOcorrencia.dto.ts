@@ -1,13 +1,8 @@
-import {
-  IsOptional,
-  IsString,
-  IsDateString,
-  IsInt,
-  IsEnum,
-} from 'class-validator';
+import { IsOptional, IsDateString, IsInt, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
-import { StatusOcorrencia, Severidade } from '../ocorrencia.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { StatusOcorrencia } from '../enum/statusOcorrencia.enum';
+import { Severidade } from '../enum/severidade.enum';
 
 export class ListarOcorrenciaDto {
   @ApiProperty({
@@ -29,7 +24,7 @@ export class ListarOcorrenciaDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt({ message: 'o Id do aluno deve ser um número inteiro' })
-  id_aluno?: number;
+  alunoId?: number;
 
   @ApiProperty({
     description: 'Severidade da ocorrência para filtrar',
@@ -52,20 +47,13 @@ export class ListarOcorrenciaDto {
   data?: string;
 
   @ApiProperty({
-    description: 'Turma do aluno para filtrar ocorrências',
-    example: 'Turma A',
+    description:
+      'ID da turma envolvida na ocorrência (se aplicável) para filtrar por turma',
+    example: '1',
   })
   @IsOptional()
-  @IsString()
-  turma?: string;
-
-  @ApiProperty({
-    description: 'Campo de busca para descrição da ocorrência',
-    example: 'problema no computador',
-  })
-  @IsOptional()
-  @IsString()
-  descricao?: string;
+  @Type(() => Number)
+  turmaId?: number | null;
 
   @ApiProperty({
     description: 'quantidade de ocorrências a serem retornadas por página',
