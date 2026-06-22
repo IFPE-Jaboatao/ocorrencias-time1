@@ -35,4 +35,8 @@ export class UsuarioService {
     const newUsuario = this.usuarioRepository.create(usuario);
     return this.usuarioRepository.save(newUsuario);
   }
+
+  async findAll(): Promise<Usuario[]> {
+    return this.usuarioRepository.find();
+  }
 }
