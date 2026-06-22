@@ -19,46 +19,69 @@ export default function AdminDashboard() {
         Bem-vindo, {user?.name}!
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Total de ocorrências
-          </p>
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
-            30
-          </h2>
-        </Card>
+      <div className="flex flex-col lg:flex-row gap-6 items-stretch mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
+          <Card className="dark:bg-gray-800 dark:border-gray-700 justify-center">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Total de ocorrências
+            </p>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
+              30
+            </h2>
+          </Card>
 
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Ocorrências pendentes
-          </p>
-          <h2 className="text-4xl font-bold text-yellow-600">5</h2>
-        </Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700 justify-center">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Ocorrências pendentes
+            </p>
+            <h2 className="text-4xl font-bold text-yellow-600">5</h2>
+          </Card>
 
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Taxa de resolução
-          </p>
-          <h2 className="text-4xl font-bold text-green-600">40%</h2>
-        </Card>
+          <Card className="dark:bg-gray-800 dark:border-gray-700 justify-center">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Taxa de resolução
+            </p>
+            <h2 className="text-4xl font-bold text-green-600">40%</h2>
+          </Card>
+        </div>
+
+        <div className="flex flex-col gap-4 w-full lg:w-72 justify-between">
+          <Button
+            color="light"
+            className="w-full h-full text-left justify-center py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+          >
+            Cadastrar nova ocorrência
+          </Button>
+
+          <Link
+            href="/dashboard/admin/cadastrar-usuario"
+            className="w-full h-full block"
+          >
+            <Button
+              color="light"
+              className="w-full h-full text-left justify-center py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+              Cadastrar novo perfil
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <div className="flex gap-4">
-        <Button color="success">Cadastrar nova ocorrência</Button>
+      <hr className="border-gray-200 dark:border-gray-700 my-6" />
 
-        <Link href="/dashboard/admin/cadastrar-usuario">
-          <Button color="light"
-          className="dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600">
-            Cadastrar novo perfil
+      <div className="flex flex-col gap-4">
+        <div>
+          <Button
+            color="light"
+            className="dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+          >
+            Visualizar todos
           </Button>
-        </Link>
-        <Button
-          color="light"
-          className="dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
-        >
-          Visualizar todas
-        </Button>
+        </div>
+
+        <div className="text-sm text-gray-400 italic">
+          Os filtros e listagens de dados aparecerão nesta região...
+        </div>
       </div>
     </div>
   );
