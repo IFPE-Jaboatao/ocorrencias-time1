@@ -2,15 +2,20 @@ const API_URL = "http://localhost:3001";
 
 export const api = {
   post: async (endpoint: string, data: any) => {
-    console.log("Tentando conectar em:", `${API_URL}${endpoint}`);
+    const formattedEndpoint = endpoint.startsWith("/")
+      ? endpoint
+      : `/${endpoint}`;
+    const fullUrl = `${API_URL}${formattedEndpoint}`;
+
+    console.log("Tentando conectar em:", fullUrl);
 
     try {
-      const res = await fetch(`${API_URL}${endpoint}`, {
+      const res = await fetch(fullUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
         redirect: "follow",
-        credentials: "include", 
+        credentials: "include",
       });
 
       if (res.ok) {

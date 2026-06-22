@@ -36,8 +36,8 @@ export default function LoginPage() {
         senha: senha,
       });
 
-      if (data && data.funcao) {
-        console.log("Login autorizado! Iniciando sessão...");
+      if (data && data.access_token) {
+        console.log("Login autorizado! Token recebido:", data.access_token);
         realizarLoginContexto(data);
       } else {
         setStatus({ type: "error", message: "Resposta inválida do servidor." });
