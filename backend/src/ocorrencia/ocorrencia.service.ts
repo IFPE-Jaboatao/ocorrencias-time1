@@ -308,4 +308,30 @@ export class OcorrenciaService {
       await this.ocorrenciaRepository.save(ocorrencia),
     );
   }
+  async validarAluno(identificador: string): Promise<any> {
+    const ehNumero = /^\d+$/.test(identificador);
+    let aluno;
+
+    if (ehNumero) {
+      aluno = await this.alunoRepository.findOneBy({
+        id: Number(identificador),
+      });
+    } else {
+      aluno = await this.alunoRepository.findOneBy({
+        matricula: identificador,
+      });
+    }
+
+    if (!aluno) {
+      throw new NotFoundException(
+        `Nenhum estudante encontrado com o identificador: ${identificador}`,
+      );
+    }
+
+    return {
+      id: aluno.id,
+      nome: aluno.nome,
+      matricula: aluno.matricula,
+    };
+  }
 }
