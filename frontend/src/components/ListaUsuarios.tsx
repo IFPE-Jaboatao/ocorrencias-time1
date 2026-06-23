@@ -10,6 +10,7 @@ export function ListaUsuarios() {
     async function buscarUsuarios() {
       try {
         const resposta = await api.get("/usuario");
+        console.log("O que veio da API do iFlow:", resposta);
         setUsuarios(resposta.data);
       } catch (error) {
         console.error("Erro ao listar usuários:", error);
