@@ -23,12 +23,13 @@ export default function Step4Revisao({
         </p>
       </div>
 
-      <div className="bg-gray-50 p-4 rounded-md border border-gray-200 flex flex-col gap-2 text-sm text-gray-700">
+      <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-md border border-gray-200 dark:border-gray-600 flex flex-col gap-2 text-sm text-gray-700 dark:text-gray-300">
         <p>
-          <strong>Identificação do Aluno:</strong> {formData.matriculaCpf}
+          <strong>Matrícula do Aluno:</strong> {formData.alunoId}
         </p>
         <p>
-          <strong>Tipo de Ocorrência:</strong> {formData.tipoOcorrencia}
+          <strong>Tipo de Ocorrência:</strong>{" "}
+          {formData.tipoOcorrencia.replace("_", " ")}
         </p>
         <p>
           <strong>Relato:</strong> {formData.detalhamento}
@@ -36,6 +37,11 @@ export default function Step4Revisao({
         <p>
           <strong>Total de Anexos:</strong> {formData.anexos.length} arquivo(s)
         </p>
+        {formData.anexos.length > 0 && (
+          <div className="mt-2 text-xs text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-800">
+            📎 Pronto para exibição local: {formData.anexos[0].name}
+          </div>
+        )}
       </div>
     </div>
   );
