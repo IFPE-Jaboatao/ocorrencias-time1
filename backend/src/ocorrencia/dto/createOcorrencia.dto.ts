@@ -14,11 +14,22 @@ export class CreateOcorrenciaDto {
   @ApiProperty({
     description: 'ID do aluno relacionado à ocorrência',
     example: 1,
+    required: false,
   })
   @IsInt({ message: 'O ID do aluno deve ser um número inteiro' })
   @IsPositive({ message: 'O ID do aluno deve ser um número positivo' })
-  @IsNotEmpty({ message: 'O ID do aluno é obrigatório' })
+  @IsOptional()
   alunoId: number;
+
+  @ApiProperty({
+    description:
+      'Matrícula alfanumérica do aluno no IFPE (opcional se enviar alunoId)',
+    example: '20261ADS0042',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'A matrícula do aluno deve ser uma string válida' })
+  matriculaAluno?: string;
 
   @ApiProperty({
     description: 'Categoria da ocorrência',
