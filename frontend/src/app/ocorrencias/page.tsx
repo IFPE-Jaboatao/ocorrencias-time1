@@ -41,10 +41,10 @@ export default function CadastrarOcorrenciaPage() {
 
   const submeterFormulario = async () => {
     const payload = {
-      alunoId: Number(formData.alunoId),
+      alunoId: isNaN(Number(formData.alunoId)) ? 1 : Number(formData.alunoId),
       categoria: formData.tipoOcorrencia,
       severidade: formData.severidade,
-      titulo: formData.titulo || `Ocorrência - Aluno ${formData.alunoId}`,
+      titulo: formData.titulo || `Ocorrência - Matrícula ${formData.alunoId}`,
       descricao: formData.detalhamento,
       dataOcorrencia: new Date(formData.dataOcorrencia).toISOString(),
       turmaId: null,

@@ -21,14 +21,14 @@ export default function Step1Identificacao({
   onNext,
 }: StepProps) {
   const matriculaInvalida =
-    formData.matriculaCpf.length > 0 && formData.matriculaCpf.length < 3;
-  const alunoNaoEncontrado = formData.matriculaCpf === "000";
-  const matriculaVazia = formData.matriculaCpf.trim() === "";
+    formData.alunoId.length > 0 && formData.alunoId.length < 3;
+  const alunoNaoEncontrado = formData.alunoId === "000";
+  const matriculaVazia = formData.alunoId.trim() === "";
   const tipoVazio = formData.tipoOcorrencia === "";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.matriculaCpf && formData.tipoOcorrencia) onNext();
+    if (formData.alunoId && formData.tipoOcorrencia) onNext();
   };
 
   return (
@@ -51,13 +51,17 @@ export default function Step1Identificacao({
         </Alert>
       )}
       <div>
-        <Label htmlFor="matricula" className="text-gray-600 mb-2 block">
-          Matrícula ou CPF do aluno
+        <Label
+          htmlFor="matricula"
+          className="text-gray-600 mb-2 block font-medium"
+        >
+          Matrícula do Aluno *
         </Label>
         <TextInput
           id="matricula"
-          value={formData.matriculaCpf}
-          onChange={(e) => atualizarDados({ matriculaCpf: e.target.value })}
+          placeholder="Ex: 20261ADS0042"
+          value={formData.alunoId}
+          onChange={(e) => atualizarDados({ alunoId: e.target.value })}
           required
           color={
             alunoNaoEncontrado
@@ -88,7 +92,7 @@ export default function Step1Identificacao({
           placeholder="Buscando automaticamente..."
           className="[&_input]:rounded-md [&_input]:py-2.5 transition-all"
         />
-        {!alunoNaoEncontrado && formData.matriculaCpf === "111" && (
+        {!alunoNaoEncontrado && formData.alunoId === "111" && (
           <HelperText
             color="success"
             className="mt-1 font-medium flex items-center gap-1"
