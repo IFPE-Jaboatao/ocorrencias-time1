@@ -40,11 +40,15 @@ export default function CadastrarOcorrenciaPage() {
   const passoAnterior = () => setPasso((prev) => Math.max(prev - 1, 1));
 
   const submeterFormulario = async () => {
+    const valorDigitado = formData.alunoId.trim();
+    const ehApenasNumero = /^\d+$/.test(valorDigitado);
+
     const payload = {
-      alunoId: isNaN(Number(formData.alunoId)) ? 1 : Number(formData.alunoId),
+      alunoId: ehApenasNumero ? Number(valorDigitado) : undefined,
+      matriculaAluno: !ehApenasNumero ? valorDigitado : undefined,
       categoria: formData.tipoOcorrencia,
       severidade: formData.severidade,
-      titulo: formData.titulo || `Ocorrência - Matrícula ${formData.alunoId}`,
+      titulo: formData.titulo || `Ocorrência - Identificador ${valorDigitado}`,
       descricao: formData.detalhamento,
       dataOcorrencia: new Date(formData.dataOcorrencia).toISOString(),
       turmaId: null,
