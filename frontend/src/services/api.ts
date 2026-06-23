@@ -1,38 +1,16 @@
-const API_URL = "http://localhost:3001";
+import axios from "axios";
 
-export const api = {
-  post: async (endpoint: string, data: any) => {
-    const formattedEndpoint = endpoint.startsWith("/")
-      ? endpoint
-      : `/${endpoint}`;
-    const fullUrl = `${API_URL}${formattedEndpoint}`;
+export const api = axios.create({
+  baseURL: "http://localhost:3001",
+});
 
-    console.log("Tentando conectar em:", fullUrl);
+api.interceptors.request.use((config) => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-    try {
-      const res = await fetch(fullUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        redirect: "follow",
-        credentials: "include",
-      });
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-      if (res.ok) {
-        return await res.json();
-      }
-
-      const errorData = await res.json().catch(() => ({}));
-      const error = new Error(errorData.message || "Erro na autenticação");
-      (error as any).status = res.status;
-
-      throw error;
-    } catch (err: any) {
-      if (!err.status) {
-        err.status = "network_error";
-      }
-      console.error("Detalhes do erro de conexão:", err);
-      throw err;
-    }
-  },
-};
+  return config;
+});

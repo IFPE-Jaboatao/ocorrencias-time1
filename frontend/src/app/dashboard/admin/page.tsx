@@ -1,6 +1,7 @@
 "use client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Spinner, Card, Button } from "flowbite-react";
+import { ListaUsuarios } from "@/components/ListaUsuarios";
 import Link from "next/link";
 
 export default function AdminDashboard() {
@@ -68,20 +69,16 @@ export default function AdminDashboard() {
       </div>
 
       <hr className="border-gray-200 dark:border-gray-700 my-6" />
-
       <div className="flex flex-col gap-4">
         <div>
           <Button
             color="light"
             className="dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
           >
-            Visualizar todos
+            Visualizar todos perfis
           </Button>
         </div>
-
-        <div className="text-sm text-gray-400 italic">
-          Os filtros e listagens de dados aparecerão nesta região...
-        </div>
+        <ListaUsuarios />
       </div>
     </div>
   );
