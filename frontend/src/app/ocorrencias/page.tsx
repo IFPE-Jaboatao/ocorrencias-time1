@@ -6,22 +6,29 @@ import Step2Detalhamento from "@/components/ocorrencia/Step2Detalhamento";
 import Step3Upload from "@/components/ocorrencia/Step3Upload";
 import Step4Revisao from "@/components/ocorrencia/Step4Revisao";
 import LateralSteps from "@/components/ocorrencia/LateralSteps";
+import { api } from "@/services/api";
 
 export interface OcorrenciaFormData {
-  matriculaCpf: string;
+  alunoId: string;
   nomeAluno: string;
   tipoOcorrencia: string;
   detalhamento: string;
+  titulo: string;
+  severidade: string;
+  dataOcorrencia: string;
   anexos: File[];
 }
 
 export default function CadastrarOcorrenciaPage() {
   const [passo, setPasso] = useState<number>(1);
   const [formData, setFormData] = useState<OcorrenciaFormData>({
-    matriculaCpf: "",
+    alunoId: "",
     nomeAluno: "",
     tipoOcorrencia: "",
     detalhamento: "",
+    titulo: "",
+    severidade: "Média",
+    dataOcorrencia: new Date().toISOString().substring(0, 16),
     anexos: [],
   });
 
@@ -33,11 +40,39 @@ export default function CadastrarOcorrenciaPage() {
   const passoAnterior = () => setPasso((prev) => Math.max(prev - 1, 1));
 
   const submeterFormulario = async () => {
-    console.log("Enviando dados finais para a API:", formData);
-    alert("Ocorrência registrada com sucesso!");
+    const payload = {
+      alunoId: Number(formData.alunoId),
+      categoria: formData.tipoOcorrencia,
+      severidade: formData.severidade,
+      titulo: formData.titulo || `Ocorrência - Aluno ${formData.alunoId}`,
+      descricao: formData.detalhamento,
+      dataOcorrencia: new Date(formData.dataOcorrencia).toISOString(),
+      turmaId: null,
+    };
+
+    try {
+      await api.post("/ocorrencias", payload);
+      alert("Ocorrência registrada com sucesso!");
+
+      setPasso(1);
+      setFormData({
+        alunoId: "",
+        nomeAluno: "",
+        tipoOcorrencia: "",
+        detalhamento: "",
+        titulo: "",
+        severidade: "Média",
+        dataOcorrencia: new Date().toISOString().substring(0, 16),
+        anexos: [],
+      });
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data?.message || "Erro ao salvar ocorrência.");
+    }
   };
 
-  const passo1Valido = formData.matriculaCpf && formData.tipoOcorrencia;
+  const passo1Valido =
+    formData.alunoId.trim() !== "" && formData.tipoOcorrencia !== "";
   const passo2Valido = formData.detalhamento.trim().length > 0;
 
   return (
