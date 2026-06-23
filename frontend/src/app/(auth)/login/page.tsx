@@ -31,23 +31,27 @@ export default function LoginPage() {
     setStatus({ type: "loading", message: "" });
 
     try {
-      const data = await api.post("/auth/login", {
+      const response = await api.post("/auth/login", {
         email: loginEmail.trim(),
         senha: senha,
       });
 
-      if (data && data.funcao) {
-        console.log("Login autorizado! Iniciando sessão...");
+      const data = response.data;
+
+      if (data && data.access_token) {
+        console.log("Login autorizado! Token recebido:", data.access_token);
         realizarLoginContexto(data);
       } else {
         setStatus({ type: "error", message: "Resposta inválida do servidor." });
       }
     } catch (error: any) {
       console.error("Erro capturado:", error);
+      const httpStatus = error.response?.status;
+
       setStatus({
         type: "error",
         message:
-          error.status === 401
+          httpStatus === 401
             ? "E-mail ou senha incorretos."
             : "Erro de conexão com o iFlow.",
       });

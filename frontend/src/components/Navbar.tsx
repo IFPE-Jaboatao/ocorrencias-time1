@@ -2,7 +2,12 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { usePathname } from "next/navigation";
 import { DarkThemeToggle } from "flowbite-react";
-import { HiHome, HiClipboardList, HiOutlineLogout } from "react-icons/hi";
+import {
+  HiHome,
+  HiClipboardList,
+  HiOutlineLogout,
+  HiUserAdd,
+} from "react-icons/hi";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -27,6 +32,13 @@ export function Navbar() {
       icon: HiClipboardList,
       label: "Ocorrências",
       roles: ["admin", "professor"],
+    },
+    {
+      id: "usuarios",
+      href: "/dashboard/admin/cadastrar-usuario",
+      icon: HiUserAdd,
+      label: "Cadastrar Perfil",
+      roles: ["admin"],
     },
   ];
 
@@ -60,7 +72,7 @@ export function Navbar() {
         })}
 
         <div className="w-[1px] h-6 bg-white/20 mx-1" />
-        <DarkThemeToggle className="text-white hover:bg-green-600 border-none focus:ring-0" />
+        <DarkThemeToggle className="text-white hover:bg-green-600 border-none focus:ring-0 p-3 rounded-full flex items-center justify-center w-12 h-12 [&>svg]:w-6 [&>svg]:h-6" />
         <button
           onClick={logout}
           className="text-white hover:bg-red-500 p-3 rounded-full transition-all"
