@@ -60,7 +60,6 @@ export default function RegisterPage() {
       funcao: funcao,
     };
 
-    // Filtros condicionais baseados no DTO
     if (funcao === Funcao.PROFESSOR || funcao === Funcao.ALUNO) {
       payload.matricula = formData.matricula.trim();
     }
@@ -73,10 +72,11 @@ export default function RegisterPage() {
 
     try {
       const response = await api.post("/auth/register", payload);
+      const responseData = response.data;
 
       setStatus({
         type: "success",
-        message: response.message || "Cadastro realizado com sucesso!",
+        message: responseData?.message || "Cadastro realizado com sucesso!",
       });
 
       setFormData({
@@ -91,10 +91,13 @@ export default function RegisterPage() {
       setFuncao("");
     } catch (error: any) {
       console.error("Erro ao cadastrar:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Erro ao realizar o cadastro. Verifique os dados.";
+
       setStatus({
         type: "error",
-        message:
-          error.message || "Erro ao realizar o cadastro. Verifique os dados.",
+        message: errorMessage,
       });
     }
   };
