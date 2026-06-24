@@ -76,7 +76,9 @@ export default function CadastrarOcorrenciaPage() {
   };
 
   const passo1Valido =
-    formData.alunoId.trim() !== "" && formData.tipoOcorrencia !== "";
+    formData.alunoId.trim() !== "" &&
+    formData.tipoOcorrencia !== "" &&
+    formData.nomeAluno.trim() !== "";
   const passo2Valido = formData.detalhamento.trim().length > 0;
 
   return (
@@ -153,41 +155,56 @@ export default function CadastrarOcorrenciaPage() {
               )}
             </div>
 
-            <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
-              {passo > 1 ? (
-                <Button
-                  color="light"
-                  onClick={passoAnterior}
-                  className="px-4 py-0.5 min-w-[100px] font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600
-         transition-all rounded-md"
-                >
-                  Voltar
-                </Button>
-              ) : (
-                <div />
+            <div className="flex flex-col gap-2 mt-6 pt-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+              {passo === 1 &&
+                !passo1Valido &&
+                formData.alunoId.trim() !== "" && (
+                  <p className="text-sm text-red-500 font-medium text-right animate-pulse">
+                    ⚠️ Para avançar, certifique-se de selecionar o tipo e de que
+                    o aluno foi validado.
+                  </p>
+                )}
+
+              {passo === 1 && formData.alunoId.trim() === "" && (
+                <p className="text-sm text-gray-400 font-medium text-right">
+                  * Preencha a matrícula e selecione a categoria para liberar o
+                  avanço.
+                </p>
               )}
 
-              {passo < 4 ? (
-                <Button
-                  className="px-5 py-0.5 min-w-[160px] font-semibold bg-[#5da16f] enabled:hover:bg-[#4a8a59] text-white 
-        border-none transition-all rounded-md shadow-sm"
-                  onClick={proximoPasso}
-                  disabled={
-                    (passo === 1 && !passo1Valido) ||
-                    (passo === 2 && !passo2Valido)
-                  }
-                >
-                  Avançar
-                </Button>
-              ) : (
-                <Button
-                  className="px-5 py-0.5 min-w-[160px] font-semibold bg-[#5da16f] enabled:hover:bg-[#4a8a59] text-white 
-        border-none transition-all rounded-md shadow-sm enabled:hover:bg-green-700"
-                  onClick={submeterFormulario}
-                >
-                  Finalizar Registro
-                </Button>
-              )}
+              <div className="flex justify-between items-center w-full">
+                {passo > 1 ? (
+                  <Button
+                    color="light"
+                    onClick={passoAnterior}
+                    className="px-4 py-0.5 min-w-[100px] font-medium text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 transition-all rounded-md"
+                  >
+                    Voltar
+                  </Button>
+                ) : (
+                  <div />
+                )}
+
+                {passo < 4 ? (
+                  <Button
+                    className="px-5 py-0.5 min-w-[160px] font-semibold bg-[#5da16f] enabled:hover:bg-[#4a8a59] text-white border-none transition-all rounded-md shadow-sm"
+                    onClick={proximoPasso}
+                    disabled={
+                      (passo === 1 && !passo1Valido) ||
+                      (passo === 2 && !passo2Valido)
+                    }
+                  >
+                    Avançar
+                  </Button>
+                ) : (
+                  <Button
+                    className="px-5 py-0.5 min-w-[160px] font-semibold bg-[#5da16f] enabled:hover:bg-[#4a8a59] text-white border-none transition-all rounded-md shadow-sm enabled:hover:bg-green-700"
+                    onClick={submeterFormulario}
+                  >
+                    Finalizar Registro
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>

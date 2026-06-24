@@ -309,28 +309,25 @@ export class OcorrenciaService {
     );
   }
   async validarAluno(identificador: string): Promise<any> {
-    const ehNumero = /^\d+$/.test(identificador);
-    let aluno;
+    let aluno = await this.alunoRepository.findOne({
+      where: { matricula: identificador },
+      relations: ['usuario'],
+    });
 
-    if (ehNumero) {
-      aluno = await this.alunoRepository.findOneBy({
-        id: Number(identificador),
-      });
-    } else {
-      aluno = await this.alunoRepository.findOneBy({
-        matricula: identificador,
+    if (!aluno && /^\d+$/.test(identificador)) {
+      aluno = await this.alunoRepository.findOne({
+        where: { id: Number(identificador) },
+        relations: ['usuario'],
       });
     }
-
     if (!aluno) {
       throw new NotFoundException(
         `Nenhum estudante encontrado com o identificador: ${identificador}`,
       );
     }
-
     return {
       id: aluno.id,
-      nome: aluno.nome,
+      nome: aluno.usuario?.nome || 'Estudante sem Nome',
       matricula: aluno.matricula,
     };
   }
