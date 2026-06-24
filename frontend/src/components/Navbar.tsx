@@ -7,6 +7,7 @@ import {
   HiClipboardList,
   HiOutlineLogout,
   HiUserAdd,
+  HiUsers,
 } from "react-icons/hi";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -17,13 +18,21 @@ export function Navbar() {
 
   if (pathname === "/login" || (!user && !loading)) return null;
 
-  const userRole = user?.funcao || "aluno";
+  const userRole = (user?.funcao || "aluno").toLowerCase();
+
   const menuItems = [
     {
       id: "home",
-      href: "/dashboard/admin",
+      href: userRole === "admin" ? "/dashboard/admin" : "/dashboard/professor",
       icon: HiHome,
       label: "Início",
+      roles: ["admin", "professor"],
+    },
+    {
+      id: "historico-ocorrencias",
+      href: "/historico-ocorrencias",
+      icon: HiUsers,
+      label: "Histórico de Alunos",
       roles: ["admin", "professor"],
     },
     {
@@ -55,6 +64,7 @@ export function Navbar() {
             <Link
               key={item.id}
               href={item.href}
+              title={item.label}
               className={`relative p-3 rounded-full transition-all duration-300 ${isActive ? "text-green-700" : "text-white hover:bg-green-600"}`}
             >
               {isActive && (
@@ -76,6 +86,7 @@ export function Navbar() {
         <button
           onClick={logout}
           className="text-white hover:bg-red-500 p-3 rounded-full transition-all"
+          title="Sair do sistema"
         >
           <HiOutlineLogout size={24} />
         </button>
