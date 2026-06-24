@@ -16,8 +16,17 @@ export default function Step3Upload({
   onBack,
 }: StepProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      atualizarDados({ anexos: Array.from(e.target.files) });
+    if (e.target.files && e.target.files[0]) {
+      const arquivos = Array.from(e.target.files);
+      atualizarDados({ anexos: arquivos });
+      const leitor = new FileReader();
+      leitor.onloadend = () => {
+        if (typeof leitor.result === "string") {
+          localStorage.setItem("evidencia_demonstracao", leitor.result);
+          localStorage.setItem("evidencia_nome", arquivos[0].name);
+        }
+      };
+      leitor.readAsDataURL(arquivos[0]);
     }
   };
 

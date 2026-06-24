@@ -76,6 +76,34 @@ export class OcorrenciaController {
     return await this.ocorrenciaService.create(dto, autorId);
   }
 
+  @Get('alunos/validar/:identificador')
+  @ApiBearerAuth('token')
+  @ApiOperation({
+    summary:
+      'Validar se um aluno existe por ID ou Matrícula antes de criar a ocorrência.',
+  })
+  @ApiParam({
+    name: 'identificador',
+    description: 'ID numérico ou string da Matrícula do aluno',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Aluno encontrado e validado com sucesso.',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Não autorizado. Token JWT ausente ou inválido.',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Aluno não encontrado no sistema.',
+  })
+  @Funcoes(Funcao.ADMIN, Funcao.PROFESSOR)
+  async validarAluno(@Param('identificador') identificador: string) {
+    return await this.ocorrenciaService.validarAluno(identificador);
+  }
+
   @Get('dashboard')
   @ApiBearerAuth('token')
   @ApiOperation({

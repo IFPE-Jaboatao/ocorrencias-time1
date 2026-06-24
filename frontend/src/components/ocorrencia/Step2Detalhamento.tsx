@@ -32,6 +32,7 @@ export default function Step2Detalhamento({
           value={formData.detalhamento}
           onChange={(e) => atualizarDados({ detalhamento: e.target.value })}
           placeholder="Digite aqui o relatório descritivo..."
+          maxLength={2000}
           required
         />
       </div>

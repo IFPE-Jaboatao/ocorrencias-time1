@@ -225,14 +225,36 @@ export class OcorrenciaService {
   }
 
   async create(dto: CreateOcorrenciaDto, autorId: number): Promise<any> {
-    const alunoExiste = await this.alunoRepository.findOneBy({
-      id: dto.alunoId,
-    });
+    let idDoAlunoFinal = dto.alunoId;
+    if (dto.matriculaAluno) {
+      const alunoPorMatricula = await this.alunoRepository.findOneBy({
+        matricula: dto.matriculaAluno,
+      });
 
-    if (!alunoExiste) {
-      throw new NotFoundException(
-        `Aluno com ID ${dto.alunoId} não encontrado no sistema`,
-      );
+      if (!alunoPorMatricula) {
+        throw new NotFoundException(
+          `Aluno com matrícula ${dto.matriculaAluno} não encontrado no sistema`,
+        );
+      }
+      idDoAlunoFinal = alunoPorMatricula.id;
+    } else {
+      let alunoExiste = await this.alunoRepository.findOneBy({
+        id: idDoAlunoFinal,
+      });
+
+      if (!alunoExiste && idDoAlunoFinal) {
+        alunoExiste = await this.alunoRepository.findOneBy({
+          matricula: String(idDoAlunoFinal),
+        });
+      }
+
+      if (!alunoExiste) {
+        throw new NotFoundException(
+          `Aluno com identificador/ID ${idDoAlunoFinal} não encontrado no sistema`,
+        );
+      }
+
+      idDoAlunoFinal = alunoExiste.id;
     }
 
     const novaOcorrencia = this.ocorrenciaRepository.create({
@@ -242,7 +264,7 @@ export class OcorrenciaService {
       descricao: dto.descricao,
       dataOcorrencia: dto.dataOcorrencia,
       status: StatusOcorrencia.ABERTA,
-      aluno: { id: dto.alunoId },
+      aluno: { id: idDoAlunoFinal },
       autor: { id: Number(autorId) },
       turma: dto.turmaId ? { id: dto.turmaId } : null, // REGRA DE NEGÓCIO: a ocorrência pode ter envolvimento de uma turma ou não
     });
@@ -293,5 +315,28 @@ export class OcorrenciaService {
     return this.mapearOcorrencia(
       await this.ocorrenciaRepository.save(ocorrencia),
     );
+  }
+  async validarAluno(identificador: string): Promise<any> {
+    let aluno = await this.alunoRepository.findOne({
+      where: { matricula: identificador },
+      relations: ['usuario'],
+    });
+
+    if (!aluno && /^\d+$/.test(identificador)) {
+      aluno = await this.alunoRepository.findOne({
+        where: { id: Number(identificador) },
+        relations: ['usuario'],
+      });
+    }
+    if (!aluno) {
+      throw new NotFoundException(
+        `Nenhum estudante encontrado com o identificador: ${identificador}`,
+      );
+    }
+    return {
+      id: aluno.id,
+      nome: aluno.usuario?.nome || 'Estudante sem Nome',
+      matricula: aluno.matricula,
+    };
   }
 }
