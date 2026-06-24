@@ -46,13 +46,18 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <div className="flex flex-col gap-4 w-full lg:w-72 justify-between">
-          <Button
-            color="light"
-            className="w-full h-full text-left justify-center py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+         <div className="flex flex-col gap-4 w-full lg:w-72 justify-between">
+          <Link
+            href="/ocorrencias"
+            className="w-full h-full block"
           >
-            Cadastrar nova ocorrência
-          </Button>
+            <Button
+              color="light"
+              className="w-full h-full text-left justify-center py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+                Cadastrar nova ocorrência
+            </Button>
+          </Link>
 
           <Link
             href="/dashboard/admin/cadastrar-usuario"
