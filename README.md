@@ -48,8 +48,6 @@ Acesse os READMEs específicos:
 O sistema contempla diferentes tipos de usuários:
 
 * 👨‍🏫 Professor
-* 👩‍💼 Coordenador
-* 🧠 Equipe Pedagógica
 * 🎓 Aluno
 * 👨‍👩‍👧 Responsável
 * ⚙️ Administrador
