@@ -238,15 +238,23 @@ export class OcorrenciaService {
       }
       idDoAlunoFinal = alunoPorMatricula.id;
     } else {
-      const alunoExiste = await this.alunoRepository.findOneBy({
+      let alunoExiste = await this.alunoRepository.findOneBy({
         id: idDoAlunoFinal,
       });
 
+      if (!alunoExiste && idDoAlunoFinal) {
+        alunoExiste = await this.alunoRepository.findOneBy({
+          matricula: String(idDoAlunoFinal),
+        });
+      }
+
       if (!alunoExiste) {
         throw new NotFoundException(
-          `Aluno com ID ${idDoAlunoFinal} não encontrado no sistema`,
+          `Aluno com identificador/ID ${idDoAlunoFinal} não encontrado no sistema`,
         );
       }
+
+      idDoAlunoFinal = alunoExiste.id;
     }
 
     const novaOcorrencia = this.ocorrenciaRepository.create({

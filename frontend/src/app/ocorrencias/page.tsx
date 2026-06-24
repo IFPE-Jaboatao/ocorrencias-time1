@@ -55,22 +55,25 @@ export default function CadastrarOcorrenciaPage() {
     };
 
     try {
-      await api.post("/ocorrencias", payload);
-      alert("Ocorrência registrada com sucesso!");
+      const resposta = await api.post("/ocorrencias", payload);
 
-      setPasso(1);
-      setFormData({
-        alunoId: "",
-        nomeAluno: "",
-        tipoOcorrencia: "",
-        detalhamento: "",
-        titulo: "",
-        severidade: "Média",
-        dataOcorrencia: new Date().toISOString().substring(0, 16),
-        anexos: [],
-      });
+      if (resposta.status === 200 || resposta.status === 201) {
+        alert("Ocorrência registrada com sucesso!");
+
+        setPasso(1);
+        setFormData({
+          alunoId: "",
+          nomeAluno: "",
+          tipoOcorrencia: "",
+          detalhamento: "",
+          titulo: "",
+          severidade: "Média",
+          dataOcorrencia: new Date().toISOString().substring(0, 16),
+          anexos: [],
+        });
+      }
     } catch (error: any) {
-      console.error(error);
+      console.error("Erro capturado no Axios:", error);
       alert(error.response?.data?.message || "Erro ao salvar ocorrência.");
     }
   };
