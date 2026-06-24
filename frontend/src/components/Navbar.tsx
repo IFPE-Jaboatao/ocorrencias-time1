@@ -23,10 +23,17 @@ export function Navbar() {
   const menuItems = [
     {
       id: "home",
-      href: userRole === "admin" ? "/dashboard/admin" : "/dashboard/professor",
+      href: 
+        userRole === "admin" 
+          ? "/dashboard/admin" 
+          : userRole === "professor" 
+          ? "/dashboard/professor" 
+          : userRole === "responsavel"
+          ? "/dashboard/responsavel"
+          : "/dashboard/aluno",
       icon: HiHome,
       label: "Início",
-      roles: ["admin", "professor"],
+      roles: ["admin", "professor", "aluno", "responsavel"],
     },
     {
       id: "historico-ocorrencias",
