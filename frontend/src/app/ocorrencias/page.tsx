@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
-import { Card, Button } from "flowbite-react";
+import { useState, useEffect } from "react";
+import { Card, Button, Alert } from "flowbite-react";
+import { HiCheckCircle, HiXCircle } from "react-icons/hi";
 import Step1Identificacao from "@/components/ocorrencia/Step1Identificacao";
 import Step2Detalhamento from "@/components/ocorrencia/Step2Detalhamento";
 import Step3Upload from "@/components/ocorrencia/Step3Upload";
@@ -21,6 +22,14 @@ export interface OcorrenciaFormData {
 
 export default function CadastrarOcorrenciaPage() {
   const [passo, setPasso] = useState<number>(1);
+  const [statusEnvio, setStatusEnvio] = useState<{
+    tipo: "sucesso" | "erro" | null;
+    mensagem: string;
+  }>({
+    tipo: null,
+    mensagem: "",
+  });
+
   const [formData, setFormData] = useState<OcorrenciaFormData>({
     alunoId: "",
     nomeAluno: "",
@@ -31,6 +40,15 @@ export default function CadastrarOcorrenciaPage() {
     dataOcorrencia: new Date().toISOString().substring(0, 16),
     anexos: [],
   });
+
+  useEffect(() => {
+    if (statusEnvio.tipo) {
+      const timer = setTimeout(() => {
+        setStatusEnvio({ tipo: null, mensagem: "" });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [statusEnvio]);
 
   const atualizarDados = (dados: Partial<OcorrenciaFormData>) => {
     setFormData((prev) => ({ ...prev, ...dados }));
@@ -58,7 +76,11 @@ export default function CadastrarOcorrenciaPage() {
       const resposta = await api.post("/ocorrencias", payload);
 
       if (resposta.status === 200 || resposta.status === 201) {
-        alert("Ocorrência registrada com sucesso!");
+        setStatusEnvio({
+          tipo: "sucesso",
+          mensagem:
+            "Sucesso! A ocorrência foi registrada e integrada ao sistema do IFPE.",
+        });
 
         setPasso(1);
         setFormData({
@@ -73,8 +95,13 @@ export default function CadastrarOcorrenciaPage() {
         });
       }
     } catch (error: any) {
-      console.error("Erro capturado no Axios:", error);
-      alert(error.response?.data?.message || "Erro ao salvar ocorrência.");
+      console.error(error);
+      setStatusEnvio({
+        tipo: "erro",
+        mensagem:
+          error.response?.data?.message ||
+          "Não foi possível salvar o registro. Tente novamente.",
+      });
     }
   };
 
@@ -85,15 +112,36 @@ export default function CadastrarOcorrenciaPage() {
   const passo2Valido = formData.detalhamento.trim().length > 0;
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 transition-colors pt-10">
-      <Card className="w-full max-w-5xl shadow-xl border-none rounded-lg p-0 overflow-hidden bg-white dark:bg-gray-800 dark:border-gray-700 relative">
-        {/* <div className="bg-[#5da16f] h-12 w-full flex items-center justify-center ">
-          <div className="bg-white/20 p-1.5 rounded-md text-white text-xs font-bold pt-10">
-            ✓ Registro de Ocorrência
-          </div>
-        </div> */}
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4 transition-colors pt-10 relative">
+      <div className="fixed top-6 right-6 z-50 max-w-md w-full flex flex-col gap-3 transition-all duration-300">
+        {statusEnvio.tipo === "sucesso" && (
+          <Alert
+            color="success"
+            icon={HiCheckCircle}
+            rounded
+            className="shadow-lg border-l-4 border-green-500 bg-white dark:bg-gray-800"
+          >
+            <span className="font-bold text-green-700 dark:text-green-400">
+              {statusEnvio.mensagem}
+            </span>
+          </Alert>
+        )}
+        {statusEnvio.tipo === "erro" && (
+          <Alert
+            color="failure"
+            icon={HiXCircle}
+            rounded
+            className="shadow-lg border-l-4 border-red-500 bg-white dark:bg-gray-800"
+          >
+            <span className="font-bold text-red-700 dark:text-red-400">
+              🚨 {statusEnvio.mensagem}
+            </span>
+          </Alert>
+        )}
+      </div>
 
-        {/* 🟢 QUADRADINHOS SUPERIORES */}
+      <Card className="w-full max-w-5xl shadow-xl border-none rounded-lg p-0 overflow-hidden bg-white dark:bg-gray-800 dark:border-gray-700 relative">
+        {/* 🟢 QUADRADINHOS DE DESIGN */}
         <div className="absolute top-5 right-0 flex flex-col gap-1 opacity-40 pointer-events-none select-none z-0">
           <div className="flex gap-1 justify-end">
             <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
@@ -106,7 +154,6 @@ export default function CadastrarOcorrenciaPage() {
           </div>
         </div>
 
-        {/* 🟢 QUADRADINHOS INFERIORES  */}
         <div className="absolute bottom-0 left-1 flex gap-1 items-end opacity-40 pointer-events-none select-none z-0">
           <div className="flex flex-col gap-1">
             <div className="w-6 h-6 bg-[#5da16f] rounded-sm" />
