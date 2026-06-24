@@ -24,9 +24,7 @@ export default function AlunoDashboard() {
     const carregarOcorrenciasAluno = async () => {
       try {
         const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-        
-        // 🟢 Consome o endpoint /aluno/ocorrencias que puxa as ocorrências do ID do usuário logado!
-        const resposta = await api.get("/aluno/ocorrencias", {
+                const resposta = await api.get("/aluno/ocorrencias", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -51,9 +49,7 @@ export default function AlunoDashboard() {
 
   return (
     <div className="pt-28 p-6 max-w-7xl mx-auto space-y-6">
-      
-      {/* 👋 BOAS-VINDAS PADRONIZADO */}
-      <Card className="border-none shadow-sm bg-gradient-to-r from-green-50 to-white dark:from-gray-800 dark:to-gray-800">
+            <Card className="border-none shadow-sm bg-gradient-to-r from-green-50 to-white dark:from-gray-800 dark:to-gray-800">
         <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white capitalize">
           Bem-vinda, {user?.name?.toLowerCase()}!
         </h5>
@@ -62,11 +58,8 @@ export default function AlunoDashboard() {
         </p>
       </Card>
 
-      {/* 📊 SEÇÃO SUPERIOR: AÇÕES REQUERIDAS E AVISOS (Figma Topo) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Bloco: Ações Requeridas */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between space-y-4">
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-between space-y-4">
           <div>
             <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-red-500 block"></span> Ações Requeridas:
@@ -80,7 +73,6 @@ export default function AlunoDashboard() {
           </Button>
         </div>
 
-        {/* Bloco: Avisos */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-start space-y-3">
           <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
             <HiBell className="text-yellow-500 text-sm" /> Avisos:
@@ -92,7 +84,6 @@ export default function AlunoDashboard() {
 
       </div>
 
-      {/* ⏳ LINHA DO TEMPO: HISTÓRICO COMPORTAMENTAL (Figma Baixo) */}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
         <h3 className="text-sm font-bold text-gray-800 dark:text-white uppercase tracking-wider border-b border-gray-50 dark:border-gray-700 pb-3">
           Minha linha do tempo
@@ -104,13 +95,10 @@ export default function AlunoDashboard() {
           ) : ocorrencias.length > 0 ? (
             ocorrencias.map((oc) => (
               <div key={oc.id} className="relative">
-                {/* Marcador redondo na linha */}
                 <span className="absolute -left-[31px] top-0.5 bg-green-700 text-white rounded-full p-1 flex items-center justify-center border-4 border-white dark:border-gray-800">
                   <HiCalendar size={10} />
                 </span>
-                
-                {/* Conteúdo do item */}
-                <div className="space-y-0.5 pl-2">
+                                <div className="space-y-0.5 pl-2">
                   <span className="text-[10px] font-bold text-gray-400">
                     {oc.dataOcorrencia ? new Date(oc.dataOcorrencia).toLocaleDateString("pt-BR") : "S/D"}
                   </span>
