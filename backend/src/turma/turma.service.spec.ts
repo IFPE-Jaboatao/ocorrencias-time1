@@ -29,4 +29,26 @@ describe('TurmaService', () => {
     service = module.get<TurmaService>(TurmaService);
     turmaRepo = module.get(getRepositoryToken(Turma));
   });
+  describe('findAll', () => {
+    it('deve retornar todas as turmas quando existirem', async () => {
+      const turmasFake = [
+        { id: 1, serie: 1, turma: 'A', turno: Turno.MANHA },
+        { id: 2, serie: 1, turma: 'B', turno: Turno.TARDE },
+        { id: 3, serie: 2, turma: 'A', turno: Turno.NOITE },
+      ];
+      turmaRepo.find.mockResolvedValue(turmasFake);
+
+      const resultado = await service.findAll();
+
+      expect(resultado).toHaveLength(3);
+      expect(resultado).toEqual(turmasFake);
+    });
+    it('deve retornar um array vazio quando turmas não forem encontradas', async () => {
+      turmaRepo.find.mockResolvedValue([]);
+
+      const resultado = await service.findAll();
+
+      expect(resultado).toEqual([]);
+    });
+  });
 });
