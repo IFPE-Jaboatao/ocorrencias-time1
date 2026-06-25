@@ -79,7 +79,7 @@ describe('OcorrenciaService', () => {
       });
 
       // Act
-      const resultado = await service.atualizarStatus(
+      await service.atualizarStatus(
         1,
         StatusOcorrencia.RESOLVIDA,
       );
