@@ -181,4 +181,27 @@ describe('AlunoService', () => {
       );
     });
   });
+  describe('update', () => {
+    it('deve atualizar os dados de um aluno quando os dados forem válidso', async () => {
+      const alunoAtualizado = {
+        id: 1,
+        matricula: '20261ADS0042',
+        nome: 'João Silva',
+      };
+      alunoRepo.save.mockResolvedValue(alunoAtualizado);
+
+      const resultado = await service.update(alunoAtualizado);
+
+      expect(resultado).toEqual(alunoAtualizado);
+      expect(alunoRepo.save).toHaveBeenCalledWith(alunoAtualizado);
+    });
+    it('deve lançar BadRequestException quando erro ao atualizar', async () => {
+      // Arrange
+      const alunoAtualizado = { id: 1, nome: 'João Silva' };
+      alunoRepo.save.mockRejectedValue(new Error('Erro ao atualizar'));
+
+      // Act + Assert
+      await expect(service.update(alunoAtualizado)).rejects.toThrow();
+    });
+  });
 });
