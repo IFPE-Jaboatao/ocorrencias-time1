@@ -109,4 +109,76 @@ describe('AlunoService', () => {
       expect(resultado).toBeNull();
     });
   });
+  describe('findByUsuarioId', () => {
+    it('deve retornar um aluno quando encontra por usuarioId', async () => {
+      // Arrange
+      const alunoFake = {
+        id: 1,
+        matricula: '20261ADS0042',
+        nome: 'João',
+        usuario: { id: 5 },
+        turma: null,
+        responsaveis: [],
+        ocorrencias: [],
+      };
+      alunoRepo.findOne.mockResolvedValue(alunoFake);
+
+      // Act
+      const resultado = await service.findByUsuarioId(5);
+
+      // Assert
+      expect(resultado).toEqual(alunoFake);
+      expect(alunoRepo.findOne).toHaveBeenCalledWith({
+        where: { usuario: { id: 5 } },
+        relations: expect.any(Array),
+      });
+    });
+    it('deve retornar null quando usuário não tem aluno associado', async () => {
+      // Arrange
+      alunoRepo.findOne.mockResolvedValue(null);
+
+      // Act
+      const resultado = await service.findByUsuarioId(999);
+
+      // Assert
+      expect(resultado).toBeNull();
+    });
+    it('deve criar um aluno quando os dados são válidos', async () => {
+      const alunoFake = {
+        id: 1,
+        matricula: '20261ADS0042',
+        nome: 'João',
+      };
+      alunoRepo.create.mockReturnValue(alunoFake);
+      alunoRepo.save.mockResolvedValue(alunoFake);
+
+      const resultado = await service.create(alunoFake);
+
+      expect(resultado).toEqual(alunoFake);
+      expect(alunoRepo.create).toHaveBeenCalledWith(alunoFake);
+      expect(alunoRepo.save).toHaveBeenCalledWith(alunoFake);
+    });
+    it('deve lançar ConflictException quando matrícula já existe', async () => {
+      // Arrange
+      const alunoFake = { matricula: '20261ADS0042', nome: 'João' };
+      alunoRepo.create.mockReturnValue(alunoFake);
+      alunoRepo.save.mockRejectedValue({ code: 'ER_DUP_ENTRY' });
+
+      // Act + Assert
+      await expect(service.create(alunoFake)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+    it('deve lançar ConflictException quando matrícula já existe', async () => {
+      // Arrange
+      const alunoFake = { matricula: '20261ADS0042', nome: 'João' };
+      alunoRepo.create.mockReturnValue(alunoFake);
+      alunoRepo.save.mockRejectedValue({ code: 'ER_DUP_ENTRY' });
+
+      // Act + Assert
+      await expect(service.create(alunoFake)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+  });
 });
