@@ -79,10 +79,7 @@ describe('OcorrenciaService', () => {
       });
 
       // Act
-      await service.atualizarStatus(
-        1,
-        StatusOcorrencia.RESOLVIDA,
-      );
+      await service.atualizarStatus(1, StatusOcorrencia.RESOLVIDA);
 
       // verifica se o statuso foi atualizado
       expect(ocorrenciaRepo.save).toHaveBeenCalledWith({
@@ -407,7 +404,6 @@ describe('OcorrenciaService', () => {
       jest.spyOn(service, 'findRecentes').mockResolvedValue([]);
 
       const resultado = await service.getDashboardMetrics();
-
       expect(resultado.taxaResolucao).toBe('0.00%');
       expect(resultado.total).toBe(0);
     });
