@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "types":["jest"],
+    "isolatedModules": true,
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
