@@ -56,4 +56,57 @@ describe('AlunoService', () => {
       expect(resultado).toBeNull();
     });
   });
+  describe('findAll', () => {
+    it('deve entregar uma lista de alunos', async () => {
+      // Arrange
+      const alunosFake = [
+        { id: 1, matricula: '20261ADS0001', nome: 'João' },
+        { id: 2, matricula: '20261ADS0002', nome: 'Maria' },
+        { id: 3, matricula: '20261ADS0003', nome: 'Pedro' },
+      ];
+      alunoRepo.find.mockResolvedValue(alunosFake);
+
+      // Act
+      const resultado = await service.findAll();
+
+      // Assert
+      expect(resultado).toHaveLength(3);
+      expect(resultado).toEqual(alunosFake);
+    });
+    it('deve retornar um array vazio quando não há alunos', async () => {
+      // Arrange
+      alunoRepo.find.mockResolvedValue([]);
+
+      // Act
+      const resultado = await service.findAll();
+
+      // Assert
+      expect(resultado).toEqual([]);
+    });
+  });
+  describe('findOneById', () => {
+    it('deve retornar um aluno pelo id', async () => {
+      const alunoFake = {
+        id: 1,
+        matricula: '20261ADS0001',
+        nome: 'Ana',
+        turma: null,
+        usuario: null,
+        responsaveis: [],
+        ocorrencias: [],
+      };
+      alunoRepo.findOne.mockResolvedValue(alunoFake);
+
+      //act
+      const resultado = await service.findOneById(1);
+
+      //assert
+      expect(resultado).toEqual(alunoFake);
+    });
+    it('deve retornar vazio quando aluno não exise', async () => {
+      alunoRepo.findOne.mockResolvedValue(null);
+      const resultado = await service.findOneById(999);
+      expect(resultado).toBeNull();
+    });
+  });
 });
