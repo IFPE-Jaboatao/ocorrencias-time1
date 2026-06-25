@@ -5,7 +5,6 @@ import { OcorrenciaService } from './ocorrencia.service';
 import { Ocorrencia } from './ocorrencia.entity';
 import { Aluno } from 'src/aluno/aluno.entity';
 import { StatusOcorrencia } from './enum/statusOcorrencia.enum';
-import { Severidade } from './enum/severidade.enum';
 
 describe('OcorrenciaService', () => {
   let service: OcorrenciaService;
