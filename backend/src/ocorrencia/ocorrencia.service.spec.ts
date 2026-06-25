@@ -171,4 +171,245 @@ describe('OcorrenciaService', () => {
       );
     });
   });
+  describe('create', () => {
+    const autorIdFixo = 1;
+    const dataAtual = new Date();
+
+    // Arrange base -dtobase só para usar em testes pra não repetir código
+    const dtoBase = {
+      categoria: 'Conduta indisciplinar',
+      severidade: Severidade.MEDIA,
+      titulo: 'Computador com defeito',
+      descricao: 'O aluno disse que o computador não liga.',
+      dataOcorrencia: dataAtual,
+      turmaId: null,
+    };
+
+    it('deve criar uma ocorrência priorizando a matriculaAluno', async () => {
+      // Arrange
+      const dto = { ...dtoBase, alunoId: 99, matriculaAluno: '20261ADS0042' };
+      const alunoMock = { id: 10, matricula: '20261ADS0042' };
+      const ocorrenciaMock = {
+        id: 1,
+        ...dto,
+        aluno: { id: 10 },
+        status: StatusOcorrencia.ABERTA,
+      };
+
+      alunoRepo.findOneBy.mockResolvedValueOnce(alunoMock);
+      ocorrenciaRepo.create.mockReturnValue(ocorrenciaMock);
+      ocorrenciaRepo.save.mockResolvedValue(ocorrenciaMock);
+
+      // Act
+      const resultado = await service.create(dto as any, autorIdFixo);
+
+      // Assert
+      expect(alunoRepo.findOneBy).toHaveBeenCalledWith({
+        matricula: '20261ADS0042',
+      });
+      expect(ocorrenciaRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          aluno: { id: 10 },
+          status: StatusOcorrencia.ABERTA, // Valida a regra de negócio do status
+        }),
+      );
+      expect(ocorrenciaRepo.save).toHaveBeenCalledWith(ocorrenciaMock);
+      expect(resultado).toBeDefined();
+    });
+
+    it('deve lançar NotFoundException se a matriculaAluno for enviada, mas o aluno não existir', async () => {
+      // Arrange
+      const dto = { ...dtoBase, matriculaAluno: 'MATRICULA_INEXISTENTE' };
+      alunoRepo.findOneBy.mockResolvedValueOnce(null);
+
+      // Act & Assert
+      await expect(service.create(dto as any, autorIdFixo)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(ocorrenciaRepo.create).not.toHaveBeenCalled(); // Garante que não tentou salvar
+    });
+
+    it('deve criar uma ocorrência usando alunoId quando matriculaAluno não for enviada', async () => {
+      // Arrange
+      const dto = { ...dtoBase, alunoId: 5 };
+      const alunoMock = { id: 5 };
+
+      alunoRepo.findOneBy.mockResolvedValueOnce(alunoMock);
+      ocorrenciaRepo.create.mockReturnValue({});
+      ocorrenciaRepo.save.mockResolvedValue({});
+
+      // Act
+      await service.create(dto as any, autorIdFixo);
+
+      // Assert
+      expect(alunoRepo.findOneBy).toHaveBeenCalledWith({ id: 5 });
+      expect(ocorrenciaRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          aluno: { id: 5 },
+        }),
+      );
+    });
+
+    it('deve utilizar o fallback de buscar alunoId como string (matrícula) se a busca por ID numérico falhar', async () => {
+      // Arrange
+      const dto = { ...dtoBase, alunoId: 2026 }; // Simulando um ID que na verdade é matrícula
+      const alunoMockFallback = { id: 99, matricula: '2026' };
+
+      alunoRepo.findOneBy
+        .mockResolvedValueOnce(null) // 1ª tentativa falha (ID)
+        .mockResolvedValueOnce(alunoMockFallback); // 2ª tentativa acerta (Fallback matrícula)
+
+      ocorrenciaRepo.create.mockReturnValue({});
+      ocorrenciaRepo.save.mockResolvedValue({});
+
+      // Act
+      await service.create(dto as any, autorIdFixo);
+
+      // Assert
+      expect(alunoRepo.findOneBy).toHaveBeenNthCalledWith(1, { id: 2026 });
+      expect(alunoRepo.findOneBy).toHaveBeenNthCalledWith(2, {
+        matricula: '2026',
+      });
+    });
+
+    it('deve vincular a turma se turmaId for fornecido', async () => {
+      // ffunção do dto
+      const dto = { ...dtoBase, alunoId: 1, turmaId: 3 };
+      alunoRepo.findOneBy.mockResolvedValueOnce({ id: 1 });
+      ocorrenciaRepo.create.mockReturnValue({});
+      ocorrenciaRepo.save.mockResolvedValue({});
+
+      // Act
+      await service.create(dto as any, autorIdFixo);
+
+      //lança o expect
+      expect(ocorrenciaRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          turma: { id: 3 },
+        }),
+      );
+    });
+  });
+  describe('findOne', () => {
+    it('deve retornar uma ocorrência quando existe', async () => {
+      // Arrange
+      const ocorrenciaFake = {
+        id: 1,
+        categoria: 'Indisciplina',
+        severidade: Severidade.MEDIA,
+        status: StatusOcorrencia.ABERTA,
+        titulo: 'Aluno indisciplinado',
+        descricao: 'Aluno faltou 3 vezes',
+        dataCriacao: new Date(),
+        dataOcorrencia: new Date(),
+        ciencia: false,
+        aluno: null, //enviado null apenas para testes
+        autor: null,
+        evidencias: [],
+        turma: null,
+      };
+
+      ocorrenciaRepo.findOne.mockResolvedValue(ocorrenciaFake);
+
+      // Act
+      const resultado = await service.findOne(1);
+
+      // Assert
+      expect(resultado).toEqual(
+        expect.objectContaining({
+          id: 1,
+          categoria: 'Indisciplina',
+        }),
+      );
+    });
+  });
+  describe('findOne', () => {
+    it('deve retornar uma ocorrência quando existe', async () => {
+      const ocorrenciaFake = {
+        id: 1,
+        categoria: 'Indisciplina',
+        status: StatusOcorrencia.ABERTA,
+        aluno: null,
+        autor: null,
+        evidencias: [],
+      };
+      ocorrenciaRepo.findOne.mockResolvedValue(ocorrenciaFake);
+
+      const resultado = await service.findOne(1);
+
+      expect(resultado).toBeDefined();
+      expect(ocorrenciaRepo.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: expect.any(Array),
+      });
+    });
+
+    it('deve retornar null mapeado quando ocorrência não existe', async () => {
+      ocorrenciaRepo.findOne.mockResolvedValue(null);
+
+      const resultado = await service.findOne(999);
+
+      expect(resultado).toBeNull();
+    });
+  });
+  describe('findRecentes', () => {
+    it('deve retornar as 5 ocorrências mais recentes', async () => {
+      // Arrange: simular que o banco retorna 5 ocorrências
+      const ocorrenciasFake = [
+        { id: 1, dataCriacao: new Date('2024-06-05'), titulo: 'Ocorrência 1' },
+        { id: 2, dataCriacao: new Date('2024-06-04'), titulo: 'Ocorrência 2' },
+        { id: 3, dataCriacao: new Date('2024-06-03'), titulo: 'Ocorrência 3' },
+        { id: 4, dataCriacao: new Date('2024-06-02'), titulo: 'Ocorrência 4' },
+        { id: 5, dataCriacao: new Date('2024-06-01'), titulo: 'Ocorrência 5' },
+      ];
+      ocorrenciaRepo.find.mockResolvedValue(ocorrenciasFake);
+
+      // Act: chamar o método
+      const resultado = await service.findRecentes();
+
+      // Assert: verificar que retornou array com 5 elementos
+      expect(resultado).toHaveLength(5);
+      expect(ocorrenciaRepo.find).toHaveBeenCalledWith({
+        order: { dataCriacao: 'DESC' },
+        take: 5,
+        relations: expect.any(Array),
+      });
+    });
+
+    it('deve retornar um array vazio quando não há ocorrências', async () => {
+      // Arrange
+      ocorrenciaRepo.find.mockResolvedValue([]);
+
+      // Act
+      const resultado = await service.findRecentes();
+
+      // Assert
+      expect(resultado).toEqual([]);
+    });
+  });
+  describe('getDashboardMetrics', () => {
+    it('deve retornar as métricas corretamente', async () => {
+      ocorrenciaRepo.count.mockResolvedValueOnce(10);
+      ocorrenciaRepo.count.mockResolvedValueOnce(3);
+      ocorrenciaRepo.count.mockResolvedValueOnce(7);
+      jest.spyOn(service, 'findRecentes').mockResolvedValue([]);
+
+      const resultado = await service.getDashboardMetrics();
+
+      expect(resultado.total).toBe(10);
+      expect(resultado.pendentes).toBe(3);
+      expect(resultado.resolvidas).toBe(7);
+      expect(resultado.taxaResolucao).toBe('70.00%');
+    });
+
+    it('deve retornar taxa de resolução 0.00% quando não há ocorrências', async () => {
+      ocorrenciaRepo.count.mockResolvedValue(0);
+      jest.spyOn(service, 'findRecentes').mockResolvedValue([]);
+
+      const resultado = await service.getDashboardMetrics();
+
+      expect(resultado.taxaResolucao).toBe('0.00%');
+      expect(resultado.total).toBe(0);
+    });
+  });
 });
