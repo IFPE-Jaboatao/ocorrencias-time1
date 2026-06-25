@@ -142,5 +142,17 @@ describe('TurmaService', () => {
       expect(turmaRepo.create).toHaveBeenCalledWith(turmaDto);
       expect(turmaRepo.save).toHaveBeenCalled();
     });
+    it('deve lançar conflito de exceção -ConflictException- quando a turma já existir', async () => {
+      const turmaDto = { serie: 1, turma: 'A', turno: Turno.MANHA };
+      const turmaExistente = {
+        id: 1,
+        serie: 1,
+        turma: 'A',
+        turno: Turno.MANHA,
+      };
+      turmaRepo.findOneBy.mockResolvedValue(turmaExistente);
+
+      await expect(service.create(turmaDto)).rejects.toThrow(ConflictException);
+    });
   });
 });
