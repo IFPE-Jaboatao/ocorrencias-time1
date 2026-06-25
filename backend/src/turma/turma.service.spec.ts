@@ -79,5 +79,12 @@ describe('TurmaService', () => {
       expect(resultado).toEqual(turmaFake);
       expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ serie: 1 });
     });
+    it('deve retornar null quando série não existe', async () => {
+      turmaRepo.findOneBy.mockResolvedValue(null);
+
+      const resultado = await service.findOneBySerie(99);
+
+      expect(resultado).toBeNull();
+    });
   });
 });
