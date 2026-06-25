@@ -51,7 +51,7 @@ describe('OcorrenciaService', () => {
         ciencia: true,
       });
       //chama o metodo
-      const resultado = await service.registrarCiencia(1);
+      await service.registrarCiencia(1);
       // verifica que a ciencia ficou 'true'
       expect(ocorrenciaRepo.save).toHaveBeenCalledWith({
         id: 1,
