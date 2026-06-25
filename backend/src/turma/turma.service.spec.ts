@@ -105,4 +105,22 @@ describe('TurmaService', () => {
       expect(resultado).toBeNull();
     });
   });
+  describe('findOneByTurno', () => {
+    it('deve retornar uma turma quando localizada pelo turno', async () => {
+      const turmaFake = { id: 1, turma: 'A', turno: Turno.MANHA };
+      turmaRepo.findOneBy.mockResolvedValue(turmaFake);
+
+      const resultado = await service.findOneByTurno(Turno.MANHA);
+
+      expect(resultado).toEqual(turmaFake);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ turno: Turno.MANHA });
+    });
+    it('deve retornar vazio quando não encontrar uma turma pelo turno', async () => {
+      turmaRepo.findOneBy.mockResolvedValue(null);
+
+      const resultado = await service.findOneByTurno(Turno.INTEGRAL);
+
+      expect(resultado).toEqual(null);
+    });
+  });
 });
