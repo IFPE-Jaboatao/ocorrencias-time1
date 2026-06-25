@@ -69,4 +69,15 @@ describe('TurmaService', () => {
       expect(resultado).toBeNull();
     });
   });
+  describe('findOneBySerie', () => {
+    it('deve retornar uma turma quando for localizada pela série', async () => {
+      const turmaFake = { id: 1, serie: 1, turma: 'A', turno: Turno.MANHA };
+      turmaRepo.findOneBy.mockResolvedValue(turmaFake);
+
+      const resultado = await service.findOneBySerie(1);
+
+      expect(resultado).toEqual(turmaFake);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ serie: 1 });
+    });
+  });
 });
