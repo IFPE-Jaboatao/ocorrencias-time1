@@ -155,4 +155,36 @@ describe('TurmaService', () => {
       await expect(service.create(turmaDto)).rejects.toThrow(ConflictException);
     });
   });
+  describe('update', () => {
+    it('deve atualizar uma turma quando os dados forem válidos', async () => {
+      const turmaAtualizada = {
+        id: 1,
+        serie: 2,
+        turma: 'B',
+        turno: Turno.TARDE,
+      };
+      turmaRepo.update.mockResolvedValue({ affected: 1 });
+      turmaRepo.findOneBy.mockResolvedValue(turmaAtualizada);
+
+      const resultado = await service.update(turmaAtualizada);
+
+      expect(resultado).toEqual(turmaAtualizada);
+      expect(turmaRepo.update).toHaveBeenCalledWith(1, turmaAtualizada);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ id: 1 });
+    });
+    it('deve retornar null quando turma não existe para atualizar', async () => {
+      const turmaAtualizada = {
+        id: 999,
+        serie: 2,
+        turma: 'B',
+        turno: Turno.TARDE,
+      };
+      turmaRepo.update.mockResolvedValue({ affected: 0 });
+      turmaRepo.findOneBy.mockResolvedValue(null);
+
+      const resultado = await service.update(turmaAtualizada);
+
+      expect(resultado).toBeNull();
+    });
+  });
 });
