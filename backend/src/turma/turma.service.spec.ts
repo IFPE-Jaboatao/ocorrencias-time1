@@ -123,4 +123,24 @@ describe('TurmaService', () => {
       expect(resultado).toEqual(null);
     });
   });
+  describe('create', () => {
+    it('deve retornar uma turma quando os dados forem válidos', async () => {
+      const turmaDto = { serie: 1, turma: 'A', turno: Turno.MANHA };
+      const turmaFake = { id: 1, serie: 1, turma: 'A', turno: Turno.MANHA };
+      turmaRepo.findOneBy.mockResolvedValue(null);
+      turmaRepo.create.mockReturnValue(turmaFake);
+      turmaRepo.save.mockResolvedValue(turmaFake);
+
+      const resultado = await service.create(turmaDto);
+
+      expect(resultado).toEqual(turmaFake);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({
+        serie: 1,
+        turma: 'A',
+        turno: Turno.MANHA,
+      });
+      expect(turmaRepo.create).toHaveBeenCalledWith(turmaDto);
+      expect(turmaRepo.save).toHaveBeenCalled();
+    });
+  });
 });
