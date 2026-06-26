@@ -120,4 +120,81 @@ describe('ResponsavelService', () => {
       );
     });
   });
+  describe('create', () => {
+    it('deve criar um responsável quando dados são válidos', async () => {
+      const responsavelDto = { telefone: '81999999999', usuario: { id: 1 } };
+      const responsavelFake = { id: 1, ...responsavelDto };
+      responsavelRepo.create.mockReturnValue(responsavelFake);
+      responsavelRepo.save.mockResolvedValue(responsavelFake);
+
+      const resultado = await service.create(responsavelDto);
+
+      expect(resultado).toEqual(responsavelFake);
+    });
+
+    it('deve lançar ConflictException quando responsável já existe', async () => {
+      const responsavelDto = { telefone: '81999999999' };
+      responsavelRepo.create.mockReturnValue(responsavelDto);
+      responsavelRepo.save.mockRejectedValue({ code: 'ER_DUP_ENTRY' });
+
+      await expect(service.create(responsavelDto)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+
+    it('deve lançar BadRequestException quando erro genérico', async () => {
+      const responsavelDto = { telefone: '81999999999' };
+      responsavelRepo.create.mockReturnValue(responsavelDto);
+      responsavelRepo.save.mockRejectedValue(new Error('Erro desconhecido'));
+
+      await expect(service.create(responsavelDto)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
+  describe('update', () => {
+    it('deve atualizar um responsável quando encontrado', async () => {
+      const responsavelFake = {
+        id: 1,
+        telefone: '81999999999',
+        usuario: { id: 1, email: 'old@email.com' },
+        alunos: [],
+      };
+      const updateData = { telefone: '81988888888' };
+      responsavelRepo.findOne.mockResolvedValue(responsavelFake);
+      responsavelRepo.save.mockResolvedValue({
+        ...responsavelFake,
+        ...updateData,
+      });
+
+      const resultado = await service.update(1, updateData);
+
+      expect(resultado.telefone).toBe('81988888888');
+    });
+
+    it('deve lançar NotFoundException quando responsável não existe', async () => {
+      responsavelRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.update(999, { telefone: '81999999999' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('deve lançar BadRequestException quando email já existe', async () => {
+      const responsavelFake = {
+        id: 1,
+        telefone: '81999999999',
+        usuario: { id: 1, email: 'old@email.com' },
+        alunos: [],
+      };
+      const emailExisting = { id: 2, usuario: { email: 'new@email.com' } };
+      responsavelRepo.findOne
+        .mockResolvedValueOnce(responsavelFake)
+        .mockResolvedValueOnce(emailExisting);
+
+      await expect(service.update(1, {}, 'new@email.com')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
 });
