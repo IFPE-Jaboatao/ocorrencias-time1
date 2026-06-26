@@ -1,0 +1,190 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { ConflictException } from '@nestjs/common';
+import { TurmaService } from './turma.service';
+import { Turma } from './turma.entity';
+import { Turno } from './enum/turno.enum';
+
+describe('TurmaService', () => {
+  let service: TurmaService;
+  let turmaRepo: any;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        TurmaService,
+        {
+          provide: getRepositoryToken(Turma),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+            findOneBy: jest.fn(),
+            find: jest.fn(),
+            update: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<TurmaService>(TurmaService);
+    turmaRepo = module.get(getRepositoryToken(Turma));
+  });
+  describe('findAll', () => {
+    it('deve retornar todas as turmas quando existirem', async () => {
+      const turmasFake = [
+        { id: 1, serie: 1, turma: 'A', turno: Turno.MANHA },
+        { id: 2, serie: 1, turma: 'B', turno: Turno.TARDE },
+        { id: 3, serie: 2, turma: 'A', turno: Turno.NOITE },
+      ];
+      turmaRepo.find.mockResolvedValue(turmasFake);
+
+      const resultado = await service.findAll();
+
+      expect(resultado).toHaveLength(3);
+      expect(resultado).toEqual(turmasFake);
+    });
+    it('deve retornar um array vazio quando turmas não forem encontradas', async () => {
+      turmaRepo.find.mockResolvedValue([]);
+
+      const resultado = await service.findAll();
+
+      expect(resultado).toEqual([]);
+    });
+  });
+  describe('findOneById', () => {
+    it('deve retornar a turma quando encontrada usando o ID', async () => {
+      const turmaFake = { id: 1, serie: 1, turma: 'A', turno: Turno.MANHA };
+      turmaRepo.findOneBy.mockResolvedValue(turmaFake);
+
+      const resultado = await service.findOneById(1);
+
+      expect(resultado).toEqual(turmaFake);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ id: 1 });
+    });
+    it('deve retornar vazio quando a turma não existir', async () => {
+      turmaRepo.findOneBy.mockResolvedValue(null);
+
+      const resultado = await service.findOneById(999);
+
+      expect(resultado).toBeNull();
+    });
+  });
+  describe('findOneBySerie', () => {
+    it('deve retornar uma turma quando for localizada pela série', async () => {
+      const turmaFake = { id: 1, serie: 1, turma: 'A', turno: Turno.MANHA };
+      turmaRepo.findOneBy.mockResolvedValue(turmaFake);
+
+      const resultado = await service.findOneBySerie(1);
+
+      expect(resultado).toEqual(turmaFake);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ serie: 1 });
+    });
+    it('deve retornar null quando série não existe', async () => {
+      turmaRepo.findOneBy.mockResolvedValue(null);
+
+      const resultado = await service.findOneBySerie(99);
+
+      expect(resultado).toBeNull();
+    });
+  });
+  describe('findOneByTurma', () => {
+    it('deve retornar uma turma quando for econtrada pelo nome', async () => {
+      const turmaFake = { id: 1, serie: 1, turma: 'A', turno: Turno.MANHA };
+      turmaRepo.findOneBy.mockResolvedValue(turmaFake);
+
+      const resultado = await service.findOneByTurma('A');
+
+      expect(resultado).toEqual(turmaFake);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ turma: 'A' });
+    });
+    it('deve retornar null quando nome não existe', async () => {
+      turmaRepo.findOneBy.mockResolvedValue(null);
+
+      const resultado = await service.findOneByTurma('Z');
+
+      expect(resultado).toBeNull();
+    });
+  });
+  describe('findOneByTurno', () => {
+    it('deve retornar uma turma quando localizada pelo turno', async () => {
+      const turmaFake = { id: 1, turma: 'A', turno: Turno.MANHA };
+      turmaRepo.findOneBy.mockResolvedValue(turmaFake);
+
+      const resultado = await service.findOneByTurno(Turno.MANHA);
+
+      expect(resultado).toEqual(turmaFake);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ turno: Turno.MANHA });
+    });
+    it('deve retornar vazio quando não encontrar uma turma pelo turno', async () => {
+      turmaRepo.findOneBy.mockResolvedValue(null);
+
+      const resultado = await service.findOneByTurno(Turno.INTEGRAL);
+
+      expect(resultado).toEqual(null);
+    });
+  });
+  describe('create', () => {
+    it('deve retornar uma turma quando os dados forem válidos', async () => {
+      const turmaDto = { serie: 1, turma: 'A', turno: Turno.MANHA };
+      const turmaFake = { id: 1, serie: 1, turma: 'A', turno: Turno.MANHA };
+      turmaRepo.findOneBy.mockResolvedValue(null);
+      turmaRepo.create.mockReturnValue(turmaFake);
+      turmaRepo.save.mockResolvedValue(turmaFake);
+
+      const resultado = await service.create(turmaDto);
+
+      expect(resultado).toEqual(turmaFake);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({
+        serie: 1,
+        turma: 'A',
+        turno: Turno.MANHA,
+      });
+      expect(turmaRepo.create).toHaveBeenCalledWith(turmaDto);
+      expect(turmaRepo.save).toHaveBeenCalled();
+    });
+    it('deve lançar conflito de exceção -ConflictException- quando a turma já existir', async () => {
+      const turmaDto = { serie: 1, turma: 'A', turno: Turno.MANHA };
+      const turmaExistente = {
+        id: 1,
+        serie: 1,
+        turma: 'A',
+        turno: Turno.MANHA,
+      };
+      turmaRepo.findOneBy.mockResolvedValue(turmaExistente);
+
+      await expect(service.create(turmaDto)).rejects.toThrow(ConflictException);
+    });
+  });
+  describe('update', () => {
+    it('deve atualizar uma turma quando os dados forem válidos', async () => {
+      const turmaAtualizada = {
+        id: 1,
+        serie: 2,
+        turma: 'B',
+        turno: Turno.TARDE,
+      };
+      turmaRepo.update.mockResolvedValue({ affected: 1 });
+      turmaRepo.findOneBy.mockResolvedValue(turmaAtualizada);
+
+      const resultado = await service.update(turmaAtualizada);
+
+      expect(resultado).toEqual(turmaAtualizada);
+      expect(turmaRepo.update).toHaveBeenCalledWith(1, turmaAtualizada);
+      expect(turmaRepo.findOneBy).toHaveBeenCalledWith({ id: 1 });
+    });
+    it('deve retornar null quando turma não existe para atualizar', async () => {
+      const turmaAtualizada = {
+        id: 999,
+        serie: 2,
+        turma: 'B',
+        turno: Turno.TARDE,
+      };
+      turmaRepo.update.mockResolvedValue({ affected: 0 });
+      turmaRepo.findOneBy.mockResolvedValue(null);
+
+      const resultado = await service.update(turmaAtualizada);
+
+      expect(resultado).toBeNull();
+    });
+  });
+});
