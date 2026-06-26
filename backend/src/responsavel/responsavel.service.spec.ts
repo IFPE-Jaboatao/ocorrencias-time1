@@ -53,4 +53,27 @@ describe('ResponsavelService', () => {
       expect(resultado).toEqual([]);
     });
   });
+  describe('findOneById', () => {
+    it('deve retornar um responsável por ID', async () => {
+      const responsavelFake = {
+        id: 1,
+        telefone: '81999999999',
+        usuario: { id: 1 },
+        alunos: [],
+      };
+      responsavelRepo.findOne.mockResolvedValue(responsavelFake);
+
+      const resultado = await service.findOneById(1);
+
+      expect(resultado).toEqual(responsavelFake);
+    });
+
+    it('deve retornar null quando responsável não existe', async () => {
+      responsavelRepo.findOne.mockResolvedValue(null);
+
+      const resultado = await service.findOneById(999);
+
+      expect(resultado).toBeNull();
+    });
+  });
 });
