@@ -26,8 +26,9 @@ describe('ProfessorService', () => {
     service = module.get<ProfessorService>(ProfessorService);
     professorRepo = module.get(getRepositoryToken(Professor));
   });
+
   describe('findByUsuarioId', () => {
-    it('deve retornar um professor quando encontrar ele no sistema', async () => {
+    it('deve retornar um professor quando encontra por usuarioId', async () => {
       const professorFake = {
         id: 1,
         usuario: { id: 5 },
@@ -38,15 +39,44 @@ describe('ProfessorService', () => {
       };
       professorRepo.findOne.mockResolvedValue(professorFake);
 
-      // Act
       const resultado = await service.findByUsuarioId(5);
 
-      // Assert
       expect(resultado).toEqual(professorFake);
       expect(professorRepo.findOne).toHaveBeenCalledWith({
         where: { usuario: { id: 5 } },
         relations: expect.any(Array),
       });
+    });
+
+    it('deve lançar NotFoundException quando professor não existe', async () => {
+      professorRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.findByUsuarioId(999)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('create', () => {
+    it('deve criar um professor quando dados são válidos', async () => {
+      const professorDto = { usuario: { id: 5 }, alunos: [] };
+      const professorFake = { id: 1, usuario: { id: 5 }, alunos: [] };
+      professorRepo.create.mockReturnValue(professorFake);
+      professorRepo.save.mockResolvedValue(professorFake);
+
+      const resultado = await service.create(professorDto);
+
+      expect(resultado).toEqual(professorFake);
+      expect(professorRepo.create).toHaveBeenCalledWith(professorDto);
+      expect(professorRepo.save).toHaveBeenCalled();
+    });
+
+    it('deve lançar erro quando falha ao criar professor', async () => {
+      const professorDto = { usuario: { id: 5 } };
+      professorRepo.create.mockReturnValue(professorDto);
+      professorRepo.save.mockRejectedValue(new Error('Erro ao salvar'));
+
+      await expect(service.create(professorDto)).rejects.toThrow();
     });
   });
 });
