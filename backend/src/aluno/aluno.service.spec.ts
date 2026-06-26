@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ConflictException, BadRequestException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { AlunoService } from './aluno.service';
 import { Aluno } from './aluno.entity';
 
